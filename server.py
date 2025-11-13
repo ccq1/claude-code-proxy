@@ -1334,21 +1334,19 @@ async def create_message(request: MessagesRequest, raw_request: Request):
             logger.info(f"input_tokens: {input_tokens}")
         except Exception:
             input_tokens = 0
-        # save_messagesList_file = 'messagesList.json'
-        if input_tokens >= 115000:
-            # with open(save_messagesList_file, "w") as f:
-            #     json.dump(litellm_request["messages"], f, indent=2, ensure_ascii=False)
-            logger.info(f"开始压缩")
-            while input_tokens >= 80000:
-                logger.info(f"messages index 1: {litellm_request['messages'][1]}")
-                litellm_request["messages"].pop(1)
-                input_tokens = litellm.token_counter(
-                    model=litellm_request["model"],
-                    custom_tokenizer=custom_tokenizer,
-                    messages=litellm_request["messages"]
-                )
-                logger.info(f"input_tokens: {input_tokens}")
-            logger.info(f"压缩完成")
+ 
+        # 压缩消息列表
+        # if input_tokens >= 115000:
+        #     while input_tokens >= 80000:
+        #         logger.info(f"messages index 1: {litellm_request['messages'][1]}")
+        #         litellm_request["messages"].pop(1)
+        #         input_tokens = litellm.token_counter(
+        #             model=litellm_request["model"],
+        #             custom_tokenizer=custom_tokenizer,
+        #             messages=litellm_request["messages"]
+        #         )
+        #         logger.info(f"input_tokens: {input_tokens}")
+        #     logger.info(f"压缩完成")
             
         
         #logger.info(f"input_tokens: {input_tokens}")s
