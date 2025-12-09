@@ -69,7 +69,7 @@ class Config:
         self.host = os.environ.get("HOST", "0.0.0.0")
         self.port = int(os.environ.get("PORT", "4000"))
         self.log_level = os.environ.get("LOG_LEVEL", "INFO")
-        self.max_tokens_limit = int(os.environ.get("MAX_TOKENS_LIMIT", "16384"))
+        self.max_tokens_limit = int(os.environ.get("MAX_TOKENS_LIMIT", "8000"))
         
         # Connection settings - conservative defaults
         self.request_timeout = int(os.environ.get("REQUEST_TIMEOUT", "90"))
@@ -358,27 +358,6 @@ class TokenCountRequest(BaseModel):
 
 class TokenCountResponse(BaseModel):
     input_tokens: int
-
-# Event Logging Models
-class EventLogItem(BaseModel):
-    event_type: Optional[str] = None
-    timestamp: Optional[str] = None
-    data: Optional[Dict[str, Any]] = None
-    metadata: Optional[Dict[str, Any]] = None
-    
-class EventLoggingBatchRequest(BaseModel):
-    events: Optional[List[EventLogItem]] = None
-    batch_id: Optional[str] = None
-    source: Optional[str] = None
-    # 兼容其他可能的字段格式
-    class Config:
-        extra = "allow"  # 允许额外字段
-
-class EventLoggingBatchResponse(BaseModel):
-    success: bool = True
-    batch_id: Optional[str] = None
-    processed_count: int = 0
-    message: Optional[str] = None
 
 class Usage(BaseModel):
     input_tokens: int
@@ -1356,7 +1335,18 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         except Exception:
             input_tokens = 0
  
-       
+        # 压缩消息列表，暂时不使用
+        # if input_tokens >= 115000:
+        #     while input_tokens >= 80000:
+        #         logger.info(f"messages index 1: {litellm_request['messages'][1]}")
+        #         litellm_request["messages"].pop(1)
+        #         input_tokens = litellm.token_counter(
+        #             model=litellm_request["model"],
+        #             custom_tokenizer=custom_tokenizer,
+        #             messages=litellm_request["messages"]
+        #         )
+        #         logger.info(f"input_tokens: {input_tokens}")
+        #     logger.info(f"压缩完成")
             
         
         #logger.info(f"input_tokens: {input_tokens}")s
@@ -1649,55 +1639,6 @@ async def test_connection():
             }
         )
 
-@app.post("/api/event_logging/batch")
-async def event_logging_batch(request: Request):
-    """
-    批量事件日志记录接口
-    用于接收和处理客户端发送的事件日志数据
-    """
-    try:
-        # 尝试解析请求体
-        try:
-            body = await request.json()
-        except:
-            body = {}
-        
-        # 生成 batch_id（如果未提供）
-        batch_id = body.get("batch_id") or f"batch_{uuid.uuid4().hex[:16]}"
-        
-        # 提取事件列表
-        events = body.get("events", [])
-        if not isinstance(events, list):
-            events = [events] if events else []
-        
-        processed_count = len(events)
-        
-        # 记录事件日志（可选：详细记录）
-        if events:
-            logger.debug(f"📝 Event Logging Batch: batch_id={batch_id}, events_count={processed_count}")
-            for i, event in enumerate(events[:5]):  # 只记录前5个事件避免日志过多
-                event_type = event.get("event_type", "unknown") if isinstance(event, dict) else "unknown"
-                logger.debug(f"   Event {i+1}: type={event_type}")
-            if processed_count > 5:
-                logger.debug(f"   ... and {processed_count - 5} more events")
-        
-        return EventLoggingBatchResponse(
-            success=True,
-            batch_id=batch_id,
-            processed_count=processed_count,
-            message="Events logged successfully"
-        )
-        
-    except Exception as e:
-        logger.warning(f"Event logging batch error: {e}")
-        return EventLoggingBatchResponse(
-            success=True,  # 返回成功避免客户端重试
-            batch_id=f"batch_{uuid.uuid4().hex[:16]}",
-            processed_count=0,
-            message="Events received"
-        )
-
-
 @app.get("/")
 async def root():
     return {
@@ -1719,7 +1660,6 @@ async def root():
         "endpoints": {
             "messages": "/v1/messages",
             "count_tokens": "/v1/messages/count_tokens", 
-            "event_logging_batch": "/api/event_logging/batch",
             "health": "/health",
             "test_connection": "/test-connection"
         }
