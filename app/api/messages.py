@@ -172,27 +172,27 @@ async def create_message(request: MessagesRequest, raw_request: Request):
             litellm_response = await litellm.acompletion(**litellm_request)
             logger.info(f"✅ Response received: Model={litellm_request.get('model')}, Time={time.time() - start_time:.2f}s")
 
-            # 如果有工具，保存 litellm_request 到 JSON 文件
-            if num_tools > 0:
-                try:
-                    import os
-                    import json
-                    # 创建 logs 目录（如果不存在）
-                    logs_dir = "logs"
-                    if not os.path.exists(logs_dir):
-                        os.makedirs(logs_dir)
+            # # 如果有工具，保存 litellm_request 到 JSON 文件
+            # if num_tools > 0:
+            #     try:
+            #         import os
+            #         import json
+            #         # 创建 logs 目录（如果不存在）
+            #         logs_dir = "logs"
+            #         if not os.path.exists(logs_dir):
+            #             os.makedirs(logs_dir)
 
-                    # 生成带时间戳的文件名
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"{logs_dir}/litellm_request_{timestamp}.json"
+            #         # 生成带时间戳的文件名
+            #         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            #         filename = f"{logs_dir}/litellm_request_{timestamp}.json"
 
         
-                    with open(filename, 'w', encoding='utf-8') as f:
-                        json.dump(litellm_request, f, ensure_ascii=False, indent=2)
+            #         with open(filename, 'w', encoding='utf-8') as f:
+            #             json.dump(litellm_request, f, ensure_ascii=False, indent=2)
 
-                    logger.info(f"📁 litellm_request 已保存到: {filename}")
-                except Exception as e:
-                    logger.error(f"保存 litellm_request 到 JSON 文件失败: {e}")
+            #         logger.info(f"📁 litellm_request 已保存到: {filename}")
+            #     except Exception as e:
+            #         logger.error(f"保存 litellm_request 到 JSON 文件失败: {e}")
 
             anthropic_response = convert_litellm_to_anthropic(litellm_response, request)
             

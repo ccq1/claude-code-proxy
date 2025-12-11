@@ -340,8 +340,8 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
     # 添加是否思考 - 如果有工具就开启思考，否则关闭思考
     litellm_request['extra_body'] = {
             "chat_template_kwargs": {
-                # "enable_thinking": num_tools > 0
-                "enable_thinking": False
+                "enable_thinking": num_tools > 0
+                # "enable_thinking": True
             }
         }
     logger.info(f"💡 思考配置: {'启用' if num_tools > 0 else '禁用'} (工具数量: {num_tools})")
