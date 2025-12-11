@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  llm-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm-proxy
+    restart: unless-stopped
+    ports:
+      - "${PORT:-4000}:4000"
+    environment:
+      # 必需的环境变量
+      - API_KEY=${API_KEY:-sk-faker}
+      - BASE_URL=${BASE_URL:-http://host.docker.internal:29000/v1}
+      
+      # 模型配置
+      - BIG_MODEL=${BIG_MODEL:-qwen3-coder}
+      - SMALL_MODEL=${SMALL_MODEL:-qwen3-coder}
+      
+      # 服务器配置
+      - HOST=0.0.0.0
+      - PORT=4000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - MAX_TOKENS_LIMIT=${MAX_TOKENS_LIMIT:-16384}
+      
+      # 连接配置
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-90}
+      - MAX_RETRIES=${MAX_RETRIES:-1}
+      
+      # 流式配置
+      - MAX_STREAMING_RETRIES=${MAX_STREAMING_RETRIES:-12}
+      - FORCE_DISABLE_STREAMING=${FORCE_DISABLE_STREAMING:-true}
+      - EMERGENCY_DISABLE_STREAMING=${EMERGENCY_DISABLE_STREAMING:-false}
+      
+      # Tokenizer 配置
+      - TOKENIZER_FILE=${TOKENIZER_FILE:-tokenizers/qwen3coder30b_tokenizer.json}
+      
+      # Worker 配置
+      - WORKERS=${WORKERS:-1}
+    
+    volumes:
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 可选：挂载自定义 tokenizer
+      - ./tokenizers:/app/tokenizers:ro
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    networks:
+      - llm-network
+    
+    # 如果需要访问宿主机上的服务
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  llm-network:
+    driver: bridge
+
