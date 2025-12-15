@@ -1,6 +1,8 @@
 # LLM Proxy
 
 将本地 LLM 模型适配为 Claude API 格式的代理服务, 你只需要将您的claude code baseurl 设置为本服务的ip:port即可。
+尤其适用于私有化环境下的部署。
+tips： 无网络环境下请一定记得给 claudecode 添加几条dns映射，可以显著加速claude code 交互速度。 具体的dns映射可通过tcpdump 抓包获取
 
 ## 功能特性
 
