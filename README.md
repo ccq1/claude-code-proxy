@@ -1,6 +1,6 @@
 # LLM Proxy
 
-将本地 LLM 模型适配为 Claude API 格式的代理服务。
+将本地 LLM 模型适配为 Claude API 格式的代理服务, 你只需要将您的claude code baseurl 设置为本服务的ip:port即可。
 
 ## 功能特性
 
