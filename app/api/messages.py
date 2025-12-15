@@ -58,17 +58,7 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                         }
                     }
                 )
-        
-        
-        # 检查流式配置
-        if request.stream and config.emergency_disable_streaming:
-            logger.warning("Streaming disabled via EMERGENCY_DISABLE_STREAMING")
-            request.stream = False
-
-        if request.stream and config.force_disable_streaming:
-            logger.info("Streaming disabled via FORCE_DISABLE_STREAMING")
-            request.stream = False
-        
+            
 
         # 转换请求
         num_tools = len(request.tools) if request.tools else 0
@@ -102,68 +92,7 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         except Exception:
             input_tokens = 0
 
-        # 流式处理
-        if request.stream:
-            streaming_retry_count = 0
-            max_retries = config.max_streaming_retries
-            
-            while streaming_retry_count <= max_retries:
-                try:
-                    logger.debug(f"Attempting streaming (attempt {streaming_retry_count + 1}/{max_retries + 1})")
-                    
-                    if streaming_retry_count > 0:
-                        delay = min(0.5 * (2 ** streaming_retry_count), 2.0)
-                        logger.debug(f"Waiting {delay}s before retry...")
-                        await asyncio.sleep(delay)
-                    
-                    response_generator = await litellm.acompletion(**litellm_request)
-                    
-                    return StreamingResponse(
-                        handle_streaming_with_recovery(response_generator, request, input_tokens),
-                        media_type="text/event-stream",
-                        headers={
-                            "Cache-Control": "no-cache",
-                            "Connection": "keep-alive",
-                            "X-Accel-Buffering": "no",
-                            "Access-Control-Allow-Origin": "*",
-                            "Access-Control-Allow-Headers": "*"
-                        }
-                    )
-                    
-                except (litellm.exceptions.APIConnectionError, RuntimeError) as streaming_error:
-                    streaming_retry_count += 1
-                    error_msg = str(streaming_error)
-                    
-                    if ("Error parsing chunk" in error_msg and 
-                        "Expecting property name enclosed in double quotes" in error_msg):
-                        
-                        if streaming_retry_count <= max_retries:
-                            logger.warning(f"Streaming chunk parsing error (attempt {streaming_retry_count}/{max_retries + 1}), retrying...")
-                            continue
-                        else:
-                            logger.error(f"Streaming failed after {max_retries + 1} attempts due to malformed chunks, falling back to non-streaming")
-                            break
-                    else:
-                        if streaming_retry_count <= max_retries:
-                            logger.warning(f"Streaming error (attempt {streaming_retry_count}/{max_retries + 1}): {error_msg}")
-                            continue
-                        else:
-                            logger.error(f"Streaming failed after {max_retries + 1} attempts, falling back to non-streaming")
-                            break
-                            
-                except Exception as unexpected_error:
-                    streaming_retry_count += 1
-                    logger.error(f"Unexpected streaming error (attempt {streaming_retry_count}/{max_retries + 1}): {unexpected_error}")
-                    
-                    if streaming_retry_count <= max_retries:
-                        continue
-                    else:
-                        logger.error(f"Streaming failed after {max_retries + 1} attempts due to unexpected errors, falling back to non-streaming")
-                        break
-            
-            logger.info("Falling back to non-streaming mode")
-            litellm_request["stream"] = False
-        
+
         # 非流式处理
         if not request.stream or litellm_request.get("stream") == False:
             start_time = time.time()

@@ -14,7 +14,7 @@ class Config:
     
     def __init__(self):
         # 本地模型配置
-        self.base_url = os.environ.get("BASE_URL", "http://10.1.1.125:29000/v1")
+        self.base_url = os.environ.get("BASE_URL", "http://127.0.0.1:8000/v1")
         self.api_key = os.environ.get("API_KEY", "sk-faker")
         
         # 模型配置

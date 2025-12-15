@@ -7,7 +7,7 @@
 - 🔄 **API 转换**: 将 Claude API 格式转换为本地模型兼容格式
 - 🔀 **模型映射**: 自动将 Claude 模型名映射到本地模型
 - 🛠️ **工具调用**: 完整支持工具/函数调用
-- 📊 **流式响应**: 支持 SSE 流式响应（可配置）
+- 📊 **流式响应**: 支持 SSE 流式响应（如需支持流式请修改代码）
 - 🔢 **Token 计数**: 支持自定义 tokenizer 进行准确的 token 计数
 - 📝 **事件日志**: 支持批量事件日志记录
 - 🐳 **Docker 优化**: 使用国内镜像源加速构建，支持宿主机网络模式
@@ -85,7 +85,7 @@ docker run -d \
   --name llm-proxy \
   --network host \
   -e API_KEY=sk-faker \
-  -e BASE_URL=http://10.1.1.125:29000/v1 \
+  -e BASE_URL=http://ip:port/v1 \
   -e BIG_MODEL=qwen3-coder \
   -e SMALL_MODEL=qwen3-coder \
   -e HOST=0.0.0.0 \
@@ -135,7 +135,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 4000
 | 环境变量 | 默认值 | 说明 |
 |---------|--------|------|
 | `API_KEY` | `sk-faker` | 本地模型服务的 API Key |
-| `BASE_URL` | `http://10.1.1.125:29000/v1` | 本地模型服务 URL |
+| `BASE_URL` | `http://ip:port/v1` | 本地模型服务 URL |
 | `BIG_MODEL` | `qwen3-coder` | 大模型名称 |
 | `SMALL_MODEL` | `qwen3-coder` | 小模型名称 |
 | `HOST` | `0.0.0.0` | 服务监听地址 |
