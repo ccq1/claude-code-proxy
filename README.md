@@ -194,9 +194,9 @@ GET /test-connection
 
 | Claude 模型 | 映射到 |
 |------------|--------|
-| `claude-3-opus-*` | `BIG_MODEL` |
-| `claude-3-sonnet-*` | `BIG_MODEL` |
-| `claude-3-haiku-*` | `SMALL_MODEL` |
+| `claude-4.5-opus-*` | `BIG_MODEL` |
+| `claude-4.5-sonnet-*` | `BIG_MODEL` |
+| `claude-4.5-haiku-*` | `SMALL_MODEL` |
 
 ## 性能优化
 
