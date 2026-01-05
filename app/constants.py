@@ -14,6 +14,7 @@ class Constants:
     
     # 内容类型常量
     CONTENT_TEXT = "text"
+    CONTENT_THINKING = "thinking"
     CONTENT_IMAGE = "image"
     CONTENT_TOOL_USE = "tool_use"
     CONTENT_TOOL_RESULT = "tool_result"

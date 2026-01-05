@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional, Union, Literal
 
 from app.constants import Constants
-from .request import ContentBlockText, ContentBlockToolUse
+from .request import ContentBlockText, ContentBlockThinking, ContentBlockToolUse
 
 
 class Usage(BaseModel):
@@ -19,7 +19,7 @@ class MessagesResponse(BaseModel):
     id: str
     model: str
     role: Literal["assistant"] = Constants.ROLE_ASSISTANT
-    content: List[Union[ContentBlockText, ContentBlockToolUse]]
+    content: List[Union[ContentBlockThinking, ContentBlockText, ContentBlockToolUse]]
     type: Literal["message"] = "message"
     stop_reason: Optional[Literal["end_turn", "max_tokens", "stop_sequence", "tool_use", "error"]] = None
     stop_sequence: Optional[str] = None

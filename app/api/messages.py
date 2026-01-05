@@ -5,6 +5,7 @@ import time
 import json
 import asyncio
 import logging
+import os
 from datetime import datetime
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -24,11 +25,12 @@ from app.utils import classify_local_model_error, log_request_beautifully
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
+count = 0
 @router.post("/v1/messages")
 async def create_message(request: MessagesRequest, raw_request: Request):
     """创建消息接口"""
     try:
+        
         request_start_time = time.time()
         raw_request.state.start_time = request_start_time
         logger.info(f"🕒 请求接收时间: {datetime.now().isoformat()} (timestamp={request_start_time})")
@@ -58,8 +60,17 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                         }
                     }
                 )
-        
-        
+        ##### 打印请求内容 START #####
+        # global count
+        # count += 1
+
+        # save_log = f'logs/request_{count}.json'
+
+        # # save_log = 'raw_request.json'
+        # with open(save_log, "w") as f:
+        #     json.dump(request.model_dump(), f, indent=2, ensure_ascii=False)
+        ##### 打印请求内容 END  #####
+
         # 检查流式配置
         if request.stream and config.emergency_disable_streaming:
             logger.warning("Streaming disabled via EMERGENCY_DISABLE_STREAMING")
