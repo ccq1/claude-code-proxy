@@ -13,6 +13,11 @@ class ContentBlockText(BaseModel):
     text: str
 
 
+class ContentBlockThinking(BaseModel):
+    type: Literal["thinking"]
+    thinking: str
+
+
 class ContentBlockImage(BaseModel):
     type: Literal["image"]
     source: Dict[str, Any]
@@ -38,7 +43,7 @@ class SystemContent(BaseModel):
 
 class Message(BaseModel):
     role: Literal["user", "assistant"]
-    content: Union[str, List[Union[ContentBlockText, ContentBlockImage, ContentBlockToolUse, ContentBlockToolResult]]]
+    content: Union[str, List[Union[ContentBlockThinking, ContentBlockText, ContentBlockImage, ContentBlockToolUse, ContentBlockToolResult]]]
 
 
 class Tool(BaseModel):

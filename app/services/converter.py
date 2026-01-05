@@ -415,6 +415,11 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
         # 构建内容块
         content_blocks = []
         
+        # 【新增】如果有 reasoning_content，先添加 thinking 内容块
+        if reasoning_content:
+            from app.models.request import ContentBlockThinking
+            content_blocks.append(ContentBlockThinking(type=Constants.CONTENT_THINKING, thinking=reasoning_content))
+        
         if content_text:
             content_blocks.append(ContentBlockText(type=Constants.CONTENT_TEXT, text=content_text))
 
