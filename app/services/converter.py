@@ -251,6 +251,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
                     "content": content_parts[0]["text"] if len(content_parts) == 1 and content_parts[0]["type"] == Constants.CONTENT_TEXT else content_parts
                 })
             litellm_messages.extend(pending_tool_messages)
+            pending_tool_messages.clear()
             
         elif msg.role == Constants.ROLE_ASSISTANT:
             assistant_msg = {"role": Constants.ROLE_ASSISTANT}
