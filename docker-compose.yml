@@ -34,7 +34,7 @@ services:
       - TOKENIZER_FILE=tokenizers/qwen3coder30b_tokenizer.json
       
       # Worker 配置
-      - WORKERS=4
+      - WORKERS=1
     
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]

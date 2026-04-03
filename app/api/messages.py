@@ -5,7 +5,6 @@ import time
 import json
 import asyncio
 import logging
-import os
 from datetime import datetime
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -25,7 +24,7 @@ from app.utils import classify_local_model_error, log_request_beautifully
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-count = 0
+
 @router.post("/v1/messages")
 async def create_message(request: MessagesRequest, raw_request: Request):
     """创建消息接口"""
@@ -49,7 +48,7 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                             "index": 0,
                             "message": {
                                 "role": "assistant",
-                                "content": ""  # 内容留空，因为这个响应会被客户端丢弃
+                                "content": ""
                             },
                             "finish_reason": "stop"
                         }],
@@ -60,16 +59,6 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                         }
                     }
                 )
-        ##### 打印请求内容 START #####
-        # global count
-        # count += 1
-
-        # save_log = f'logs/request_{count}.json'
-
-        # # save_log = 'raw_request.json'
-        # with open(save_log, "w") as f:
-        #     json.dump(request.model_dump(), f, indent=2, ensure_ascii=False)
-        ##### 打印请求内容 END  #####
 
         # 检查流式配置
         if request.stream and config.emergency_disable_streaming:
@@ -182,28 +171,6 @@ async def create_message(request: MessagesRequest, raw_request: Request):
 
             litellm_response = await litellm.acompletion(**litellm_request)
             logger.info(f"✅ Response received: Model={litellm_request.get('model')}, Time={time.time() - start_time:.2f}s")
-
-            # # 如果有工具，保存 litellm_request 到 JSON 文件
-            # if num_tools > 0:
-            #     try:
-            #         import os
-            #         import json
-            #         # 创建 logs 目录（如果不存在）
-            #         logs_dir = "logs"
-            #         if not os.path.exists(logs_dir):
-            #             os.makedirs(logs_dir)
-
-            #         # 生成带时间戳的文件名
-            #         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            #         filename = f"{logs_dir}/litellm_request_{timestamp}.json"
-
-        
-            #         with open(filename, 'w', encoding='utf-8') as f:
-            #             json.dump(litellm_request, f, ensure_ascii=False, indent=2)
-
-            #         logger.info(f"📁 litellm_request 已保存到: {filename}")
-            #     except Exception as e:
-            #         logger.error(f"保存 litellm_request 到 JSON 文件失败: {e}")
 
             anthropic_response = convert_litellm_to_anthropic(litellm_response, request)
             

@@ -53,3 +53,10 @@ Thumbs.db
 # server.py
 # llm_proxy.py
 
+
+
+.claude
+
+logs
+tests
+
