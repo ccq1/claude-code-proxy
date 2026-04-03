@@ -35,31 +35,6 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         logger.info(f"🕒 请求接收时间: {datetime.now().isoformat()} (timestamp={request_start_time})")
         logger.info(f"📊 Processing request: Original={request.original_model}, Effective={request.model}, Stream={request.stream}")
         
-        if request.stream:
-            logger.warning("⚡️ [拦截策略] 收到流式请求，服务端未适配。立即返回 Dummy JSON 触发客户端降级重试。")
-            return JSONResponse(
-                    status_code=200,
-                    content={
-                        "id": "chatcmpl-force-fallback",
-                        "object": "chat.completion",
-                        "created": int(time.time()),
-                        "model": request.model,
-                        "choices": [{
-                            "index": 0,
-                            "message": {
-                                "role": "assistant",
-                                "content": ""
-                            },
-                            "finish_reason": "stop"
-                        }],
-                        "usage": {
-                            "prompt_tokens": 0,
-                            "completion_tokens": 0,
-                            "total_tokens": 0
-                        }
-                    }
-                )
-
         # 检查流式配置
         if request.stream and config.emergency_disable_streaming:
             logger.warning("Streaming disabled via EMERGENCY_DISABLE_STREAMING")

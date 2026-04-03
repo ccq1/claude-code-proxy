@@ -20,14 +20,18 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     # 发送初始 SSE 事件
     yield f"event: {Constants.EVENT_MESSAGE_START}\ndata: {json.dumps({'type': Constants.EVENT_MESSAGE_START, 'message': {'id': message_id, 'type': 'message', 'role': Constants.ROLE_ASSISTANT, 'model': original_request.original_model or original_request.model, 'content': [], 'stop_reason': None, 'stop_sequence': None, 'usage': {'input_tokens': input_tokens, 'output_tokens': 0}}})}\n\n"
     
-    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': 0, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
-    
     yield f"event: {Constants.EVENT_PING}\ndata: {json.dumps({'type': Constants.EVENT_PING})}\n\n"
 
     # 流式状态管理
     all_chunks = []
     accumulated_text = ""
-    text_block_index = 0
+    accumulated_thinking = ""
+    thinking_block_started = False
+    thinking_block_ended = False
+    text_block_started = False
+    next_block_index = 0
+    text_block_index = -1
+    thinking_block_index = -1
     tool_block_counter = 0
     current_tool_calls = {}
     output_tokens = 0
@@ -166,6 +170,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                         continue
 
                 delta_content_text = None
+                delta_reasoning_text = None
                 delta_tool_calls = None
                 chunk_finish_reason = None
 
@@ -174,6 +179,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     if hasattr(choice, 'delta') and choice.delta:
                         delta = choice.delta
                         delta_content_text = getattr(delta, 'content', None)
+                        delta_reasoning_text = getattr(delta, 'reasoning_content', None)
                         if hasattr(delta, 'tool_calls'):
                             delta_tool_calls = delta.tool_calls
                     chunk_finish_reason = getattr(choice, 'finish_reason', None)
@@ -183,6 +189,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                         choice = choices[0]
                         delta = choice.get("delta", {})
                         delta_content_text = delta.get("content")
+                        delta_reasoning_text = delta.get("reasoning_content")
                         delta_tool_calls = delta.get("tool_calls")
                         chunk_finish_reason = choice.get("finish_reason")
 
@@ -194,7 +201,29 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     input_tokens = usage.get("prompt_tokens", 0)
                     output_tokens = usage.get("completion_tokens", 0)
 
+                if delta_reasoning_text:
+                    if not thinking_block_started:
+                        thinking_block_index = next_block_index
+                        next_block_index += 1
+                        thinking_block_started = True
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': thinking_block_index, 'content_block': {'type': Constants.CONTENT_THINKING, 'thinking': ''}})}\n\n"
+                    
+                    accumulated_thinking += delta_reasoning_text
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': thinking_block_index, 'delta': {'type': Constants.DELTA_THINKING, 'thinking': delta_reasoning_text}})}\n\n"
+
+                if delta_content_text or delta_tool_calls:
+                    if thinking_block_started and not thinking_block_ended:
+                        thinking_block_ended = True
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': thinking_block_index})}\n\n"
+                        logger.info(f"💭 思考完成，共 {len(accumulated_thinking)} 字符")
+
                 if delta_content_text:
+                    if not text_block_started:
+                        text_block_index = next_block_index
+                        next_block_index += 1
+                        text_block_started = True
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                    
                     accumulated_text += delta_content_text
                     yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': delta_content_text}})}\n\n"
 
@@ -210,6 +239,12 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                             tool_call_id = tc_chunk.id
                             
                             if tool_call_id not in current_tool_calls:
+                                if not text_block_started:
+                                    text_block_index = next_block_index
+                                    next_block_index += 1
+                                    text_block_started = True
+                                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                                
                                 tool_block_counter += 1
                                 tool_index = text_block_index + tool_block_counter
                                 
@@ -323,7 +358,11 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     except Exception as validation_error:
                         logger.warning(f"⚠️ 工具 {tool_name} 校验失败: {validation_error}")
         
-        yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': text_block_index})}\n\n"
+        if thinking_block_started and not thinking_block_ended:
+            yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': thinking_block_index})}\n\n"
+        
+        if text_block_started:
+            yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': text_block_index})}\n\n"
         
         for tool_data in current_tool_calls.values():
             yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': tool_data['index']})}\n\n"
@@ -347,6 +386,9 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
             logger.info(f"   输入令牌: {input_tokens}")
             logger.info(f"   输出令牌: {output_tokens}")
             logger.info(f"   流式块数量: {len(all_chunks)}")
+            
+            if accumulated_thinking:
+                logger.info(f"   思考内容: {len(accumulated_thinking)} 字符")
             
             if accumulated_text:
                 display_text = accumulated_text[:500] + "..." if len(accumulated_text) > 500 else accumulated_text

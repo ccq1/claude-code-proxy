@@ -39,6 +39,7 @@ class Constants:
     
     # Delta 类型常量
     DELTA_TEXT = "text_delta"
+    DELTA_THINKING = "thinking_delta"
     DELTA_INPUT_JSON = "input_json_delta"
     
     # TodoWrite 工具相关的常量
