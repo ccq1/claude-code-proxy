@@ -7,6 +7,7 @@ import logging
 import litellm
 
 from app.constants import Constants
+from app.config import config
 from .converter import validate_todowrite_tool_call
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     """增强的流式处理器，带有错误恢复机制"""
     logger.info(f"stream解析开始")
     message_id = f"msg_{__import__('uuid').uuid4().hex[:24]}"
+    initial_input_tokens = input_tokens
     
     # 发送初始 SSE 事件
     yield f"event: {Constants.EVENT_MESSAGE_START}\ndata: {json.dumps({'type': Constants.EVENT_MESSAGE_START, 'message': {'id': message_id, 'type': 'message', 'role': Constants.ROLE_ASSISTANT, 'model': original_request.original_model or original_request.model, 'content': [], 'stop_reason': None, 'stop_sequence': None, 'usage': {'input_tokens': input_tokens, 'output_tokens': 0}}})}\n\n"
@@ -23,7 +25,6 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     yield f"event: {Constants.EVENT_PING}\ndata: {json.dumps({'type': Constants.EVENT_PING})}\n\n"
 
     # 流式状态管理
-    all_chunks = []
     accumulated_text = ""
     accumulated_thinking = ""
     thinking_block_started = False
@@ -35,6 +36,9 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     tool_block_counter = 0
     current_tool_calls = {}
     output_tokens = 0
+    total_tokens = None
+    provider_prompt_tokens = None
+    provider_reported_zero_prompt_tokens = False
     final_stop_reason = Constants.STOP_END_TURN
     
     # 错误恢复追踪
@@ -43,6 +47,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     stream_terminated_early = False
     malformed_chunks_count = 0
     max_malformed_chunks = 20
+    chunk_count = 0
     
     chunk_buffer = ""
     
@@ -127,7 +132,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     break
                 
                 consecutive_errors = 0
-                all_chunks.append(chunk)
+                chunk_count += 1
                 
                 if isinstance(chunk, str):
                     if chunk.strip() == "[DONE]":
@@ -194,12 +199,30 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                         chunk_finish_reason = choice.get("finish_reason")
 
                 if hasattr(chunk, 'usage') and chunk.usage:
-                    input_tokens = getattr(chunk.usage, 'prompt_tokens', 0)
+                    chunk_prompt_tokens = getattr(chunk.usage, 'prompt_tokens', None)
                     output_tokens = getattr(chunk.usage, 'completion_tokens', 0)
+                    chunk_total_tokens = getattr(chunk.usage, 'total_tokens', None)
+                    if chunk_prompt_tokens is not None:
+                        if chunk_prompt_tokens > 0:
+                            provider_prompt_tokens = chunk_prompt_tokens
+                            input_tokens = chunk_prompt_tokens
+                        elif initial_input_tokens > 0:
+                            provider_reported_zero_prompt_tokens = True
+                    if chunk_total_tokens is not None:
+                        total_tokens = chunk_total_tokens
                 elif isinstance(chunk, dict) and "usage" in chunk:
                     usage = chunk["usage"]
-                    input_tokens = usage.get("prompt_tokens", 0)
+                    chunk_prompt_tokens = usage.get("prompt_tokens")
                     output_tokens = usage.get("completion_tokens", 0)
+                    chunk_total_tokens = usage.get("total_tokens")
+                    if chunk_prompt_tokens is not None:
+                        if chunk_prompt_tokens > 0:
+                            provider_prompt_tokens = chunk_prompt_tokens
+                            input_tokens = chunk_prompt_tokens
+                        elif initial_input_tokens > 0:
+                            provider_reported_zero_prompt_tokens = True
+                    if chunk_total_tokens is not None:
+                        total_tokens = chunk_total_tokens
 
                 if delta_reasoning_text:
                     if not thinking_block_started:
@@ -370,9 +393,10 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
         if stream_terminated_early and final_stop_reason == Constants.STOP_END_TURN:
             final_stop_reason = Constants.STOP_ERROR
 
-        final_response = litellm.stream_chunk_builder(all_chunks)
-        if final_response and hasattr(final_response, 'usage'):
-            output_tokens = getattr(final_response.usage, "completion_tokens", 0)
+        input_tokens = provider_prompt_tokens if provider_prompt_tokens is not None else initial_input_tokens
+        computed_total_tokens = input_tokens + output_tokens
+        if total_tokens is None or total_tokens < computed_total_tokens:
+            total_tokens = computed_total_tokens
         
         usage_data = {"input_tokens": input_tokens, "output_tokens": output_tokens}
         yield f"event: {Constants.EVENT_MESSAGE_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_MESSAGE_DELTA, 'delta': {'stop_reason': final_stop_reason, 'stop_sequence': None}, 'usage': usage_data})}\n\n"
@@ -385,27 +409,54 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
             logger.info(f"   停止原因: {final_stop_reason}")
             logger.info(f"   输入令牌: {input_tokens}")
             logger.info(f"   输出令牌: {output_tokens}")
-            logger.info(f"   流式块数量: {len(all_chunks)}")
+            logger.info(f"   总令牌: {total_tokens}")
+            logger.info(f"   流式块数量: {chunk_count}")
+
+            if provider_reported_zero_prompt_tokens and initial_input_tokens > 0:
+                logger.warning(
+                    f"⚠️ 上游流式 usage.prompt_tokens=0，已回退到请求侧预计算值: {initial_input_tokens}"
+                )
+            elif provider_prompt_tokens is None and initial_input_tokens > 0:
+                logger.info(
+                    f"📊 上游流式 usage 未提供 prompt_tokens，使用请求侧预计算值: {initial_input_tokens}"
+                )
             
             if accumulated_thinking:
                 logger.info(f"   思考内容: {len(accumulated_thinking)} 字符")
+                if config.log_response_details:
+                    display_thinking = accumulated_thinking[:300] + "..." if len(accumulated_thinking) > 300 else accumulated_thinking
+                    logger.info(f"   思考摘要: {display_thinking}")
             
             if accumulated_text:
-                display_text = accumulated_text[:500] + "..." if len(accumulated_text) > 500 else accumulated_text
-                logger.info(f"   累积文本内容: {display_text}")
-            
+                if config.log_response_details:
+                    display_text = accumulated_text[:500] + "..." if len(accumulated_text) > 500 else accumulated_text
+                    logger.info(f"   累积文本内容: {display_text}")
+                else:
+                    logger.info(f"   累积文本长度: {len(accumulated_text)} 字符")
+
+            if accumulated_thinking and not accumulated_text and not current_tool_calls:
+                logger.warning(
+                    f"⚠️ 仅有 thinking 无 text 无 tool_calls! "
+                    f"模型={original_request.original_model or original_request.model}, "
+                    f"stop_reason={final_stop_reason}, "
+                    f"thinking_len={len(accumulated_thinking)}, "
+                    f"chunks={chunk_count}, "
+                    f"stream_terminated_early={stream_terminated_early}"
+                )
+
             if current_tool_calls:
                 logger.info(f"   工具调用: {len(current_tool_calls)} 个工具")
-                for i, (tool_id, tool_data) in enumerate(current_tool_calls.items()):
-                    logger.info(f"     工具 {i+1}: {tool_data['name']} (ID: {tool_id})")
-                    try:
-                        args_dict = json.loads(tool_data['args_buffer'])
-                        args_str = json.dumps(args_dict, ensure_ascii=False)
-                        display_args = args_str[:200] + "..." if len(args_str) > 200 else args_str
-                        logger.info(f"     参数: {display_args}")
-                    except:
-                        display_args = tool_data['args_buffer'][:200] + "..." if len(tool_data['args_buffer']) > 200 else tool_data['args_buffer']
-                        logger.info(f"     参数(原始): {display_args}")
+                if config.log_response_details:
+                    for i, (tool_id, tool_data) in enumerate(current_tool_calls.items()):
+                        logger.info(f"     工具 {i+1}: {tool_data['name']} (ID: {tool_id})")
+                        try:
+                            args_dict = json.loads(tool_data['args_buffer'])
+                            args_str = json.dumps(args_dict, ensure_ascii=False)
+                            display_args = args_str[:200] + "..." if len(args_str) > 200 else args_str
+                            logger.info(f"     参数: {display_args}")
+                        except:
+                            display_args = tool_data['args_buffer'][:200] + "..." if len(tool_data['args_buffer']) > 200 else tool_data['args_buffer']
+                            logger.info(f"     参数(原始): {display_args}")
             
             if stream_terminated_early:
                 logger.warning(f"   流式传输提前终止")
@@ -418,4 +469,3 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
             
     except Exception as final_error:
         logger.error(f"Error sending final SSE events: {final_error}")
-

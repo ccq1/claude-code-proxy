@@ -14,12 +14,16 @@ from app.config import config
 from app.constants import Constants
 from app.models import MessagesRequest
 from app.services import (
-    convert_anthropic_to_litellm,
     convert_litellm_to_anthropic,
+    convert_anthropic_to_litellm,
     handle_streaming_with_recovery,
 )
 from app.services.tokenizer import tokenizer_service
-from app.utils import classify_local_model_error, log_request_beautifully
+from app.utils import (
+    classify_local_model_error,
+    log_request_beautifully,
+    log_tool_names,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -33,20 +37,23 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         request_start_time = time.time()
         raw_request.state.start_time = request_start_time
         logger.info(f"🕒 请求接收时间: {datetime.now().isoformat()} (timestamp={request_start_time})")
+        logger.info(f"📥 Received model param: {request.original_model}")
         logger.info(f"📊 Processing request: Original={request.original_model}, Effective={request.model}, Stream={request.stream}")
         
-        # 检查流式配置
-        if request.stream and config.emergency_disable_streaming:
-            logger.warning("Streaming disabled via EMERGENCY_DISABLE_STREAMING")
+        if request.stream and (
+            config.force_disable_streaming or config.emergency_disable_streaming
+        ):
+            disabled_by = (
+                "EMERGENCY_DISABLE_STREAMING"
+                if config.emergency_disable_streaming
+                else "FORCE_DISABLE_STREAMING"
+            )
+            logger.warning(f"Streaming disabled via {disabled_by}")
             request.stream = False
-
-        if request.stream and config.force_disable_streaming:
-            logger.info("Streaming disabled via FORCE_DISABLE_STREAMING")
-            request.stream = False
-        
 
         # 转换请求
         num_tools = len(request.tools) if request.tools else 0
+        log_tool_names(logger, raw_request.url.path, request.tools)
         litellm_request = convert_anthropic_to_litellm(request,num_tools)
         litellm_request["api_key"] = config.api_key
         litellm_request["base_url"] = config.base_url
@@ -62,19 +69,17 @@ async def create_message(request: MessagesRequest, raw_request: Request):
 
         # 计算输入 token
         try:
-            custom_tokenizer = tokenizer_service.get_tokenizer()
-            if custom_tokenizer is not None:
-                logger.info(f"request, use custom_tokenizer")
+            if tokenizer_service.is_custom():
+                logger.info("request, use singleton_tokenizer")
             else:
-                logger.info(f"request, use default tokenizer")
+                logger.info("request, use default tokenizer")
 
-            input_tokens = litellm.token_counter(
-                model=litellm_request["model"],
-                custom_tokenizer=custom_tokenizer,
-                messages=litellm_request["messages"]
-            )
+            input_tokens = tokenizer_service.count_litellm_request_tokens(litellm_request)
             logger.info(f"input_tokens: {input_tokens}")
-        except Exception:
+        except Exception as token_error:
+            logger.warning(
+                f"Failed to precompute input_tokens for model {litellm_request.get('model')}: {token_error}"
+            )
             input_tokens = 0
 
         # 流式处理
@@ -90,7 +95,7 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                         delay = min(0.5 * (2 ** streaming_retry_count), 2.0)
                         logger.debug(f"Waiting {delay}s before retry...")
                         await asyncio.sleep(delay)
-                    
+
                     response_generator = await litellm.acompletion(**litellm_request)
                     
                     return StreamingResponse(
@@ -146,6 +151,33 @@ async def create_message(request: MessagesRequest, raw_request: Request):
 
             litellm_response = await litellm.acompletion(**litellm_request)
             logger.info(f"✅ Response received: Model={litellm_request.get('model')}, Time={time.time() - start_time:.2f}s")
+            try:
+                prompt_tokens = None
+                completion_tokens = None
+                total_tokens = None
+
+                if hasattr(litellm_response, "usage") and litellm_response.usage:
+                    usage = litellm_response.usage
+                    prompt_tokens = getattr(usage, "prompt_tokens", None)
+                    completion_tokens = getattr(usage, "completion_tokens", None)
+                    total_tokens = getattr(usage, "total_tokens", None)
+                elif isinstance(litellm_response, dict):
+                    usage = litellm_response.get("usage", {}) or {}
+                    prompt_tokens = usage.get("prompt_tokens")
+                    completion_tokens = usage.get("completion_tokens")
+                    total_tokens = usage.get("total_tokens")
+
+                if total_tokens is None and prompt_tokens is not None and completion_tokens is not None:
+                    total_tokens = prompt_tokens + completion_tokens
+
+                logger.info(
+                    "📊 模型端 usage(非流式): "
+                    f"prompt_tokens={prompt_tokens}, "
+                    f"completion_tokens={completion_tokens}, "
+                    f"total_tokens={total_tokens}"
+                )
+            except Exception as usage_log_error:
+                logger.warning(f"记录模型端 usage(非流式) 失败: {usage_log_error}")
 
             anthropic_response = convert_litellm_to_anthropic(litellm_response, request)
             
@@ -170,18 +202,23 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                     logger.info(f"   停止原因: {anthropic_response.stop_reason}")
                     logger.info(f"   输入令牌: {anthropic_response.usage.input_tokens}")
                     logger.info(f"   输出令牌: {anthropic_response.usage.output_tokens}")
+                    logger.info(f"   总令牌: {anthropic_response.usage.input_tokens + anthropic_response.usage.output_tokens}")
                     
                     if text_content:
-                        display_text = text_content[:500] + "..." if len(text_content) > 500 else text_content
-                        logger.info(f"   文本内容: {display_text}")
+                        if config.log_response_details:
+                            display_text = text_content[:500] + "..." if len(text_content) > 500 else text_content
+                            logger.info(f"   文本内容: {display_text}")
+                        else:
+                            logger.info(f"   文本长度: {len(text_content)} 字符")
                     
                     if tool_calls:
                         logger.info(f"   工具调用: {len(tool_calls)} 个工具")
-                        for i, tool_call in enumerate(tool_calls):
-                            logger.info(f"     工具 {i+1}: {tool_call['name']} (ID: {tool_call['id']})")
-                            args_str = json.dumps(tool_call['input'], ensure_ascii=False)
-                            display_args = args_str[:200] + "..." if len(args_str) > 200 else args_str
-                            logger.info(f"     参数: {display_args}")
+                        if config.log_response_details:
+                            for i, tool_call in enumerate(tool_calls):
+                                logger.info(f"     工具 {i+1}: {tool_call['name']} (ID: {tool_call['id']})")
+                                args_str = json.dumps(tool_call['input'], ensure_ascii=False)
+                                display_args = args_str[:200] + "..." if len(args_str) > 200 else args_str
+                                logger.info(f"     参数: {display_args}")
                 
             except Exception as log_error:
                 logger.warning(f"记录响应日志时出错: {log_error}")
@@ -202,4 +239,3 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         logger.error(f"Error processing request: {e}")
         error_msg = classify_local_model_error(str(e))
         raise HTTPException(status_code=500, detail=error_msg)
-

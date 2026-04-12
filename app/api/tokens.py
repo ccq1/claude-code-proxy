@@ -3,12 +3,15 @@ Token 计数接口路由
 """
 import logging
 from fastapi import APIRouter, Request, HTTPException
-import litellm
 
 from app.models import TokenCountRequest, TokenCountResponse, MessagesRequest
 from app.services import convert_anthropic_to_litellm
 from app.services.tokenizer import tokenizer_service
-from app.utils import classify_local_model_error, log_request_beautifully
+from app.utils import (
+    classify_local_model_error,
+    log_request_beautifully,
+    log_tool_names,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -25,12 +28,15 @@ async def count_tokens(request: TokenCountRequest, raw_request: Request):
             messages=request.messages,
             system=request.system,
             tools=request.tools,
+            tool_choice=request.tool_choice,
+            thinking=request.thinking,
         )
         
-        litellm_data = convert_anthropic_to_litellm(temp_request,0)
+        num_tools = len(request.tools) if request.tools else 0
+        log_tool_names(logger, raw_request.url.path, request.tools)
+        litellm_data = convert_anthropic_to_litellm(temp_request, num_tools)
         
         # 记录请求日志
-        num_tools = len(request.tools) if request.tools else 0
         log_request_beautifully(
             "POST", raw_request.url.path,
             request.original_model or request.model,
@@ -38,18 +44,13 @@ async def count_tokens(request: TokenCountRequest, raw_request: Request):
             len(litellm_data['messages']), num_tools, 200
         )
 
-        custom_tokenizer = tokenizer_service.get_tokenizer()
-        if custom_tokenizer is not None:
-            logger.info(f"use custom_tokenizer")
+        if tokenizer_service.is_custom():
+            logger.info("use singleton_tokenizer")
         else:
-            logger.info(f"use default tokenizer")
+            logger.info("use default tokenizer")
 
         # 计算 token
-        token_count = litellm.token_counter(
-            model=litellm_data["model"],
-            custom_tokenizer=custom_tokenizer,
-            messages=litellm_data["messages"],
-        )
+        token_count = tokenizer_service.count_litellm_request_tokens(litellm_data)
         
         return TokenCountResponse(input_tokens=token_count)
 
@@ -57,4 +58,3 @@ async def count_tokens(request: TokenCountRequest, raw_request: Request):
         logger.error(f"Error counting tokens: {str(e)}")
         error_msg = classify_local_model_error(str(e))
         raise HTTPException(status_code=500, detail=f"Error counting tokens: {error_msg}")
-

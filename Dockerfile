@@ -1,6 +1,9 @@
 # LLM Proxy Dockerfile
-# 使用 Python 3.11 作为基础镜像
-FROM python:3.11-slim
+# 默认使用 Python 3.11 作为基础镜像，也支持通过 BASE_IMAGE 复用已有 llm-proxy 镜像
+ARG BASE_IMAGE=python:3.11-slim
+FROM ${BASE_IMAGE}
+
+ARG INSTALL_DEPS=true
 
 # 设置工作目录
 WORKDIR /app
@@ -12,16 +15,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # 更换为国内镜像源并安装系统依赖
-RUN sed -i 's@http://deb.debian.org@https://mirrors.tuna.tsinghua.edu.cn@g' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN if [ "${INSTALL_DEPS}" = "true" ]; then \
+        sed -i 's@http://deb.debian.org@https://mirrors.tuna.tsinghua.edu.cn@g' /etc/apt/sources.list.d/debian.sources && \
+        apt-get update && apt-get install -y --no-install-recommends curl && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # 复制依赖文件
 COPY requirements.txt .
 
 # 安装 Python 依赖
-RUN pip install --no-cache-dir -r requirements.txt --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+RUN if [ "${INSTALL_DEPS}" = "true" ]; then \
+        pip install --no-cache-dir -r requirements.txt --index-url https://pypi.tuna.tsinghua.edu.cn/simple; \
+    fi
 
 # 复制应用代码
 COPY app/ ./app/
@@ -45,4 +51,3 @@ ENV HOST=0.0.0.0 \
 
 # 启动命令
 CMD ["python", "main.py"]
-

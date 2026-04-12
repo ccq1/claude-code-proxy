@@ -12,6 +12,53 @@ from app.config import config
 
 logger = logging.getLogger(__name__)
 
+BILLING_HEADER_PATTERN = r"(?im)^x-anthropic-billing-header:[^\n]*\n?"
+AGENT_SDK_PREFIX = "You are a Claude agent, built on Anthropic's Claude Agent SDK."
+SESSION_TITLE_PROMPT_MARKER = (
+    "Generate a concise, sentence-case title (3-7 words) "
+    "that captures the main topic or goal of this coding session."
+)
+SESSION_TITLE_JSON_MARKER = 'Return JSON with a single "title" field.'
+SESSION_TITLE_PROMPT_REWRITE = """Generate a concise, sentence-case title (3-7 words) that captures the main topic or goal of this coding session. The title should be clear enough that the user recognizes the session in a list. Use sentence case: capitalize only the first word and proper nouns.
+
+Return JSON with a single "title" field.
+
+Return the title in the same language as the user's latest message. Do not default to English. If the user's latest message is in Chinese, return a Chinese title. If it is in English, return an English title. Preserve proper nouns, technical terms, and code identifiers when helpful.
+
+Good examples:
+{"title": "修复移动端登录按钮"}
+{"title": "Add OAuth authentication"}
+{"title": "调试失败的 CI 测试"}
+{"title": "Refactor API client error handling"}
+
+Bad (too vague): {"title": "Code changes"}
+Bad (too long): {"title": "Investigate and fix the issue where the login button does not respond on mobile devices"}
+Bad (wrong case): {"title": "Fix Login Button On Mobile"}"""
+
+
+def normalize_system_prompt(system_text: str) -> str:
+    """清理并按需重写系统提示词。"""
+    if not system_text:
+        return ""
+
+    cleaned = re.sub(BILLING_HEADER_PATTERN, "", system_text)
+    cleaned = cleaned.replace(AGENT_SDK_PREFIX, "")
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
+
+    if (
+        SESSION_TITLE_PROMPT_MARKER in cleaned
+        and SESSION_TITLE_JSON_MARKER in cleaned
+    ):
+        cleaned = re.sub(
+            r"Generate a concise, sentence-case title \(3-7 words\).*",
+            SESSION_TITLE_PROMPT_REWRITE,
+            cleaned,
+            flags=re.DOTALL,
+        ).strip()
+        logger.info("📝 Rewrote session title prompt to follow the user's language")
+
+    return cleaned
+
 
 def clean_model_schema(schema: Any) -> Any:
     """递归清理 JSON schema 中不支持的字段"""
@@ -180,6 +227,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
                     text_parts.append(block.get("text", ""))
             system_text = "\n\n".join(text_parts)
         
+        system_text = normalize_system_prompt(system_text)
         if system_text.strip():
             litellm_messages.append({"role": Constants.ROLE_SYSTEM, "content": system_text.strip()})
 
@@ -281,6 +329,11 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
         "temperature": anthropic_request.temperature,
         "stream": anthropic_request.stream,
     }
+
+    if anthropic_request.stream:
+        # Ask OpenAI-compatible streaming endpoints to include usage
+        # in the final chunk when the upstream implementation supports it.
+        litellm_request["stream_options"] = {"include_usage": True}
 
     # 添加可选参数
     if anthropic_request.stop_sequences:
@@ -402,12 +455,12 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             response_id = litellm_response.get("id", response_id)
 
 
-        # 【新增】打印或记录 reasoning_content
         if reasoning_content:
-            # 打印到控制台
-            print(f"✅ 模型的思考内容 (Reasoning Content): \n{reasoning_content}")
-            # 记录到日志 (如果需要)
-            logger.info(f"Reasoning Content 捕获成功: {reasoning_content[:100]}...")
+            if config.log_response_details:
+                print(f"✅ 模型的思考内容 (Reasoning Content): \n{reasoning_content}")
+                logger.info(f"Reasoning Content 捕获成功: {reasoning_content[:100]}...")
+            else:
+                logger.info(f"Reasoning Content 捕获成功: {len(reasoning_content)} 字符")
         # 检查write 工具和内容
         if '<function=Write>' in content_text:
             logger.info(f"❌ write 工具调用疑似错误放在content字段里: {content_text[:100]}...")
@@ -453,7 +506,7 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
 
                     arguments_dict = validate_todowrite_tool_call(name, arguments_dict)
 
-                    if name == "Write":
+                    if name == "Write" and config.log_response_details:
                         logger.info(f"🔧 Write 工具调用参数 --> : {arguments_dict}")
 
                     content_blocks.append(ContentBlockToolUse(
@@ -465,6 +518,25 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
                 except Exception as e:
                     logger.warning(f"Error processing tool call: {e}")
                     continue
+
+        # 检测仅有 thinking 无 text 无 tool_calls 的异常情况
+        has_thinking = any(
+            getattr(b, 'type', None) == Constants.CONTENT_THINKING for b in content_blocks
+        )
+        has_text = any(
+            getattr(b, 'type', None) == Constants.CONTENT_TEXT and getattr(b, 'text', '') for b in content_blocks
+        )
+        has_tool_use = any(
+            getattr(b, 'type', None) == Constants.CONTENT_TOOL_USE for b in content_blocks
+        )
+        if has_thinking and not has_text and not has_tool_use:
+            logger.warning(
+                f"⚠️ 仅有 thinking 无 text 无 tool_calls(非流式)! "
+                f"模型={original_request.original_model or original_request.model}, "
+                f"finish_reason={finish_reason}, "
+                f"reasoning_len={len(reasoning_content) if reasoning_content else 0}, "
+                f"content_text='{content_text[:100]}'"
+            )
 
         # 确保至少有一个内容块
         if not content_blocks:
@@ -506,4 +578,3 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             stop_reason=Constants.STOP_ERROR,
             usage=Usage(input_tokens=0, output_tokens=0)
         )
-

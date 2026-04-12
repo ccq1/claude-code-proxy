@@ -113,3 +113,27 @@ def log_request_beautifully(method: str, path: str, requested_model: str,
     print(model_line)
     sys.stdout.flush()
 
+
+def log_tool_names(logger: logging.Logger, path: str, tools):
+    """记录请求中的工具名称列表"""
+    if not config.log_tool_names_detail:
+        return
+
+    if not tools:
+        logger.info(f"🔧 {path} 未携带工具")
+        return
+
+    tool_names = []
+    for index, tool in enumerate(tools, start=1):
+        if hasattr(tool, "name") and tool.name:
+            tool_name = tool.name
+        elif isinstance(tool, dict):
+            tool_name = tool.get("name") or tool.get("function", {}).get("name")
+        else:
+            tool_name = None
+
+        tool_names.append(tool_name or f"<unnamed_tool_{index}>")
+
+    logger.info(f"🔧 {path} 工具列表 ({len(tool_names)} 个):")
+    for index, tool_name in enumerate(tool_names, start=1):
+        logger.info(f"   工具 {index}: {tool_name}")
