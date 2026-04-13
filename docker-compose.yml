@@ -3,38 +3,44 @@ version: '3.8'
 services:
   llm-proxy:
     image: llm-proxy:latest
+    build: .
     container_name: llm-proxy
     restart: unless-stopped
     network_mode: host
     environment:
-      # 必需的环境变量
-      - API_KEY=sk-faker
-      - BASE_URL=http://10.1.1.125:29000/v1
-      
-      # 模型配置
-      - BIG_MODEL=qwen3-coder
-      - SMALL_MODEL=qwen3-coder
-      
+      # 多模型路由配置；只允许请求这里明确列出的模型
+      MODEL_COUNT: 3
+      DEFAULT_TOKENIZER_FILE: tokenizers/qwen3_5_30b_a3b_tokenizer.json
+      MODEL_NAME_1: qwen3-35b
+      MODEL_BASE_URL_1: http://10.1.1.125:29000/v1
+      MODEL_AUTH_TOKEN_1: sk-qwen
+      MODEL_TOKENIZER_FILE_1: tokenizers/qwen3_5_30b_a3b_tokenizer.json
+      MODEL_NAME_2: glm-5.1
+      MODEL_BASE_URL_2: http://10.1.1.125:29000/v1
+      MODEL_AUTH_TOKEN_2: sk-glm
+      MODEL_TOKENIZER_FILE_2: tokenizers/glm4.6_tokenizer.json
+      MODEL_NAME_3: deepseek-chat
+      MODEL_BASE_URL_3: https://api.deepseek.com
+      MODEL_AUTH_TOKEN_3: sk-9067a059b8aa42499478befd72c290f8
+
       # 服务器配置
-      - HOST=0.0.0.0
-      - PORT=4000
-      - LOG_LEVEL=INFO
-      - MAX_TOKENS_LIMIT=16384
-      
+      HOST: 0.0.0.0
+      PORT: 4000
+      LOG_LEVEL: INFO
+      SANITIZE_BRAND_TERMS: "true"
+      MAX_TOKENS_LIMIT: 8192
+
       # 连接配置
-      - REQUEST_TIMEOUT=90
-      - MAX_RETRIES=1
-      
+      REQUEST_TIMEOUT: 90
+      MAX_RETRIES: 1
+
       # 流式配置
-      - MAX_STREAMING_RETRIES=12
-      - FORCE_DISABLE_STREAMING=false
-      - EMERGENCY_DISABLE_STREAMING=false
-      
-      # Tokenizer 配置
-      - TOKENIZER_FILE=tokenizers/qwen3coder30b_tokenizer.json
-      
+      MAX_STREAMING_RETRIES: 12
+      FORCE_DISABLE_STREAMING: "false"
+      EMERGENCY_DISABLE_STREAMING: "false"
+
       # Worker 配置
-      - WORKERS=4
+      WORKERS: 1
     
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
@@ -42,4 +48,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-

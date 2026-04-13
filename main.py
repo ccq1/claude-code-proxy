@@ -44,9 +44,7 @@ async def log_requests(request: Request, call_next):
 
 def validate_startup() -> bool:
     """验证启动配置"""
-    if not config.api_key:
-        return False
-    return True
+    return config.validate_api_key()
 
 
 def main():

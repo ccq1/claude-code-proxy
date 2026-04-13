@@ -2,7 +2,7 @@
 模型管理服务
 """
 from typing import List, Tuple
-from app.config import config
+from app.config import ModelRoute, config
 
 
 class ModelManager:
@@ -10,11 +10,7 @@ class ModelManager:
     
     def __init__(self, cfg):
         self.config = cfg
-        # 本地模型列表
-        self.base_local_models = [
-            cfg.big_model,
-            cfg.small_model
-        ]
+        self.base_local_models = [route.model_name for route in cfg.model_route_list]
         self._local_models = set(self.base_local_models)
     
     
@@ -22,21 +18,28 @@ class ModelManager:
     def local_models(self) -> List[str]:
         """获取所有本地模型列表"""
         return sorted(list(self._local_models))
+
+    def is_configured_model(self, model_name: str) -> bool:
+        """判断模型是否已配置"""
+        clean_model = self._clean_model_name(model_name)
+        return clean_model in self._local_models
     
     def validate_and_map_model(self, original_model: str) -> Tuple[str, bool]:
         """验证并映射模型名称"""
         clean_model = self._clean_model_name(original_model)
-        mapped_model = self._map_model_alias(clean_model)
-        
-        if mapped_model != clean_model:
-            return f"openai/{mapped_model}", True
-        elif clean_model in self._local_models:
-            return f"openai/{clean_model}", True
-        elif not original_model.startswith('openai/'):
-            return f"openai/{original_model}", False
-        else:
-            return original_model, False
-    
+        if clean_model in self._local_models:
+            return f"openai/{clean_model}", clean_model != original_model
+
+        default_model = self.config.default_model_route.model_name
+        return f"openai/{default_model}", True
+
+    def get_model_route(self, model_name: str) -> ModelRoute:
+        """获取指定模型的路由配置，未命中时回退到默认模型"""
+        clean_model = self._clean_model_name(model_name)
+        if clean_model in self._local_models:
+            return self.config.get_model_route(clean_model)
+        return self.config.default_model_route
+
     def _clean_model_name(self, model: str) -> str:
         """清理模型名称前缀"""
         if model.startswith('openai/'):
@@ -47,19 +50,5 @@ class ModelManager:
             return model[7:]
         return model
     
-    def _map_model_alias(self, clean_model: str) -> str:
-        """映射模型别名到本地模型"""
-        model_lower = clean_model.lower()
-        
-        # 映射 Claude 模型别名到本地模型
-        if 'haiku' in model_lower or 'fast' in model_lower:
-            return self.config.small_model
-        elif 'sonnet' in model_lower or 'opus' in model_lower or 'large' in model_lower:
-            return self.config.big_model
-        
-        return clean_model
-
-
 # 创建全局模型管理器实例
 model_manager = ModelManager(config)
-

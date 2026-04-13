@@ -84,10 +84,15 @@ docker-compose down
 docker run -d \
   --name llm-proxy \
   --network host \
-  -e API_KEY=sk-faker \
-  -e BASE_URL=http://10.1.1.125:29000/v1 \
-  -e BIG_MODEL=qwen3-coder \
-  -e SMALL_MODEL=qwen3-coder \
+  -e MODEL_COUNT=2 \
+  -e DEFAULT_TOKENIZER_FILE=tokenizers/qwen3_5_30b_a3b_tokenizer.json \
+  -e MODEL_NAME_1=qwen3-35b \
+  -e MODEL_BASE_URL_1=http://10.1.1.125:29000/v1 \
+  -e MODEL_AUTH_TOKEN_1=sk-qwen \
+  -e MODEL_TOKENIZER_FILE_1=tokenizers/qwen3_5_30b_a3b_tokenizer.json \
+  -e MODEL_NAME_2=glm-5.1 \
+  -e MODEL_BASE_URL_2=http://10.1.1.125:29001/v1 \
+  -e MODEL_AUTH_TOKEN_2=sk-glm \
   -e HOST=0.0.0.0 \
   -e PORT=4000 \
   llm-proxy:latest
@@ -134,10 +139,12 @@ uvicorn main:app --reload --host 0.0.0.0 --port 4000
 
 | 环境变量 | 默认值 | 说明 |
 |---------|--------|------|
-| `API_KEY` | `sk-faker` | 本地模型服务的 API Key |
-| `BASE_URL` | `http://10.1.1.125:29000/v1` | 本地模型服务 URL |
-| `BIG_MODEL` | `qwen3-coder` | 大模型名称 |
-| `SMALL_MODEL` | `qwen3-coder` | 小模型名称 |
+| `MODEL_COUNT` | `0` | 模型数量，必须大于 0 |
+| `DEFAULT_TOKENIZER_FILE` | `tokenizers/qwen3_5_30b_a3b_tokenizer.json` | 默认 tokenizer 文件，未传模型专属 tokenizer 时使用 |
+| `MODEL_NAME_<N>` | `` | 第 N 个模型的前端模型名 |
+| `MODEL_BASE_URL_<N>` | `` | 第 N 个模型请求转发地址 |
+| `MODEL_AUTH_TOKEN_<N>` | `` | 第 N 个模型鉴权 token |
+| `MODEL_TOKENIZER_FILE_<N>` | 可选 | 第 N 个模型对应 tokenizer 文件，不传则回退到 `DEFAULT_TOKENIZER_FILE` |
 | `HOST` | `0.0.0.0` | 服务监听地址 |
 | `PORT` | `4000` | 服务端口 |
 | `LOG_LEVEL` | `INFO` | 日志级别 (DEBUG/INFO/WARNING/ERROR) |
@@ -145,7 +152,24 @@ uvicorn main:app --reload --host 0.0.0.0 --port 4000
 | `REQUEST_TIMEOUT` | `90` | 请求超时时间(秒) |
 | `MAX_RETRIES` | `1` | 最大重试次数 |
 | `WORKERS` | `4` | 工作进程数 |
-| `TOKENIZER_FILE` | `tokenizers/qwen3coder30b_tokenizer.json` | Tokenizer 文件路径 |
+### 多模型路由示例
+
+当你希望前端传不同的 `model`，后端自动切到不同模型地址时，可以配置编号式 key-value 形式：
+
+```bash
+export MODEL_COUNT=2
+export DEFAULT_TOKENIZER_FILE=tokenizers/qwen3_5_30b_a3b_tokenizer.json
+export MODEL_NAME_1=qwen3-35b
+export MODEL_BASE_URL_1=http://10.1.1.125:29000/v1
+export MODEL_AUTH_TOKEN_1=sk-qwen
+export MODEL_TOKENIZER_FILE_1=tokenizers/qwen3_5_30b_a3b_tokenizer.json
+export MODEL_NAME_2=glm-5.1
+export MODEL_BASE_URL_2=http://10.1.1.125:29001/v1
+export MODEL_AUTH_TOKEN_2=sk-glm
+# MODEL_TOKENIZER_FILE_2 可不传，此时默认使用 qwen3_5_30b_a3b_tokenizer.json
+```
+
+请求进入后会按前端传入的 `model` 精确匹配对应路由，并选择对应的 tokenizer 单例来计算 token。只有 `MODEL_COUNT` 范围内明确配置过的模型才允许请求。
 
 ### 流式响应配置
 

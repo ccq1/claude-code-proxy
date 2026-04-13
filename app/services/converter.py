@@ -5,7 +5,8 @@ import json
 import re
 import uuid
 import logging
-from typing import Dict, Any
+import time
+from typing import Dict, Any, List, Tuple
 
 from app.constants import Constants
 from app.config import config
@@ -19,6 +20,13 @@ SESSION_TITLE_PROMPT_MARKER = (
     "that captures the main topic or goal of this coding session."
 )
 SESSION_TITLE_JSON_MARKER = 'Return JSON with a single "title" field.'
+BRAND_TERM_REPLACEMENTS: List[Tuple[re.Pattern[str], str]] = [
+    (re.compile(r"claude\s+opus\s*4\.6", re.IGNORECASE), "PandoraQ Pro"),
+    (re.compile(r"claude\s+opus", re.IGNORECASE), "PandoraQ Pro"),
+    (re.compile(r"claude code", re.IGNORECASE), "PandoraQ Code Agent"),
+    (re.compile(r"\banthropic\b", re.IGNORECASE), "未央 AI Lab"),
+    (re.compile(r"\bclaude\b", re.IGNORECASE), "PandoraQ"),
+]
 SESSION_TITLE_PROMPT_REWRITE = """Generate a concise, sentence-case title (3-7 words) that captures the main topic or goal of this coding session. The title should be clear enough that the user recognizes the session in a list. Use sentence case: capitalize only the first word and proper nouns.
 
 Return JSON with a single "title" field.
@@ -34,6 +42,26 @@ Good examples:
 Bad (too vague): {"title": "Code changes"}
 Bad (too long): {"title": "Investigate and fix the issue where the login button does not respond on mobile devices"}
 Bad (wrong case): {"title": "Fix Login Button On Mobile"}"""
+
+
+def sanitize_brand_terms(text: str, stats: Dict[str, float] = None) -> str:
+    """替换与 Anthropic/Claude 相关品牌词，避免污染下游模型身份。"""
+    if not text or not config.sanitize_brand_terms:
+        return text
+
+    start_time = time.perf_counter() if stats is not None else None
+    sanitized = text
+    for pattern, replacement in BRAND_TERM_REPLACEMENTS:
+        sanitized = pattern.sub(replacement, sanitized)
+
+    if stats is not None and start_time is not None:
+        stats["calls"] = stats.get("calls", 0) + 1
+        stats["chars"] = stats.get("chars", 0) + len(text)
+        stats["elapsed_ms"] = stats.get("elapsed_ms", 0.0) + (
+            (time.perf_counter() - start_time) * 1000.0
+        )
+
+    return sanitized
 
 
 def normalize_system_prompt(system_text: str) -> str:
@@ -57,7 +85,7 @@ def normalize_system_prompt(system_text: str) -> str:
         ).strip()
         logger.info("📝 Rewrote session title prompt to follow the user's language")
 
-    return cleaned
+    return sanitize_brand_terms(cleaned)
 
 
 def clean_model_schema(schema: Any) -> Any:
@@ -212,6 +240,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
     """将 Anthropic API 请求格式转换为 LiteLLM 格式"""
     litellm_messages = []
     pending_tool_messages = []
+    sanitize_stats: Dict[str, float] = {} if config.sanitize_brand_terms else None
     
     # 处理 system 消息
     if anthropic_request.system:
@@ -228,13 +257,16 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
             system_text = "\n\n".join(text_parts)
         
         system_text = normalize_system_prompt(system_text)
+        system_text = sanitize_brand_terms(system_text, sanitize_stats)
         if system_text.strip():
             litellm_messages.append({"role": Constants.ROLE_SYSTEM, "content": system_text.strip()})
 
     # 处理消息
     for msg in anthropic_request.messages:
         if isinstance(msg.content, str):
-            litellm_messages.append({"role": msg.role, "content": msg.content})
+            litellm_messages.append(
+                {"role": msg.role, "content": sanitize_brand_terms(msg.content, sanitize_stats)}
+            )
             continue
 
         text_parts = []
@@ -243,7 +275,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
 
         for block in msg.content:
             if block.type == Constants.CONTENT_TEXT:
-                text_parts.append(block.text)
+                text_parts.append(sanitize_brand_terms(block.text, sanitize_stats))
             elif block.type == Constants.CONTENT_IMAGE:
                 if (isinstance(block.source, dict) and 
                     block.source.get("type") == "base64" and
@@ -353,7 +385,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
                     "type": Constants.TOOL_FUNCTION,
                     Constants.TOOL_FUNCTION: {
                         "name": tool.name,
-                        "description": tool.description or "",
+                        "description": sanitize_brand_terms(tool.description or "", sanitize_stats),
                         "parameters": cleaned_schema
                     }
                 })
@@ -407,6 +439,14 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
         "user_id" in anthropic_request.metadata and
         isinstance(anthropic_request.metadata["user_id"], str)):
         litellm_request["user"] = anthropic_request.metadata["user_id"]
+
+    if sanitize_stats is not None:
+        logger.info(
+            "🧹 brand sanitize stats: calls=%s, chars=%s, elapsed_ms=%.3f",
+            int(sanitize_stats.get("calls", 0)),
+            int(sanitize_stats.get("chars", 0)),
+            sanitize_stats.get("elapsed_ms", 0.0),
+        )
 
     return litellm_request
 

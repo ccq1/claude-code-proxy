@@ -3,28 +3,45 @@
 """
 import os
 import sys
+from dataclasses import dataclass
+from typing import Dict, List
 from dotenv import load_dotenv
 
 # Load environment variables early
 load_dotenv()
 
 
+@dataclass(frozen=True)
+class ModelRoute:
+    """单个模型的路由配置"""
+
+    model_name: str
+    base_url: str
+    auth_token: str
+    tokenizer_file: str
+
+
 class Config:
     """应用配置类"""
     
     def __init__(self):
-        # 本地模型配置
-        self.base_url = os.environ.get("BASE_URL", "http://10.1.1.125:29000/v1")
-        self.api_key = os.environ.get("API_KEY", "sk-faker")
-        
-        # 模型配置
-        self.big_model = os.environ.get("BIG_MODEL", "qwen3-coder")
-        self.small_model = os.environ.get("SMALL_MODEL", "qwen3-coder")
+        self.default_tokenizer_file = os.environ.get(
+            "DEFAULT_TOKENIZER_FILE",
+            "tokenizers/qwen3_5_30b_a3b_tokenizer.json",
+        ).strip()
+        self.model_count = int(os.environ.get("MODEL_COUNT", "0"))
+        self.model_routes = self._load_model_routes()
         
         # 服务器配置
         self.host = os.environ.get("HOST", "0.0.0.0")
         self.port = int(os.environ.get("PORT", "4000"))
         self.log_level = os.environ.get("LOG_LEVEL", "INFO")
+        debug_env = (
+            os.environ.get("DEBUG_MODE")
+            or os.environ.get("DEBUG")
+            or ""
+        ).strip().lower()
+        self.debug_mode = debug_env in {"1", "true", "yes", "on"} or self.log_level.upper() == "DEBUG"
         self.max_tokens_limit = int(os.environ.get("MAX_TOKENS_LIMIT", "16384"))
         
         # 连接配置
@@ -36,34 +53,87 @@ class Config:
         self.force_disable_streaming = os.environ.get("FORCE_DISABLE_STREAMING", "false").lower() == "true"
         self.emergency_disable_streaming = os.environ.get("EMERGENCY_DISABLE_STREAMING", "false").lower() == "true"
         
-        # Tokenizer 配置
-        self.tokenizer_file = os.environ.get("TOKENIZER_FILE", "tokenizers/qwen3coder30b_tokenizer.json")
-
         # 日志细节开关
         self.log_tool_names_detail = os.environ.get("LOG_TOOL_NAMES_DETAIL", "false").lower() == "true"
         self.log_response_details = os.environ.get("LOG_RESPONSE_DETAILS", "false").lower() == "true"
+        self.model_request_dump_dir = os.environ.get("MODEL_REQUEST_DUMP_DIR", "logs/model_request_contexts").strip()
+        self.sanitize_brand_terms = os.environ.get("SANITIZE_BRAND_TERMS", "true").lower() == "true"
         
         # Worker 配置
         self.workers = int(os.environ.get("WORKERS", "1"))
-        
+
+    def _load_model_routes(self) -> Dict[str, ModelRoute]:
+        """加载多模型路由配置"""
+        if self.model_count <= 0:
+            raise ValueError("MODEL_COUNT must be greater than 0")
+
+        routes: Dict[str, ModelRoute] = {}
+        for index in range(1, self.model_count + 1):
+            model_name = os.environ.get(f"MODEL_NAME_{index}", "").strip()
+            base_url = os.environ.get(f"MODEL_BASE_URL_{index}", "").strip()
+            auth_token = os.environ.get(f"MODEL_AUTH_TOKEN_{index}", "").strip()
+            tokenizer_file = (
+                os.environ.get(f"MODEL_TOKENIZER_FILE_{index}", "").strip()
+                or self.default_tokenizer_file
+            )
+
+            if not model_name or not base_url or not auth_token:
+                raise ValueError(
+                    f"Model #{index} must include MODEL_NAME_{index}, MODEL_BASE_URL_{index}, MODEL_AUTH_TOKEN_{index}"
+                )
+
+            if model_name in routes:
+                raise ValueError(f"Duplicate model_name in routes: '{model_name}'")
+
+            routes[model_name] = ModelRoute(
+                model_name=model_name,
+                base_url=base_url,
+                auth_token=auth_token,
+                tokenizer_file=tokenizer_file,
+            )
+
+        return routes
+
+    def get_model_route(self, model_name: str) -> ModelRoute:
+        """按模型名获取路由，未命中时报错"""
+        clean_model_name = model_name.strip()
+        if clean_model_name in self.model_routes:
+            return self.model_routes[clean_model_name]
+        raise KeyError(f"Model route not found for '{clean_model_name}'")
+    
     def validate_api_key(self) -> bool:
-        """验证 API key"""
-        if not self.api_key:
-            return False
-        return len(self.api_key) > 0
+        """验证所有模型路由都有鉴权配置"""
+        return all(route.auth_token for route in self.model_routes.values())
+
+    @property
+    def model_route_list(self) -> List[ModelRoute]:
+        """返回所有模型路由列表"""
+        return list(self.model_routes.values())
+
+    @property
+    def default_model_route(self) -> ModelRoute:
+        """返回默认模型路由（第一个模型）"""
+        return self.model_route_list[0]
     
     def print_config(self):
         """打印配置摘要"""
-        print(f"✅ Configuration loaded: API_KEY={'*' * min(10, len(self.api_key))}...")
-        print(f"   BASE_URL='{self.base_url}'")
-        print(f"   BIG_MODEL='{self.big_model}'")
-        print(f"   SMALL_MODEL='{self.small_model}'")
+        print("✅ Configuration loaded from indexed model routes")
+        print(f"   MODEL_COUNT={len(self.model_routes)} configured")
+        print(f"   DEFAULT_TOKENIZER_FILE='{self.default_tokenizer_file}'")
+        for route in self.model_route_list[:10]:
+            masked_token = "*" * min(10, len(route.auth_token)) if route.auth_token else "(empty)"
+            print(
+                f"      - model='{route.model_name}', base_url='{route.base_url}', auth_token={masked_token}, tokenizer_file='{route.tokenizer_file}'"
+            )
         print(f"   MAX_TOKENS_LIMIT={self.max_tokens_limit}")
         print(f"   MAX_STREAMING_RETRIES={self.max_streaming_retries}")
         print(f"   FORCE_DISABLE_STREAMING={self.force_disable_streaming}")
         print(f"   EMERGENCY_DISABLE_STREAMING={self.emergency_disable_streaming}")
         print(f"   LOG_TOOL_NAMES_DETAIL={self.log_tool_names_detail}")
         print(f"   LOG_RESPONSE_DETAILS={self.log_response_details}")
+        print(f"   DEBUG_MODE={self.debug_mode}")
+        print(f"   SANITIZE_BRAND_TERMS={self.sanitize_brand_terms}")
+        print(f"   MODEL_REQUEST_DUMP_DIR='{self.model_request_dump_dir}'")
         print(f"   WORKERS={self.workers}")
 
 

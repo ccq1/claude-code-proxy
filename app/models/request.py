@@ -89,10 +89,15 @@ class MessagesRequest(BaseModel):
         from app.services.model_manager import model_manager
 
         original_model = v
+        was_configured = model_manager.is_configured_model(v)
         mapped_model, was_mapped = model_manager.validate_and_map_model(v)
 
         if was_mapped:
             logger.info(f"📌 MODEL MAPPING: '{original_model}' ➡️  '{mapped_model}'")
+            if not was_configured:
+                logger.warning(
+                    f"⚠️ Unknown model '{original_model}', fallback to '{mapped_model}'"
+                )
 
         return mapped_model
 
@@ -121,6 +126,10 @@ class TokenCountRequest(BaseModel):
     def validate_model_token_count(cls, v):
         from app.services.model_manager import model_manager
 
-        mapped_model, _ = model_manager.validate_and_map_model(v)
+        was_configured = model_manager.is_configured_model(v)
+        mapped_model, was_mapped = model_manager.validate_and_map_model(v)
+        if was_mapped and not was_configured:
+            logger.warning(
+                f"⚠️ Unknown model '{v}' for count_tokens, fallback to '{mapped_model}'"
+            )
         return mapped_model
-

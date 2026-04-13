@@ -1,12 +1,13 @@
 """
 错误处理工具
 """
-from app.config import config
+from typing import Optional
 
 
-def classify_local_model_error(error_msg: str) -> str:
+def classify_local_model_error(error_msg: str, base_url: Optional[str] = None) -> str:
     """为常见的本地模型错误提供具体的错误指导"""
     error_lower = error_msg.lower()
+    target_base_url = base_url or "the configured model route"
     
     # 流式/解析错误
     if "error parsing chunk" in error_lower and "expecting property name" in error_lower:
@@ -26,7 +27,7 @@ def classify_local_model_error(error_msg: str) -> str:
     
     # 连接问题
     elif "connection" in error_lower or "timeout" in error_lower or "refused" in error_lower:
-        return f"Connection error. Please check that your local model service is running at {config.base_url} and accessible."
+        return f"Connection error. Please check that your local model service is running at {target_base_url} and accessible."
     
     # 解析/流式问题
     elif "parsing" in error_lower or "json" in error_lower or "malformed" in error_lower:
@@ -42,4 +43,3 @@ def classify_local_model_error(error_msg: str) -> str:
     
     # 默认：返回原始消息
     return error_msg
-

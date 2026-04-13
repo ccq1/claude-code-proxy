@@ -19,13 +19,23 @@ router = APIRouter()
 async def health_check():
     """健康检查接口"""
     try:
+        default_route = config.model_route_list[0]
         health_status = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "version": "2.5.0",
-            "local_api_configured": bool(config.api_key),
+            "local_api_configured": bool(config.model_route_list),
             "api_key_valid": config.validate_api_key(),
-            "base_url": config.base_url,
+            "default_base_url": default_route.base_url,
+            "model_routes": [
+                {
+                    "model_name": route.model_name,
+                    "base_url": route.base_url,
+                    "auth_token_configured": bool(route.auth_token),
+                    "tokenizer_file": route.tokenizer_file,
+                }
+                for route in config.model_route_list
+            ],
             "streaming_config": {
                 "force_disabled": config.force_disable_streaming,
                 "emergency_disabled": config.emergency_disable_streaming,
@@ -50,20 +60,22 @@ async def health_check():
 @router.get("/test-connection")
 async def test_connection():
     """测试 API 连接"""
+    model_route = None
     try:
+        model_route = config.model_route_list[0]
         test_response = await litellm.acompletion(
-            model=f"openai/{config.big_model}",
+            model=f"openai/{model_route.model_name}",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
-            api_key=config.api_key,
-            base_url=config.base_url
+            api_key=model_route.auth_token,
+            base_url=model_route.base_url
         )
         
         return {
             "status": "success",
             "message": "Successfully connected to Local Model API",
-            "base_url": config.base_url,
-            "model_used": config.big_model,
+            "base_url": model_route.base_url,
+            "model_used": model_route.model_name,
             "timestamp": datetime.now().isoformat(),
             "response_id": getattr(test_response, 'id', 'unknown')
         }
@@ -75,12 +87,12 @@ async def test_connection():
             content={
                 "status": "failed",
                 "error_type": "API Error",
-                "message": classify_local_model_error(str(e)),
+                "message": classify_local_model_error(str(e), base_url=model_route.base_url),
                 "timestamp": datetime.now().isoformat(),
                 "suggestions": [
                     "Check your API_KEY is valid for your local model service",
                     "Verify your local model service is running",
-                    f"Check if {config.base_url} is accessible"
+                    f"Check if {model_route.base_url} is accessible"
                 ]
             }
         )
@@ -91,12 +103,15 @@ async def test_connection():
             content={
                 "status": "failed",
                 "error_type": "Connection Error", 
-                "message": classify_local_model_error(str(e)),
+                "message": classify_local_model_error(
+                    str(e),
+                    base_url=model_route.base_url if model_route else None,
+                ),
                 "timestamp": datetime.now().isoformat(),
                 "suggestions": [
                     "Check your internet connection",
                     "Verify your local model service is running and accessible",
-                    f"Check if {config.base_url} is the correct URL",
+                    f"Check if {model_route.base_url if model_route else 'the configured model route base_url'} is the correct URL",
                     "Try again in a few moments"
                 ]
             }
@@ -110,12 +125,20 @@ async def root():
         "message": f"Enhanced Local-Model-to-Claude API Proxy v2.5.0",
         "status": "running",
         "config": {
-            "base_url": config.base_url,
-            "big_model": config.big_model,
-            "small_model": config.small_model,
+            "default_base_url": config.model_route_list[0].base_url,
+            "default_model": config.model_route_list[0].model_name,
             "available_models": model_manager.local_models[:5],
             "max_tokens_limit": config.max_tokens_limit,
-            "api_key_configured": bool(config.api_key),
+            "api_key_configured": config.validate_api_key(),
+            "model_routes": [
+                {
+                    "model_name": route.model_name,
+                    "base_url": route.base_url,
+                    "auth_token_configured": bool(route.auth_token),
+                    "tokenizer_file": route.tokenizer_file,
+                }
+                for route in config.model_route_list
+            ],
             "streaming": {
                 "force_disabled": config.force_disable_streaming,
                 "emergency_disabled": config.emergency_disable_streaming,
@@ -130,4 +153,3 @@ async def root():
             "test_connection": "/test-connection"
         }
     }
-

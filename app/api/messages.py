@@ -5,6 +5,7 @@ import time
 import json
 import asyncio
 import logging
+import uuid
 from datetime import datetime
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -18,9 +19,11 @@ from app.services import (
     convert_anthropic_to_litellm,
     handle_streaming_with_recovery,
 )
+from app.services.model_manager import model_manager
 from app.services.tokenizer import tokenizer_service
 from app.utils import (
     classify_local_model_error,
+    record_model_request_context_for_debug,
     log_request_beautifully,
     log_tool_names,
 )
@@ -32,6 +35,8 @@ router = APIRouter()
 @router.post("/v1/messages")
 async def create_message(request: MessagesRequest, raw_request: Request):
     """创建消息接口"""
+    model_route = None
+    request_id = f"req_{uuid.uuid4().hex[:12]}"
     try:
         
         request_start_time = time.time()
@@ -55,8 +60,23 @@ async def create_message(request: MessagesRequest, raw_request: Request):
         num_tools = len(request.tools) if request.tools else 0
         log_tool_names(logger, raw_request.url.path, request.tools)
         litellm_request = convert_anthropic_to_litellm(request,num_tools)
-        litellm_request["api_key"] = config.api_key
-        litellm_request["base_url"] = config.base_url
+        model_route = model_manager.get_model_route(request.model)
+        litellm_request["api_key"] = model_route.auth_token
+        litellm_request["base_url"] = model_route.base_url
+        litellm_request["model"] = f"openai/{model_route.model_name}"
+        logger.info(
+            f"🎯 Model route resolved: requested={request.original_model}, "
+            f"target_model={model_route.model_name}, base_url={model_route.base_url}"
+        )
+        dumped_file = record_model_request_context_for_debug(
+            request_id=request_id,
+            original_model=request.original_model or request.model,
+            routed_model=model_route.model_name,
+            base_url=model_route.base_url,
+            payload=litellm_request,
+        )
+        if dumped_file:
+            logger.info(f"🧾 request_id={request_id} model context dumped: {dumped_file}")
         
         # 记录请求日志
         log_request_beautifully(
@@ -69,10 +89,10 @@ async def create_message(request: MessagesRequest, raw_request: Request):
 
         # 计算输入 token
         try:
-            if tokenizer_service.is_custom():
-                logger.info("request, use singleton_tokenizer")
+            if tokenizer_service.is_custom(litellm_request["model"]):
+                logger.info(f"request, use model tokenizer: {litellm_request['model']}")
             else:
-                logger.info("request, use default tokenizer")
+                logger.info(f"request, use default tokenizer: {litellm_request['model']}")
 
             input_tokens = tokenizer_service.count_litellm_request_tokens(litellm_request)
             logger.info(f"input_tokens: {input_tokens}")
@@ -226,16 +246,22 @@ async def create_message(request: MessagesRequest, raw_request: Request):
             return anthropic_response
 
     except litellm.exceptions.APIError as e:
-        logger.error(f"LiteLLM API Error: {e}")
-        error_msg = classify_local_model_error(str(e))
+        logger.error(f"LiteLLM API Error (request_id={request_id}): {e}")
+        error_msg = classify_local_model_error(
+            str(e),
+            base_url=model_route.base_url if model_route else None,
+        )
         raise HTTPException(status_code=getattr(e, 'status_code', 500), detail=error_msg)
     except ConnectionError as e:
-        logger.error(f"Connection Error: {e}")
+        logger.error(f"Connection Error (request_id={request_id}): {e}")
         raise HTTPException(status_code=503, detail="Connection error. Please check your internet connection.")
     except TimeoutError as e:
-        logger.error(f"Timeout Error: {e}")
+        logger.error(f"Timeout Error (request_id={request_id}): {e}")
         raise HTTPException(status_code=504, detail="Request timeout. Please try again.")
     except Exception as e:
-        logger.error(f"Error processing request: {e}")
-        error_msg = classify_local_model_error(str(e))
+        logger.error(f"Error processing request (request_id={request_id}): {e}")
+        error_msg = classify_local_model_error(
+            str(e),
+            base_url=model_route.base_url if model_route else None,
+        )
         raise HTTPException(status_code=500, detail=error_msg)
