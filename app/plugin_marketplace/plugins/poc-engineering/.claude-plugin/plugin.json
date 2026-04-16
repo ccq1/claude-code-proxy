@@ -1,0 +1,25 @@
+{
+  "name": "poc-engineering",
+  "version": "0.1.0",
+  "description": "将零散漏洞验证思路固化为可复现、可批量、可交付的检测与利用模板，覆盖请求编排、变量提取、前置探测与结果降噪。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/poc-engineering.md"],
+  "skills": ["./skills/poc-engineering"],
+  "settingsSchema": {
+    "title": "POC 工程化配置",
+    "description": "默认适配离线环境。可选指定本地漏洞镜像目录，用于离线引用 CVE、KEV 与版本信息。",
+    "fields": [
+      {
+        "key": "vulnDataRoot",
+        "label": "漏洞数据目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/var/lib/pandoraq/open-intel/vuln",
+        "description": "本地 NVD、KEV、CVE 等漏洞数据目录。",
+        "placeholderToken": "VULN_DATA_ROOT"
+      }
+    ]
+  }
+}

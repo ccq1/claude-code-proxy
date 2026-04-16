@@ -206,7 +206,7 @@ GET /rtkb/api/software?limit=100&offset=0
 Software projects (3 results, offset=0)
 
 1. Sliver
-   repo: https://github.com/BishopFox/sliver
+   repo: (external repo URL omitted in offline deployment)
    detail: /rtkb/api/software/Sliver/detail
    tree:   /rtkb/api/software/Sliver/tree
    grep:   /rtkb/api/software/Sliver/grep?pattern=<regex>

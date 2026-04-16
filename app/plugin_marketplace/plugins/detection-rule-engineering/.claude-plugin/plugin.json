@@ -1,0 +1,34 @@
+{
+  "name": "detection-rule-engineering",
+  "version": "0.1.0",
+  "description": "基于样本、IOC 和行为证据生成并优化 YARA / Sigma 规则，兼顾命中率、可解释性与误报控制。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/detection-rule-engineering.md"],
+  "skills": ["./skills/detection-rule-engineering"],
+  "settingsSchema": {
+    "title": "检测规则工程配置",
+    "description": "默认适配离线环境。可选指定本地漏洞与 ATT&CK 镜像目录，用于离线引用 CVE、KEV 与 ATT&CK 数据。",
+    "fields": [
+      {
+        "key": "vulnDataRoot",
+        "label": "漏洞数据目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/var/lib/pandoraq/open-intel/vuln",
+        "description": "本地 NVD、KEV、CVE 等漏洞数据目录。",
+        "placeholderToken": "VULN_DATA_ROOT"
+      },
+      {
+        "key": "attackDataRoot",
+        "label": "ATT&CK 数据目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/var/lib/pandoraq/open-intel/attack",
+        "description": "本地 MITRE ATT&CK STIX 数据目录。",
+        "placeholderToken": "ATTACK_DATA_ROOT"
+      }
+    ]
+  }
+}

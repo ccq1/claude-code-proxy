@@ -1,0 +1,61 @@
+{
+  "name": "attack-surface-intel",
+  "version": "0.1.0",
+  "description": "聚合资产清单、域名、IP、URL、样本与基础设施快照，在离线或隔离环境中快速定位高价值入口与可疑暴露面。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/attack-surface-intel.md"],
+  "skills": ["./skills/attack-surface-intel"],
+  "settingsSchema": {
+    "title": "攻击面情报配置",
+    "description": "默认适配离线环境。可选配置第三方情报平台 API 凭据；无外网时可直接基于本地资产快照、IOC 导出和样本清单工作。",
+    "fields": [
+      {
+        "key": "intelWorkspace",
+        "label": "本地情报目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/data/intel",
+        "description": "可选。本地资产清单、IOC 导出、证书快照或样本索引所在目录。",
+        "placeholderToken": "INTEL_WORKSPACE"
+      },
+      {
+        "key": "vtApiKey",
+        "label": "VirusTotal API Key",
+        "type": "password",
+        "required": false,
+        "placeholder": "可选",
+        "description": "用于查询文件、URL、域名、IP 及关联关系。",
+        "placeholderToken": "VT_API_KEY"
+      },
+      {
+        "key": "shodanApiKey",
+        "label": "Shodan API Key",
+        "type": "password",
+        "required": false,
+        "placeholder": "可选",
+        "description": "用于枚举开放服务、Banner 和暴露端口。",
+        "placeholderToken": "SHODAN_API_KEY"
+      },
+      {
+        "key": "censysApiId",
+        "label": "Censys API ID",
+        "type": "text",
+        "required": false,
+        "placeholder": "可选",
+        "description": "用于查询主机、证书与被动基础设施关联。",
+        "placeholderToken": "CENSYS_API_ID"
+      },
+      {
+        "key": "censysApiSecret",
+        "label": "Censys API Secret",
+        "type": "password",
+        "required": false,
+        "placeholder": "可选",
+        "description": "与 Censys API ID 配套使用。",
+        "placeholderToken": "CENSYS_API_SECRET"
+      }
+    ]
+  }
+}

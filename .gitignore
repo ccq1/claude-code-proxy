@@ -48,6 +48,9 @@ Thumbs.db
 *.json
 !tokenizers/*.json
 !.env.example
+!app/plugin_marketplace/plugins/**/.claude-plugin/plugin.json
+!app/plugin_marketplace/plugins/**/config/runtime.json
+!app/plugin_marketplace/plugins/**/references/**/*.json
 
 # Old source files (after refactoring)
 # server.py
@@ -59,4 +62,3 @@ Thumbs.db
 
 logs
 tests
-

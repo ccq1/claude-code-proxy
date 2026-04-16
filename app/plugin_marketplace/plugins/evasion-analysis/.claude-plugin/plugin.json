@@ -1,0 +1,10 @@
+{
+  "name": "evasion-analysis",
+  "version": "0.1.0",
+  "description": "识别反沙箱、反调试、反虚拟机、延时触发与环境探测逻辑，评估真实投放能力与规避门槛。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/evasion-analysis.md"],
+  "skills": ["./skills/evasion-analysis"]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "attack-path-mapper",
+  "version": "0.1.0",
+  "description": "基于身份、权限、资产关系和 ATT&CK 技术链推演横向移动、提权与关键资产触达路径。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/attack-path-mapper.md"],
+  "skills": ["./skills/attack-path-mapper"],
+  "settingsSchema": {
+    "title": "攻击路径推演配置",
+    "description": "默认适配离线环境。可选指定本地 ATT&CK STIX 镜像目录，用于离线映射 tactic / technique。",
+    "fields": [
+      {
+        "key": "attackDataRoot",
+        "label": "ATT&CK 数据目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/var/lib/pandoraq/open-intel/attack",
+        "description": "本地 MITRE ATT&CK STIX 数据目录。",
+        "placeholderToken": "ATTACK_DATA_ROOT"
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "redteam-kb",
+  "version": "0.1.0",
+  "description": "查询私有红队知识库。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "commands": ["./commands/redteam-kb.md"],
+  "skills": ["./skills/redteam-kb"],
+  "settingsSchema": {
+    "title": "红队知识库配置",
+    "description": "设置插件访问的知识库地址和可选密钥。保存后会重新生成本地命令与技能文件。",
+    "fields": [
+      {
+        "key": "baseUrl",
+        "label": "知识库地址",
+        "type": "url",
+        "required": true,
+        "placeholder": "http://127.0.0.1:5010",
+        "description": "例如本地 GPU 机器地址，或云上的知识库服务地址。",
+        "placeholderToken": "REDTEAM_KB_BASE_URL"
+      },
+      {
+        "key": "apiKey",
+        "label": "访问密钥",
+        "type": "password",
+        "required": false,
+        "placeholder": "可选",
+        "description": "如果知识库启用了鉴权，可在这里填写。当前仅本地保存，不会回写到 llm_proxy。"
+      }
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "vulnDataRoot": "{{VULN_DATA_ROOT}}",
+  "attackDataRoot": "{{ATTACK_DATA_ROOT}}"
+}
