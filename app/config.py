@@ -18,6 +18,9 @@ class ModelRoute:
     model_name: str
     base_url: str
     auth_token: str
+    context_length: int
+    description: str
+    supports_image_analysis: bool
     tokenizer_file: str
 
 
@@ -35,7 +38,19 @@ class Config:
         # 服务器配置
         self.host = os.environ.get("HOST", "0.0.0.0")
         self.port = int(os.environ.get("PORT", "4000"))
-        self.log_level = os.environ.get("LOG_LEVEL", "INFO")
+        raw_log_level = (os.environ.get("LOG_LEVEL", "INFO") or "").strip()
+        normalized_log_level = raw_log_level.upper()
+        if normalized_log_level in {"1", "TRUE", "YES", "ON"}:
+            normalized_log_level = "DEBUG"
+        elif normalized_log_level in {"0", "FALSE", "NO", "OFF", ""}:
+            normalized_log_level = "INFO"
+        elif normalized_log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
+            print(
+                f"🟠 Invalid LOG_LEVEL={raw_log_level!r}; falling back to 'INFO'. "
+                "Use one of: CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET."
+            )
+            normalized_log_level = "INFO"
+        self.log_level = normalized_log_level
         debug_env = (
             os.environ.get("DEBUG_MODE")
             or os.environ.get("DEBUG")
@@ -43,6 +58,11 @@ class Config:
         ).strip().lower()
         self.debug_mode = debug_env in {"1", "true", "yes", "on"} or self.log_level.upper() == "DEBUG"
         self.max_tokens_limit = int(os.environ.get("MAX_TOKENS_LIMIT", "16384"))
+
+        # 非标准 OpenAI 字段注入（仅限自建/兼容后端开启）
+        self.inject_thinking_config = os.environ.get("INJECT_THINKING_CONFIG", "false").lower() == "true"
+        self.inject_chat_template_kwargs = os.environ.get("INJECT_CHAT_TEMPLATE_KWARGS", "false").lower() == "true"
+        self.allow_non_openai_sampling_params = os.environ.get("ALLOW_NON_OPENAI_SAMPLING_PARAMS", "false").lower() == "true"
         
         # 连接配置
         self.request_timeout = int(os.environ.get("REQUEST_TIMEOUT", "90"))
@@ -58,6 +78,10 @@ class Config:
         self.log_response_details = os.environ.get("LOG_RESPONSE_DETAILS", "false").lower() == "true"
         self.model_request_dump_dir = os.environ.get("MODEL_REQUEST_DUMP_DIR", "logs/model_request_contexts").strip()
         self.sanitize_brand_terms = os.environ.get("SANITIZE_BRAND_TERMS", "true").lower() == "true"
+
+        # 插件配置
+        self.redteam_kb_base_url = os.environ.get("REDTEAM_KB_BASE_URL", "").strip()
+        self.redteam_kb_api_key = os.environ.get("REDTEAM_KB_API_KEY", "").strip()
         
         # Worker 配置
         self.workers = int(os.environ.get("WORKERS", "1"))
@@ -72,15 +96,42 @@ class Config:
             model_name = os.environ.get(f"MODEL_NAME_{index}", "").strip()
             base_url = os.environ.get(f"MODEL_BASE_URL_{index}", "").strip()
             auth_token = os.environ.get(f"MODEL_AUTH_TOKEN_{index}", "").strip()
+            raw_context_length = os.environ.get(f"MODEL_CONTEXT_LENGTH_{index}", "").strip()
+            description = os.environ.get(f"MODEL_DESCRIPTION_{index}", "").strip()
+            raw_supports_image_analysis = os.environ.get(
+                f"MODEL_SUPPORTS_IMAGE_ANALYSIS_{index}",
+                "false",
+            ).strip().lower()
             tokenizer_file = (
                 os.environ.get(f"MODEL_TOKENIZER_FILE_{index}", "").strip()
                 or self.default_tokenizer_file
             )
 
-            if not model_name or not base_url or not auth_token:
+            if (
+                not model_name
+                or not base_url
+                or not auth_token
+                or not raw_context_length
+                or not description
+            ):
                 raise ValueError(
-                    f"Model #{index} must include MODEL_NAME_{index}, MODEL_BASE_URL_{index}, MODEL_AUTH_TOKEN_{index}"
+                    f"Model #{index} must include MODEL_NAME_{index}, MODEL_BASE_URL_{index}, "
+                    f"MODEL_AUTH_TOKEN_{index}, MODEL_CONTEXT_LENGTH_{index}, MODEL_DESCRIPTION_{index}"
                 )
+            try:
+                context_length = int(raw_context_length)
+                if context_length <= 0:
+                    raise ValueError
+            except ValueError:
+                raise ValueError(
+                    f"MODEL_CONTEXT_LENGTH_{index} must be a positive integer, got '{raw_context_length}'"
+                )
+            if raw_supports_image_analysis not in {"true", "false"}:
+                raise ValueError(
+                    f"MODEL_SUPPORTS_IMAGE_ANALYSIS_{index} must be 'true' or 'false', "
+                    f"got '{raw_supports_image_analysis}'"
+                )
+            supports_image_analysis = raw_supports_image_analysis == "true"
 
             if model_name in routes:
                 raise ValueError(f"Duplicate model_name in routes: '{model_name}'")
@@ -89,6 +140,9 @@ class Config:
                 model_name=model_name,
                 base_url=base_url,
                 auth_token=auth_token,
+                context_length=context_length,
+                description=description,
+                supports_image_analysis=supports_image_analysis,
                 tokenizer_file=tokenizer_file,
             )
 
@@ -123,7 +177,9 @@ class Config:
         for route in self.model_route_list[:10]:
             masked_token = "*" * min(10, len(route.auth_token)) if route.auth_token else "(empty)"
             print(
-                f"      - model='{route.model_name}', base_url='{route.base_url}', auth_token={masked_token}, tokenizer_file='{route.tokenizer_file}'"
+                f"      - model='{route.model_name}', base_url='{route.base_url}', auth_token={masked_token}, "
+                f"context_length={route.context_length}, description='{route.description}', "
+                f"supports_image_analysis={route.supports_image_analysis}, tokenizer_file='{route.tokenizer_file}'"
             )
         print(f"   MAX_TOKENS_LIMIT={self.max_tokens_limit}")
         print(f"   MAX_STREAMING_RETRIES={self.max_streaming_retries}")
@@ -134,6 +190,7 @@ class Config:
         print(f"   DEBUG_MODE={self.debug_mode}")
         print(f"   SANITIZE_BRAND_TERMS={self.sanitize_brand_terms}")
         print(f"   MODEL_REQUEST_DUMP_DIR='{self.model_request_dump_dir}'")
+        print(f"   REDTEAM_KB_BASE_URL={'(set)' if self.redteam_kb_base_url else '(empty)'}")
         print(f"   WORKERS={self.workers}")
 
 

@@ -148,6 +148,7 @@ async def root():
         "endpoints": {
             "messages": "/v1/messages",
             "count_tokens": "/v1/messages/count_tokens",
+            "models": "/models",
             "event_logging_batch": "/api/event_logging/batch",
             "health": "/health",
             "test_connection": "/test-connection"

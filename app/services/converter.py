@@ -42,6 +42,59 @@ Good examples:
 Bad (too vague): {"title": "Code changes"}
 Bad (too long): {"title": "Investigate and fix the issue where the login button does not respond on mobile devices"}
 Bad (wrong case): {"title": "Fix Login Button On Mobile"}"""
+PLAN_MODE_MARKERS = (
+    "Plan mode is active",
+    "ExitPlanMode",
+    "only file you are allowed to edit",
+    "You should create your plan at",
+)
+PLAN_MODE_FILTERED_TOOLS = {"EnterPlanMode", "EnterWorktree", "ExitWorktree"}
+PLAN_MODE_OUTPUT_MARKER = "<proposed_plan>"
+PLAN_MODE_OUTPUT_PROMPT = """
+When plan mode is active, keep following the existing planning workflow and constraints instead of replacing them.
+
+In this PandoraQ UI, the user CAN see a <proposed_plan>...</proposed_plan> block before ExitPlanMode is called. Do not assume the plan is hidden from the user until ExitPlanMode.
+
+Once you have enough context to propose an approach, your next visible assistant response must begin with exactly one complete <proposed_plan>...</proposed_plan> block.
+
+If the user explicitly says they are testing the plan workflow, produce a minimal but valid proposed plan after brief read-only exploration instead of prolonging clarification.
+
+Inside <proposed_plan>:
+- Start with YAML frontmatter.
+- Then include a free-form markdown plan document.
+
+Frontmatter requirements:
+- Include `name`, `overview`, `todos`, and `isProject`.
+- `todos` must be an array.
+- Each todo item must include `id`, `content`, and `status`.
+
+Markdown requirements:
+- Write natural markdown that matches the task and codebase.
+- Do not force a fixed section template.
+
+Revision and execution rules:
+- If the user asks to revise the plan, output a fresh full <proposed_plan>...</proposed_plan> block.
+- After emitting <proposed_plan>, wait for revision feedback or explicit approval unless the user has already clearly approved execution.
+- Do not start implementation until the user clearly approves the plan.
+- If the user says "实施计划" or otherwise approves execution, proceed using the latest approved plan.
+"""
+TEXT_TOOL_CALL_BLOCK_RE = re.compile(
+    r"<tool_call>\s*(.*?)\s*</tool_call>",
+    re.DOTALL | re.IGNORECASE,
+)
+TEXT_FUNCTION_CALL_RE = re.compile(
+    r"<function=([A-Za-z0-9_.:-]+)>\s*(.*?)\s*(?:</function>|$)",
+    re.DOTALL | re.IGNORECASE,
+)
+TEXT_TOOL_PARAMETER_RE = re.compile(
+    r"<parameter=([A-Za-z0-9_.:-]+)>\s*",
+    re.IGNORECASE,
+)
+TEXT_TOOL_CALL_MARKERS = ("<tool_call>", "<function=")
+TEXT_TOOL_CLOSING_TAG_RE = re.compile(
+    r"</\s*(parameter|function|tool_call)\s*>",
+    re.IGNORECASE,
+)
 
 
 def sanitize_brand_terms(text: str, stats: Dict[str, float] = None) -> str:
@@ -86,6 +139,78 @@ def normalize_system_prompt(system_text: str) -> str:
         logger.info("📝 Rewrote session title prompt to follow the user's language")
 
     return sanitize_brand_terms(cleaned)
+
+
+def collect_request_text(anthropic_request) -> str:
+    """提取请求中的文本内容，用于识别 plan mode。"""
+    parts: List[str] = []
+
+    if anthropic_request.system:
+        if isinstance(anthropic_request.system, str):
+            parts.append(anthropic_request.system)
+        elif isinstance(anthropic_request.system, list):
+            for block in anthropic_request.system:
+                if hasattr(block, "type") and block.type == Constants.CONTENT_TEXT:
+                    parts.append(block.text)
+                elif isinstance(block, dict) and block.get("type") == Constants.CONTENT_TEXT:
+                    parts.append(block.get("text", ""))
+
+    for msg in anthropic_request.messages:
+        content = msg.content
+        if isinstance(content, str):
+            parts.append(content)
+            continue
+
+        for block in content:
+            if hasattr(block, "type"):
+                if block.type == Constants.CONTENT_TEXT:
+                    parts.append(getattr(block, "text", ""))
+                elif block.type == Constants.CONTENT_TOOL_RESULT:
+                    parts.append(parse_tool_result_content(block.content))
+            elif isinstance(block, dict):
+                if block.get("type") == Constants.CONTENT_TEXT:
+                    parts.append(block.get("text", ""))
+                elif block.get("type") == Constants.CONTENT_TOOL_RESULT:
+                    parts.append(parse_tool_result_content(block.get("content")))
+
+    return "\n".join(part for part in parts if part)
+
+
+def collect_system_text(anthropic_request) -> str:
+    """提取 system 内容，用于模式判定，避免被历史对话污染。"""
+    parts: List[str] = []
+
+    if not anthropic_request.system:
+        return ""
+
+    if isinstance(anthropic_request.system, str):
+        parts.append(anthropic_request.system)
+    elif isinstance(anthropic_request.system, list):
+        for block in anthropic_request.system:
+            if hasattr(block, "type") and block.type == Constants.CONTENT_TEXT:
+                parts.append(getattr(block, "text", ""))
+            elif isinstance(block, dict) and block.get("type") == Constants.CONTENT_TEXT:
+                parts.append(block.get("text", ""))
+
+    return "\n".join(part for part in parts if part)
+
+
+def is_plan_mode_request(anthropic_request) -> bool:
+    """根据请求中的 marker 识别是否为 plan mode。"""
+    # 仅使用 system 文本判断，避免历史消息中残留 marker 导致误判。
+    system_text = collect_system_text(anthropic_request).lower()
+    if not system_text:
+        return False
+    return all(marker.lower() in system_text for marker in PLAN_MODE_MARKERS)
+
+
+def append_plan_mode_output_prompt(system_text: str) -> str:
+    """在 system prompt 末尾追加 plan mode 输出协议。"""
+    if PLAN_MODE_OUTPUT_MARKER in system_text:
+        return system_text
+    if not system_text.strip():
+        return PLAN_MODE_OUTPUT_PROMPT.strip()
+    return f"{system_text.rstrip()}\n\n{PLAN_MODE_OUTPUT_PROMPT.strip()}"
 
 
 def clean_model_schema(schema: Any) -> Any:
@@ -236,15 +361,122 @@ def validate_todowrite_tool_call(tool_name: str, arguments_dict: dict) -> dict:
     return arguments_dict
 
 
+def parse_text_tool_call_block(block_text: str) -> Tuple[dict | None, bool]:
+    """解析 <tool_call>...</tool_call> 文本协议。"""
+    function_match = re.search(
+        r"<function=([A-Za-z0-9_.:-]+)>",
+        block_text,
+        re.IGNORECASE,
+    )
+    if not function_match:
+        return None, False
+
+    tool_name = function_match.group(1)
+    parameters_text = block_text[function_match.end():]
+    param_matches = list(TEXT_TOOL_PARAMETER_RE.finditer(parameters_text))
+
+    arguments_dict: Dict[str, Any] = {}
+    if param_matches:
+        for index, match in enumerate(param_matches):
+            value_start = match.end()
+            value_end = (
+                param_matches[index + 1].start()
+                if index + 1 < len(param_matches)
+                else len(parameters_text)
+            )
+            raw_value = parameters_text[value_start:value_end].strip()
+            cleaned_value = TEXT_TOOL_CLOSING_TAG_RE.sub("", raw_value).strip()
+            parsed_value: Any = cleaned_value
+
+            # 尝试对文本协议中的标量参数进行基础类型修复，避免 timeout 被识别成字符串
+            if cleaned_value:
+                lower_value = cleaned_value.lower()
+                if lower_value in {"true", "false"}:
+                    parsed_value = lower_value == "true"
+                elif re.fullmatch(r"[+-]?\d+", cleaned_value):
+                    parsed_value = int(cleaned_value)
+                elif re.fullmatch(r"[+-]?(?:\d+\.\d*|\.\d+)", cleaned_value):
+                    parsed_value = float(cleaned_value)
+                elif (
+                    (cleaned_value.startswith("{") and cleaned_value.endswith("}"))
+                    or (cleaned_value.startswith("[") and cleaned_value.endswith("]"))
+                ):
+                    try:
+                        parsed_value = json.loads(cleaned_value)
+                    except json.JSONDecodeError:
+                        parsed_value = cleaned_value
+
+            arguments_dict[match.group(1)] = parsed_value
+    else:
+        stripped = parameters_text.strip()
+        if stripped:
+            try:
+                parsed = json.loads(stripped)
+                if isinstance(parsed, dict):
+                    arguments_dict = parsed
+                else:
+                    arguments_dict = {"raw_arguments": stripped}
+            except json.JSONDecodeError:
+                arguments_dict = {"raw_arguments": stripped}
+
+    return {
+        "id": f"tool_{uuid.uuid4()}",
+        Constants.TOOL_FUNCTION: {
+            "name": tool_name,
+            "arguments": json.dumps(arguments_dict, ensure_ascii=False),
+        },
+    }, True
+
+
+def contains_text_tool_call_marker(content_text: str) -> bool:
+    """判断文本中是否包含疑似文本型工具调用标记。"""
+    lowered = (content_text or "").lower()
+    return any(marker in lowered for marker in TEXT_TOOL_CALL_MARKERS)
+
+
+def extract_text_based_tool_calls(content_text: str) -> Tuple[str, List[dict]]:
+    """从 content 文本中提取非标准工具调用协议。"""
+    extracted_tool_calls: List[dict] = []
+    remaining_text = content_text
+
+    for match in list(TEXT_TOOL_CALL_BLOCK_RE.finditer(content_text)):
+        tool_call, parsed = parse_text_tool_call_block(match.group(1))
+        if parsed and tool_call is not None:
+            extracted_tool_calls.append(tool_call)
+            remaining_text = remaining_text.replace(match.group(0), "", 1)
+
+    if extracted_tool_calls:
+        return remaining_text.strip(), extracted_tool_calls
+
+    function_match = TEXT_FUNCTION_CALL_RE.search(content_text)
+    if function_match:
+        tool_name = function_match.group(1)
+        arguments_str = function_match.group(2).strip()
+        tool_call = {
+            "id": f"tool_{uuid.uuid4()}",
+            Constants.TOOL_FUNCTION: {
+                "name": tool_name,
+                "arguments": arguments_str or "{}",
+            },
+        }
+        remaining_text = (
+            content_text[:function_match.start()] + content_text[function_match.end():]
+        ).strip()
+        return remaining_text, [tool_call]
+
+    return content_text, []
+
+
 def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, Any]:
     """将 Anthropic API 请求格式转换为 LiteLLM 格式"""
     litellm_messages = []
     pending_tool_messages = []
     sanitize_stats: Dict[str, float] = {} if config.sanitize_brand_terms else None
+    is_plan_mode = is_plan_mode_request(anthropic_request)
+    system_text = ""
     
     # 处理 system 消息
     if anthropic_request.system:
-        system_text = ""
         if isinstance(anthropic_request.system, str):
             system_text = anthropic_request.system
         elif isinstance(anthropic_request.system, list):
@@ -255,11 +487,14 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
                 elif isinstance(block, dict) and block.get("type") == Constants.CONTENT_TEXT:
                     text_parts.append(block.get("text", ""))
             system_text = "\n\n".join(text_parts)
-        
-        system_text = normalize_system_prompt(system_text)
-        system_text = sanitize_brand_terms(system_text, sanitize_stats)
-        if system_text.strip():
-            litellm_messages.append({"role": Constants.ROLE_SYSTEM, "content": system_text.strip()})
+
+    system_text = normalize_system_prompt(system_text)
+    if is_plan_mode:
+        system_text = append_plan_mode_output_prompt(system_text)
+        logger.info("🗂️ Detected plan mode request; appended proposed plan output prompt")
+    system_text = sanitize_brand_terms(system_text, sanitize_stats)
+    if system_text.strip():
+        litellm_messages.append({"role": Constants.ROLE_SYSTEM, "content": system_text.strip()})
 
     # 处理消息
     for msg in anthropic_request.messages:
@@ -372,13 +607,16 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
         litellm_request["stop"] = anthropic_request.stop_sequences
     if anthropic_request.top_p is not None:
         litellm_request["top_p"] = anthropic_request.top_p
-    if anthropic_request.top_k is not None:
+    if anthropic_request.top_k is not None and config.allow_non_openai_sampling_params:
         litellm_request["topK"] = anthropic_request.top_k
 
     # 添加工具定义
+    valid_tools = []
     if anthropic_request.tools:
-        valid_tools = []
         for tool in anthropic_request.tools:
+            if is_plan_mode and tool.name in PLAN_MODE_FILTERED_TOOLS:
+                logger.info("🧰 Filtered tool in plan mode: %s", tool.name)
+                continue
             if tool.name and tool.name.strip():
                 cleaned_schema = clean_model_schema(tool.input_schema)
                 valid_tools.append({
@@ -418,19 +656,25 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
 
     # 添加 thinking 配置
     if anthropic_request.thinking is not None:
-        if anthropic_request.thinking.enabled:
-            litellm_request["thinkingConfig"] = {"thinkingBudget": 24576}
+        if config.inject_thinking_config:
+            if anthropic_request.thinking.enabled:
+                litellm_request["thinkingConfig"] = {"thinkingBudget": 24576}
+            else:
+                litellm_request["thinkingConfig"] = {"thinkingBudget": 0}
         else:
-            litellm_request["thinkingConfig"] = {"thinkingBudget": 0}
+            logger.debug("Skipping thinkingConfig injection (INJECT_THINKING_CONFIG=false)")
 
-    # 添加是否思考 - 如果有工具就开启思考，否则关闭思考
-    litellm_request['extra_body'] = {
-            "chat_template_kwargs": {
-                "enable_thinking": num_tools > 0
-                # "enable_thinking": True
-            }
+    # 非标准字段：仅在明确开启时注入到 OpenAI-compatible 请求体里
+    if config.inject_chat_template_kwargs:
+        effective_num_tools = len(valid_tools) if anthropic_request.tools else num_tools
+        litellm_request["extra_body"] = {
+            "chat_template_kwargs": {"enable_thinking": effective_num_tools > 0}
         }
-    logger.info(f"💡 思考配置: {'启用' if num_tools > 0 else '禁用'} (工具数量: {num_tools})")
+        logger.info(
+            "💡 chat_template_kwargs: enable_thinking=%s (tools=%s)",
+            effective_num_tools > 0,
+            effective_num_tools,
+        )
 
 
 
@@ -460,6 +704,7 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
     try:
         response_id = f"msg_{uuid.uuid4()}"
         content_text = ""
+        original_content_text = ""
         tool_calls = None
         finish_reason = "stop"
         prompt_tokens = 0
@@ -471,6 +716,7 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             choices = litellm_response.choices
             message = choices[0].message if choices else None
             content_text = getattr(message, 'content', "") or ""
+            original_content_text = content_text
             reasoning_content = getattr(message, 'reasoning_content', None)
             tool_calls = getattr(message, 'tool_calls', None)
             finish_reason = choices[0].finish_reason if choices else "stop"
@@ -486,6 +732,7 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             choices = litellm_response.get("choices", [])
             message = choices[0].get("message", {}) if choices else {}
             content_text = message.get("content", "") or ""
+            original_content_text = content_text
             reasoning_content = message.get("reasoning_content")
             tool_calls = message.get("tool_calls")
             finish_reason = choices[0].get("finish_reason", "stop") if choices else "stop"
@@ -501,10 +748,22 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
                 logger.info(f"Reasoning Content 捕获成功: {reasoning_content[:100]}...")
             else:
                 logger.info(f"Reasoning Content 捕获成功: {len(reasoning_content)} 字符")
-        # 检查write 工具和内容
-        if '<function=Write>' in content_text:
-            logger.info(f"❌ write 工具调用疑似错误放在content字段里: {content_text[:100]}...")
-        
+
+        if not tool_calls and content_text:
+            content_text, extracted_tool_calls = extract_text_based_tool_calls(content_text)
+            if extracted_tool_calls:
+                tool_calls = extracted_tool_calls
+                logger.error(
+                    "❌ Model emitted text-based tool call instead of structured tool_calls; recovered via proxy fallback. content_preview=%r",
+                    original_content_text[:120],
+                )
+            elif contains_text_tool_call_marker(original_content_text):
+                logger.error(
+                    "❌ Model emitted malformed text-based tool call and proxy could not recover it. content_preview=%r",
+                    original_content_text[:120],
+                )
+
+        effective_tool_calls = tool_calls
 
         # 构建内容块
         content_blocks = []
@@ -518,11 +777,11 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             content_blocks.append(ContentBlockText(type=Constants.CONTENT_TEXT, text=content_text))
 
         # 处理工具调用
-        if tool_calls:
-            if not isinstance(tool_calls, list):
-                tool_calls = [tool_calls]
+        if effective_tool_calls:
+            if not isinstance(effective_tool_calls, list):
+                effective_tool_calls = [effective_tool_calls]
 
-            for tool_call in tool_calls:
+            for tool_call in effective_tool_calls:
                 try:
                     if isinstance(tool_call, dict):
                         tool_id = tool_call.get("id", f"tool_{uuid.uuid4()}")
@@ -587,7 +846,9 @@ def convert_litellm_to_anthropic(litellm_response, original_request):
             stop_reason = Constants.STOP_MAX_TOKENS
         elif finish_reason == "tool_calls":
             stop_reason = Constants.STOP_TOOL_USE
-        elif finish_reason is None and tool_calls:
+        elif finish_reason is None and effective_tool_calls:
+            stop_reason = Constants.STOP_TOOL_USE
+        elif effective_tool_calls:
             stop_reason = Constants.STOP_TOOL_USE
         else:
             stop_reason = Constants.STOP_END_TURN

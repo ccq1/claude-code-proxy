@@ -4,13 +4,61 @@
 import json
 import asyncio
 import logging
+import re
 import litellm
 
 from app.constants import Constants
 from app.config import config
-from .converter import validate_todowrite_tool_call
+from .converter import (
+    contains_text_tool_call_marker,
+    extract_text_based_tool_calls,
+    validate_todowrite_tool_call,
+)
 
 logger = logging.getLogger(__name__)
+STREAMING_TEXT_TOOL_CALL_MARKERS = ("<tool_call>", "<function=")
+
+
+def find_partial_tool_call_suffix_start(text: str) -> int | None:
+    """找到文本末尾疑似工具调用起始片段的位置。"""
+    if not text:
+        return None
+
+    lowered = text.lower()
+    best_index = None
+    for marker in STREAMING_TEXT_TOOL_CALL_MARKERS:
+        marker_lower = marker.lower()
+        max_prefix_len = len(marker_lower) - 1
+        for prefix_len in range(max_prefix_len, 0, -1):
+            prefix = marker_lower[:prefix_len]
+            if lowered.endswith(prefix):
+                candidate_index = len(text) - prefix_len
+                if best_index is None or candidate_index < best_index:
+                    best_index = candidate_index
+                break
+    return best_index
+
+
+def split_text_for_tool_call_streaming(text: str) -> tuple[str, str]:
+    """拆分可安全直发的文本和需要缓冲的疑似工具调用片段。"""
+    if not text:
+        return "", ""
+
+    lowered = text.lower()
+    marker_positions = [
+        lowered.find(marker.lower())
+        for marker in STREAMING_TEXT_TOOL_CALL_MARKERS
+        if lowered.find(marker.lower()) != -1
+    ]
+    if marker_positions:
+        marker_index = min(marker_positions)
+        return text[:marker_index], text[marker_index:]
+
+    partial_index = find_partial_tool_call_suffix_start(text)
+    if partial_index is not None:
+        return text[:partial_index], text[partial_index:]
+
+    return text, ""
 
 
 async def handle_streaming_with_recovery(response_generator, original_request, input_tokens: int):
@@ -26,7 +74,12 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
 
     # 流式状态管理
     accumulated_text = ""
+    pending_text_suffix = ""
+    buffered_text_tool_call = ""
     accumulated_thinking = ""
+    emitted_thinking = ""
+    pending_thinking_suffix = ""
+    buffered_thinking_tool_call = ""
     thinking_block_started = False
     thinking_block_ended = False
     text_block_started = False
@@ -50,7 +103,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     chunk_count = 0
     
     chunk_buffer = ""
-    
+
     def is_malformed_chunk(chunk_str: str) -> bool:
         """检测畸形的 chunk"""
         if not chunk_str or not isinstance(chunk_str, str):
@@ -225,14 +278,30 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                         total_tokens = chunk_total_tokens
 
                 if delta_reasoning_text:
-                    if not thinking_block_started:
-                        thinking_block_index = next_block_index
-                        next_block_index += 1
-                        thinking_block_started = True
-                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': thinking_block_index, 'content_block': {'type': Constants.CONTENT_THINKING, 'thinking': ''}})}\n\n"
-                    
                     accumulated_thinking += delta_reasoning_text
-                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': thinking_block_index, 'delta': {'type': Constants.DELTA_THINKING, 'thinking': delta_reasoning_text}})}\n\n"
+
+                    if buffered_thinking_tool_call:
+                        buffered_thinking_tool_call += pending_thinking_suffix + delta_reasoning_text
+                        pending_thinking_suffix = ""
+                        safe_thinking_to_emit = ""
+                    else:
+                        combined_thinking = pending_thinking_suffix + delta_reasoning_text
+                        pending_thinking_suffix = ""
+                        safe_thinking_to_emit, buffered_fragment = split_text_for_tool_call_streaming(
+                            combined_thinking
+                        )
+                        if buffered_fragment:
+                            buffered_thinking_tool_call = buffered_fragment
+
+                    if safe_thinking_to_emit:
+                        if not thinking_block_started:
+                            thinking_block_index = next_block_index
+                            next_block_index += 1
+                            thinking_block_started = True
+                            yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': thinking_block_index, 'content_block': {'type': Constants.CONTENT_THINKING, 'thinking': ''}})}\n\n"
+
+                        emitted_thinking += safe_thinking_to_emit
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': thinking_block_index, 'delta': {'type': Constants.DELTA_THINKING, 'thinking': safe_thinking_to_emit}})}\n\n"
 
                 if delta_content_text or delta_tool_calls:
                     if thinking_block_started and not thinking_block_ended:
@@ -241,14 +310,26 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                         logger.info(f"💭 思考完成，共 {len(accumulated_thinking)} 字符")
 
                 if delta_content_text:
-                    if not text_block_started:
-                        text_block_index = next_block_index
-                        next_block_index += 1
-                        text_block_started = True
-                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
-                    
-                    accumulated_text += delta_content_text
-                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': delta_content_text}})}\n\n"
+                    if buffered_text_tool_call:
+                        buffered_text_tool_call += pending_text_suffix + delta_content_text
+                        pending_text_suffix = ""
+                        text_to_emit = ""
+                    else:
+                        combined_text = pending_text_suffix + delta_content_text
+                        pending_text_suffix = ""
+                        text_to_emit, buffered_fragment = split_text_for_tool_call_streaming(combined_text)
+                        if buffered_fragment:
+                            buffered_text_tool_call = buffered_fragment
+
+                    if text_to_emit:
+                        if not text_block_started:
+                            text_block_index = next_block_index
+                            next_block_index += 1
+                            text_block_started = True
+                            yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+
+                        accumulated_text += text_to_emit
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': text_to_emit}})}\n\n"
 
                 if delta_tool_calls:
                     logger.debug(f"🔨 接收到工具调用delta: {len(delta_tool_calls)} 个")
@@ -361,6 +442,133 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
 
     # 发送最终事件
     try:
+        recovered_tool_calls = {}
+        if pending_thinking_suffix:
+            if buffered_thinking_tool_call:
+                buffered_thinking_tool_call += pending_thinking_suffix
+            else:
+                if not thinking_block_started:
+                    thinking_block_index = next_block_index
+                    next_block_index += 1
+                    thinking_block_started = True
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': thinking_block_index, 'content_block': {'type': Constants.CONTENT_THINKING, 'thinking': ''}})}\n\n"
+                emitted_thinking += pending_thinking_suffix
+                yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': thinking_block_index, 'delta': {'type': Constants.DELTA_THINKING, 'thinking': pending_thinking_suffix}})}\n\n"
+            pending_thinking_suffix = ""
+
+        if pending_text_suffix:
+            if buffered_text_tool_call:
+                buffered_text_tool_call += pending_text_suffix
+            else:
+                if not text_block_started:
+                    text_block_index = next_block_index
+                    next_block_index += 1
+                    text_block_started = True
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                accumulated_text += pending_text_suffix
+                yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': pending_text_suffix}})}\n\n"
+            pending_text_suffix = ""
+
+        if not current_tool_calls and buffered_text_tool_call:
+            remaining_text, extracted_tool_calls = extract_text_based_tool_calls(
+                buffered_text_tool_call
+            )
+            if extracted_tool_calls:
+                logger.error(
+                    "❌ Model emitted text-based tool call instead of structured tool_calls during streaming; recovered via proxy fallback. content_preview=%r",
+                    buffered_text_tool_call[:120],
+                )
+                logger.error(
+                    "❌ Recovered tool-call raw payload (pre-fix): %r",
+                    buffered_text_tool_call[:500],
+                )
+                if remaining_text:
+                    if not text_block_started:
+                        text_block_index = next_block_index
+                        next_block_index += 1
+                        text_block_started = True
+                        yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                    accumulated_text += remaining_text
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': remaining_text}})}\n\n"
+
+                for tool_call in extracted_tool_calls:
+                    tool_id = tool_call["id"]
+                    function_data = tool_call[Constants.TOOL_FUNCTION]
+                    logger.info(
+                        "✅ Recovered tool-call normalized args (post-fix): tool=%s args=%s",
+                        function_data["name"],
+                        function_data["arguments"],
+                    )
+                    tool_index = next_block_index
+                    next_block_index += 1
+                    recovered_tool_calls[tool_id] = {
+                        "index": tool_index,
+                        "name": function_data["name"],
+                        "args_buffer": function_data["arguments"],
+                    }
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': tool_index, 'content_block': {'type': Constants.CONTENT_TOOL_USE, 'id': tool_id, 'name': function_data['name'], 'input': {}}})}\n\n"
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': tool_index, 'delta': {'type': Constants.DELTA_INPUT_JSON, 'partial_json': function_data['arguments']}})}\n\n"
+
+                current_tool_calls.update(recovered_tool_calls)
+                final_stop_reason = Constants.STOP_TOOL_USE
+            elif contains_text_tool_call_marker(buffered_text_tool_call):
+                logger.error(
+                    "❌ Model emitted malformed text-based tool call during streaming and proxy could not recover it. content_preview=%r",
+                    buffered_text_tool_call[:120],
+                )
+                if not text_block_started:
+                    text_block_index = next_block_index
+                    next_block_index += 1
+                    text_block_started = True
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                accumulated_text += buffered_text_tool_call
+                yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': buffered_text_tool_call}})}\n\n"
+
+        # 兜底: 某些模型会把 tool_call 协议吐到 reasoning(thinking) 里而不是 content/tool_calls
+        thinking_recovery_source = buffered_thinking_tool_call or accumulated_thinking
+        if not current_tool_calls and not accumulated_text and thinking_recovery_source:
+            _, extracted_thinking_tool_calls = extract_text_based_tool_calls(
+                thinking_recovery_source
+            )
+            if extracted_thinking_tool_calls:
+                logger.error(
+                    "❌ Model emitted text-based tool call inside reasoning_content during streaming; recovered via proxy fallback. thinking_preview=%r",
+                    thinking_recovery_source[:120],
+                )
+                logger.error(
+                    "❌ Recovered tool-call raw payload from reasoning (pre-fix): %r",
+                    thinking_recovery_source[:500],
+                )
+                if thinking_block_started and not thinking_block_ended:
+                    thinking_block_ended = True
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': thinking_block_index})}\n\n"
+
+                for tool_call in extracted_thinking_tool_calls:
+                    tool_id = tool_call["id"]
+                    function_data = tool_call[Constants.TOOL_FUNCTION]
+                    logger.info(
+                        "✅ Recovered tool-call normalized args from reasoning (post-fix): tool=%s args=%s",
+                        function_data["name"],
+                        function_data["arguments"],
+                    )
+                    tool_index = next_block_index
+                    next_block_index += 1
+                    recovered_tool_calls[tool_id] = {
+                        "index": tool_index,
+                        "name": function_data["name"],
+                        "args_buffer": function_data["arguments"],
+                    }
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': tool_index, 'content_block': {'type': Constants.CONTENT_TOOL_USE, 'id': tool_id, 'name': function_data['name'], 'input': {}}})}\n\n"
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': tool_index, 'delta': {'type': Constants.DELTA_INPUT_JSON, 'partial_json': function_data['arguments']}})}\n\n"
+
+                current_tool_calls.update(recovered_tool_calls)
+                final_stop_reason = Constants.STOP_TOOL_USE
+            elif contains_text_tool_call_marker(thinking_recovery_source):
+                logger.error(
+                    "❌ Model emitted malformed text-based tool call inside reasoning_content during streaming and proxy could not recover it. thinking_preview=%r",
+                    thinking_recovery_source[:120],
+                )
+
         if current_tool_calls:
             logger.info(f"🔧 流式传输完成，校验 {len(current_tool_calls)} 个工具调用")
             for tool_id, tool_data in current_tool_calls.items():
