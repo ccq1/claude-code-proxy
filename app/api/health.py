@@ -3,7 +3,7 @@
 """
 import logging
 from datetime import datetime
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from fastapi.responses import JSONResponse
 import litellm
 
@@ -154,3 +154,9 @@ async def root():
             "test_connection": "/test-connection"
         }
     }
+
+
+@router.head("/")
+async def root_head():
+    """根路由 HEAD 探测，返回空响应避免 405 噪音日志"""
+    return Response(status_code=200)

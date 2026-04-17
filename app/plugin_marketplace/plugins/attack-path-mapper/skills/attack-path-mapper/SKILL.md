@@ -29,7 +29,7 @@ python scripts/lookup_attack_stix.py kerberoasting
 
 ## 生产快速路径（默认）
 
-默认先跑路径构建脚本，再补充路径解释：
+默认先跑路径构建脚本，再补充路径解释。除非用户明确提供 `--nodes/--edges`，否则优先自动发现模式（从工作目录噪声数据中抽取节点和边）：
 
 ```bash
 python scripts/build_attack_paths.py --workdir . --start user01 --target dc01
