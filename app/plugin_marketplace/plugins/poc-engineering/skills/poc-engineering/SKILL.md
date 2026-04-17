@@ -1,114 +1,183 @@
 ---
 name: poc-engineering
-description: >-
-  Turn exploit ideas, advisories, and one-off checks into reusable POC or
-  validation templates. Use when a red-team task needs reproducible request
-  flows, variable extraction, preconditions, and low-noise verification logic.
+description: 将公告、请求样本、漏洞说明和利用思路工程化为可复现、可交付的 POC 模板。
 ---
 
-# POC Engineering
+# POC 工程化
 
-Use this skill when the user asks for:
-- turning a loose exploit idea into a reusable template
-- converting a one-off curl or script into a repeatable check
-- building a nuclei-style workflow with matchers, extractors, and guardrails
-- reducing false positives in vulnerability validation
+## 何时使用
 
-If `{{VULN_DATA_ROOT}}` is configured, use it as the default offline source for CVE, KEV, and mirrored advisory context.
-The bundled helper script `scripts/lookup_vuln_mirror.py` can query the local NVD/KEV mirror without extra dependencies.
-This plugin also ships with bundled offline vulnerability references under `references/vuln/`.
+当用户要回答下面这些问题时使用本 skill：
+- 把零散 exploit note、HTTP 请求或验证思路整理成可复用模板
+- 将一次性验证步骤固化为安全验证版和更自动化版
+- 基于 CVE / KEV / 公告背景补齐版本判断、前置检查和成功判定
+- 降低误报、减少副作用、明确交付边界
 
-## Working Directory First
+## skill 基目录约定
 
-Assume the user usually puts advisories, requests, POC drafts, or captures into the current working directory.
+本 skill 加载后，以下路径都相对于 skill 基目录：
+- `references/REFERENCE_INDEX.md`
+- `references/vuln/known_exploited_vulnerabilities.json`
+- `references/vuln/nvdcve-2.0-recent.json`
+- `scripts/lookup_vuln_mirror.py`
+- `scripts/scaffold_poc.py`
 
-Before asking for parameters:
-- scan the current directory for likely inputs such as `*.http`, `*.txt`, `*.md`, `*.json`, `*.yaml`, `*.pcap`, `*.har`, `request*`, `response*`, `poc*`, `exploit*`, `cve*`, `advisory*`
-- if one exploit note or request trace is clearly primary, start from it
-- if several candidates exist, choose the most relevant one and state the assumption briefly
-- cite inputs with relative paths
+涉及 CVE / KEV / 厂商公告背景时，优先运行：
+```bash
+python scripts/lookup_vuln_mirror.py CVE-2026-34197
+```
 
-For CVE / KEV context:
-- use bundled references under `references/vuln/` by default
-- if the user has placed a fresher advisory set in the current working directory, prefer that fresher set and say so briefly
+## 生产快速路径（默认）
 
-## Large Files
+默认先执行脚手架生成，再基于结果做最小改动：
 
-Bundled vulnerability mirrors can be large. Query them in layers.
+```bash
+python scripts/scaffold_poc.py --workdir . --name incident_case
+```
 
-Use this order:
-1. `scripts/lookup_vuln_mirror.py <cve-or-keyword>` for fast local lookup
-2. `rg -n "CVE-...|product|endpoint|parameter"` on advisories, request traces, and notes
-3. `jq` or Python only when you already know which object or field you need
-4. read only the relevant request/response fragments, not the whole trace
+规则：
+- 首版必须基于脚本产物，不要从零手写整套模板
+- 输出中必须引用 `generated_poc_pack/manifest.json`
+- 若要提升风险等级，必须先明确获得用户授权
 
-Never dump the full mirrored JSON into context.
+## 工作目录优先
 
-## Default Posture
+优先扫描：
+- `*.http`
+- `*.txt`
+- `*.md`
+- `*.json`
+- `*.yaml`
+- `*.pcap`
+- `*.har`
+- `request*`
+- `response*`
+- `poc*`
+- `exploit*`
+- `cve*`
+- `advisory*`
 
-Default to **safe validation first**:
-- confirm product and version
-- verify the vulnerable code path exists
-- use low-impact probes when possible
-- keep destructive or state-changing steps behind an explicit user request
+规则：
+- 有明显主请求、主公告或主 POC 草稿就直接开始。
+- 有多个候选材料时，选最完整、最贴近目标系统的一组，并说明假设。
+- 引用证据优先使用相对路径。
 
-## Engineering Workflow
+## reference 检查是必做步骤
 
-1. Define the target contract.
-   - product / version / deployment assumptions
-   - auth requirements
-   - protocol and state needs
-   - success condition versus side effect
+扫描完工作目录后，必须做一次短 reference check：
+1. 读取 `references/REFERENCE_INDEX.md`
+2. 涉及 CVE / KEV / 版本研判时，运行 `python scripts/lookup_vuln_mirror.py <query>`
+3. 在输出末尾增加 `References Used`
 
-2. Separate the flow into stages.
+如果本轮没有用到插件内置漏洞 reference，要明确写明。
+
+## 大文件策略
+
+对大公告集合、大抓包和大请求转储：
+1. 先用 `rg -n` 找产品名、版本、路径、参数、状态码、错误关键字。
+2. 漏洞镜像优先 helper script。
+3. 再用 `jq` 或局部 Python 读取目标对象。
+4. 只读关键请求/响应片段，不整份灌入上下文。
+
+## 默认姿态
+
+默认优先**低影响安全验证**：
+- 先 fingerprint
+- 再 prerequisite check
+- 最后才给验证请求
+- 只有用户明确需要时，才向更高风险利用推进
+
+## 自动化默认
+
+只要用户给了请求样本、漏洞说明、POC 草稿或 exploit note，就直接产出首版工程化结果，不要停留在分析。
+
+默认首版必须包含：
+- 操作员摘要
+- 漏洞与请求归一化分析
+- 一版安全验证模板或脚本
+- 一版更自动化的变体
+- 成功 / 失败判定
+- 误报控制、副作用和假设
+
+不要以“要不要脚本 / 要不要批量 / 要不要报告”收尾。
+
+## 提问策略
+
+只有在缺少关键信息且会显著改变结果时，才允许提问，例如：
+- 协议不明确
+- 认证必需但缺失
+- 动作可能具有破坏性且用户未授权
+
+如果必须提问：
+- 必须使用 `AskUserQuestion`
+- 最多一个简短阻塞问题
+- 先把目录和本地 reference 中能提取的信息都提取完
+- 如果不影响安全首版结果，就直接带假设继续，不要提问
+
+## 核心工作流
+
+1. 明确目标契约。
+   - 产品 / 版本
+   - 协议
+   - 认证要求
+   - 成功判定
+   - 副作用边界
+
+2. 拆分请求流。
    - fingerprint
    - prerequisite checks
-   - exploit or validation request
-   - extraction of dynamic values
+   - exploit / validation request
+   - 动态变量提取
    - success matcher
    - false-positive suppression
 
-3. Pick the right implementation form.
-   - Nuclei template for HTTP-heavy, mostly declarative checks
-   - Python or Bash harness when state, crypto, or multi-step logic is complex
-   - hybrid output when a simple template plus a reproduction script helps delivery
+3. 选实现形式。
+   - HTTP 声明式检查优先模板
+   - 多步骤状态逻辑可用 Python / Bash 脚手架
+   - 如有必要，同时给简版模板和脚本版
 
-4. Add engineering quality.
-   - timeouts and retries
-   - redirect handling
-   - auth token capture
-   - CSRF or nonce extraction
-   - deduplication and idempotence
-   - explicit cleanup steps when state changes are unavoidable
+4. 补工程质量。
+   - 超时与重试
+   - 重定向处理
+   - 认证捕获
+   - token / nonce / CSRF 提取
+   - 幂等性与清理说明
 
-## Output Pattern
+## 输出格式
 
-When possible, provide:
-- a short operator summary
-- the template or script
-- required variables
-- expected success and failure signals
-- false-positive notes
-- any assumptions that make the POC environment-specific
+```text
+Operator Summary
+- Target assumption:
+- Vulnerability class:
+- Default posture:
 
-## Template Checklist
+Normalized Analysis
+- Entry point:
+- Preconditions:
+- Key variables:
+- Success signal:
+- Failure signal:
 
-- metadata clearly scoped
-- product fingerprint included
-- at least one strong matcher
-- negative guard if the signal is noisy
-- extractor logic for dynamic tokens when needed
-- note on safe mode versus full exploitation
+Primary Deliverable
+<single template or script>
 
-## Guardrails
+Automation Variant
+<second variant if feasible>
 
-- Do not hide risky side effects.
-- Do not confuse a version guess with exploitation success.
-- Explain which part of the flow is the actual proof.
-- If the only signal is brittle, say that the template is best-effort rather than high-confidence.
-- In offline environments, distinguish what came from the local mirror versus what still needs fresh vendor validation.
+Safety Notes
+- Side effects:
+- False positives:
+- Assumptions:
 
-## Reference Policy
+References Used
+- Working directory evidence:
+- Bundled references:
+- Configured local mirrors:
+```
 
-- Prefer bundled vulnerability references, working directory materials, and admin-provided internal documentation.
-- Do not browse the public internet for template or advisory context unless the user explicitly asks for online research.
+## 护栏
+
+- 不要隐藏副作用。
+- 不要把版本猜测当作漏洞已证实。
+- 解释清楚哪一步才是真正的 proof。
+- 若信号脆弱，明确标注 best-effort，而不是冒充高置信结果。

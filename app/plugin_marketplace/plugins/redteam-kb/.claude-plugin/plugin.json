@@ -5,7 +5,6 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/redteam-kb.md"],
   "skills": ["./skills/redteam-kb"],
   "settingsSchema": {
     "title": "红队知识库配置",

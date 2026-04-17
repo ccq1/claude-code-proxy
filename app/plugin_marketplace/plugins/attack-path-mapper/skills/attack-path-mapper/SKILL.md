@@ -1,131 +1,130 @@
 ---
 name: attack-path-mapper
-description: >-
-  Build plausible red-team attack chains from footholds, identities, and asset
-  relationships. Use when the user needs lateral movement, privilege
-  escalation, or crown-jewel reachability planning grounded in evidence.
+description: 根据身份、权限、主机关系和 ATT&CK 技术链推演横向移动、提权与关键资产触达路径。
 ---
 
-# Attack Path Mapper
+# 攻击路径推演
 
-Use this skill when the user asks:
-- How do we get from the current foothold to a target system or data set?
-- Which lateral movement or privilege-escalation route is most realistic?
-- How should observed behavior map to ATT&CK tactics and techniques?
-- What is the shortest path with acceptable noise and operational risk?
+## 何时使用
 
-If `{{ATTACK_DATA_ROOT}}` is configured, use the local ATT&CK STIX mirror there before reaching for the public ATT&CK website.
-The bundled helper script `scripts/lookup_attack_stix.py` can be used for quick offline technique lookup.
-This plugin also ships with bundled offline ATT&CK references under `references/attack/`.
+当用户要回答下面这些问题时使用本 skill：
+- 从当前 foothold 如何最稳地到达目标资产
+- 凭据、会话、ACL、组关系和主机关系怎样组成可执行攻击链
+- 某条路径需要哪些前置条件、会触发哪些检测面
+- 观察到的行为应该映射到哪些 ATT&CK tactic / technique
 
-## Working Directory First
+## skill 基目录约定
 
-Assume the user will place exports and notes in the current working directory.
+本 skill 加载后，以下路径都相对于 skill 基目录：
+- `references/REFERENCE_INDEX.md`
+- `references/attack/enterprise-attack.json`
+- `scripts/lookup_attack_stix.py`
+- `scripts/build_attack_paths.py`
 
-Before asking for missing context:
-- scan the current directory for likely evidence such as `*.json`, `*.csv`, `*.txt`, `*.md`, `bloodhound*`, `nodes*`, `edges*`, `sessions*`, `creds*`, `hosts*`, `acl*`, `notes*`
-- if one dataset obviously matches the task, start from it
-- if multiple datasets could apply, pick the most relevant one and state the assumption in one short sentence
-- cite evidence with relative paths
-
-For ATT&CK mapping specifically:
-- use bundled offline data under `references/attack/` by default
-- if the user has put a newer ATT&CK export in the current working directory, prefer the newer local copy and say so briefly
-
-## Large Files
-
-Bundled ATT&CK STIX is large. Do not read it wholesale.
-
-Use this order:
-1. `scripts/lookup_attack_stix.py <query>` for fast offline lookup
-2. `rg -n "T1497|Kerberoast|WinRM|RDP"` on the local exports or notes
-3. `jq` or Python only after the result set is already narrowed
-4. read only short surrounding excerpts when you need evidence text
-
-Never `cat` the full STIX JSON into context.
-
-## Required Inputs
-
-You do not need all of these, but the skill is much stronger with them:
-- current foothold or starting identity
-- reachable subnets or trust boundaries
-- local admin / domain privileges / group memberships
-- known credentials, tokens, or delegation edges
-- reachable services, shares, or management interfaces
-- target objective: DA, Tier-0 asset, database, mailbox, CI/CD, etc.
-- any of the above if already exported into the current working directory
-
-## Planning Workflow
-
-1. Define the start state and the objective.
-   - Start state: what access is already confirmed?
-   - Objective: what exact host, identity, secret, or data set matters?
-   - Constraints: stealth, speed, tooling limits, user restrictions.
-
-2. Build candidate edges.
-   - Credential edges: reused credentials, delegation, cached secrets, tickets, vault access.
-   - Service edges: SMB, WinRM, RDP, SSH, MSSQL, vCenter, CI/CD agents, remote management.
-   - Identity edges: group nesting, ACL abuse, shadow admins, constrained/unconstrained delegation.
-   - Application edges: admin panels, orchestration systems, SaaS tokens, build pipelines.
-
-3. Convert edges into chains.
-   - Prefer chains with explicit evidence over broad theoretical possibilities.
-   - For each hop, list prerequisites, tooling assumptions, and expected evidence of success.
-
-4. Map to ATT&CK only after the path is concrete.
-   - Use ATT&CK to annotate, not to replace reasoning.
-   - A short chain with clear evidence beats a dense matrix of guessed techniques.
-
-5. Select a recommended route.
-   - Rank by probability of success, noise, operator effort, and blast radius.
-   - Keep at least one alternate route if the primary path depends on a brittle assumption.
-
-## Output Model
-
-Use a structured answer:
-
-```text
-Recommended Route
-1. Step:
-   prerequisite:
-   evidence:
-   expected result:
-   likely detection surface:
-
-Alternative Routes
-- Route:
-  why it exists:
-  blocker:
-
-Key Unknowns
-- Unknown:
-  why it matters:
-  fastest validation:
+如需 ATT&CK 富化，优先运行：
+```bash
+python scripts/lookup_attack_stix.py T1497
+python scripts/lookup_attack_stix.py kerberoasting
 ```
 
-## Evidence Rules
+## 生产快速路径（默认）
 
-- Separate observed edges from inferred edges.
-- Mark each hop as `confirmed`, `likely`, or `speculative`.
-- Never assume reachability, credential validity, or privilege inheritance without saying so.
+默认先跑路径构建脚本，再补充路径解释：
 
-## ATT&CK Usage
+```bash
+python scripts/build_attack_paths.py --workdir . --start user01 --target dc01
+```
 
-Use ATT&CK to summarize the chain after you have the path:
-- tactic progression
-- technique names and IDs where confidence is high
-- likely detections or mitigations per hop
+规则：
+- 优先复用脚本输出的最短路径和置信标签
+- 如果脚本未找到路径，不能伪造主路径，必须报告阻塞点
+- 输出中必须引用 `attack_path_report.json`
 
-In offline deployments, prefer the local STIX mirror under `{{ATTACK_DATA_ROOT}}`.
+## 工作目录优先
 
-## Guardrails
+默认认为用户把图数据或关系导出放在当前工作目录。
 
-- Do not produce sprawling attack graphs with no prioritization.
-- Do not force every path to match ATT&CK coverage goals.
-- Call out blockers early: segmentation, MFA, PAM, EDR, tiering, JIT elevation.
-- Prefer the path that is easiest to validate with minimal operational noise.
+优先扫描：
+- `bloodhound*`
+- `nodes*`
+- `edges*`
+- `sessions*`
+- `creds*`
+- `hosts*`
+- `acl*`
+- `notes*`
+- `*.json`
+- `*.csv`
 
-## Reference Policy
+规则：
+- 有明显主输入就直接开始。
+- 有多组候选就选最贴近用户目标的一组，并说明假设。
+- 引用证据优先使用相对路径。
 
-- Prefer bundled `references/attack/`, local mirrors, and current working directory exports.
-- Do not browse the public internet for ATT&CK context when local material is available.
+## 大文件策略
+
+对大图数据、大 JSON、大 CSV：
+1. 先用 `rg -n` 锁定主机名、用户名、组名、边类型、权限关键字。
+2. 再用 `jq` 或局部 Python 提取相关节点和边。
+3. ATT&CK 数据优先用 `scripts/lookup_attack_stix.py`，不要整文件读取 STIX。
+
+## 核心工作流
+
+1. 明确起点、目标和约束。
+   - 起点：当前主机、会话、凭据或身份。
+   - 目标：域控、高价值主机、业务系统或数据域。
+   - 约束：噪声、权限边界、操作风险。
+
+2. 盘点可用边。
+   - 身份边：组成员、委派、ACL、票据、凭据复用。
+   - 服务边：WinRM、SMB、RDP、计划任务、服务控制、代理链路。
+   - 资产边：会话、相邻网段、信任关系、跳板机。
+
+3. 组合候选路径。
+   - 优先最短、最稳、最容易验证的链路。
+   - 每一步都标注前置条件、所需凭据、预期结果和检测面。
+
+4. 做 ATT&CK 映射。
+   - 只映射有证据支撑的 tactic / technique。
+   - 若需要 technique 名称、ID 或 tactic，调用 helper script 查询。
+
+5. 输出主路径和备选路径。
+   - 标注 `confirmed / likely / speculative`。
+   - 明确哪一步最值得先验证。
+
+## 输出格式
+
+```text
+Path Summary
+- Start:
+- Target:
+- Recommended path:
+- Backup path:
+
+Step Breakdown
+- Step:
+  evidence:
+  prerequisites:
+  detection surface:
+  confidence:
+
+ATT&CK Mapping
+- Technique:
+  reason:
+
+Next Validation
+- Check 1:
+- Check 2:
+
+References Used
+- Working directory evidence:
+- Bundled ATT&CK references:
+- Configured local mirrors:
+```
+
+## 护栏
+
+- 不要把理论可能性直接写成确认路径。
+- 不要为了“看起来完整”而拼很长的攻击链。
+- ATT&CK 映射必须能回溯到具体证据。
+- 若内置 ATT&CK reference 没有用到，明确写明本轮未使用。

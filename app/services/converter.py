@@ -470,10 +470,28 @@ def extract_text_based_tool_calls(content_text: str) -> Tuple[str, List[dict]]:
 def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, Any]:
     """将 Anthropic API 请求格式转换为 LiteLLM 格式"""
     litellm_messages = []
-    pending_tool_messages = []
     sanitize_stats: Dict[str, float] = {} if config.sanitize_brand_terms else None
     is_plan_mode = is_plan_mode_request(anthropic_request)
     system_text = ""
+
+    def append_user_message(text_parts: List[str], image_parts: List[dict]) -> None:
+        """追加 OpenAI 兼容的 user message。"""
+        if not text_parts and not image_parts:
+            return
+
+        content_parts = []
+        text_content = "".join(text_parts).strip()
+        if text_content:
+            content_parts.append({"type": Constants.CONTENT_TEXT, "text": text_content})
+        content_parts.extend(image_parts)
+
+        if not content_parts:
+            return
+
+        litellm_messages.append({
+            "role": Constants.ROLE_USER,
+            "content": content_parts[0]["text"] if len(content_parts) == 1 and content_parts[0]["type"] == Constants.CONTENT_TEXT else content_parts
+        })
     
     # 处理 system 消息
     if anthropic_request.system:
@@ -507,6 +525,7 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
         text_parts = []
         image_parts = []
         tool_calls = []
+        tool_result_messages = []
 
         for block in msg.content:
             if block.type == Constants.CONTENT_TEXT:
@@ -531,22 +550,8 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
                     }
                 })
             elif block.type == Constants.CONTENT_TOOL_RESULT and msg.role == Constants.ROLE_USER:
-                if text_parts or image_parts:
-                    content_parts = []
-                    text_content = "".join(text_parts).strip()
-                    if text_content:
-                        content_parts.append({"type": Constants.CONTENT_TEXT, "text": text_content})
-                    content_parts.extend(image_parts)
-                    
-                    litellm_messages.append({
-                        "role": Constants.ROLE_USER,
-                        "content": content_parts[0]["text"] if len(content_parts) == 1 and content_parts[0]["type"] == Constants.CONTENT_TEXT else content_parts
-                    })
-                    text_parts.clear()
-                    image_parts.clear()
-
                 parsed_content = parse_tool_result_content(block.content)
-                pending_tool_messages.append({
+                tool_result_messages.append({
                     "role": Constants.ROLE_TOOL,
                     "tool_call_id": block.tool_use_id,
                     "content": parsed_content
@@ -554,19 +559,13 @@ def convert_anthropic_to_litellm(anthropic_request,num_tools:int) -> Dict[str, A
 
         # 根据角色处理消息
         if msg.role == Constants.ROLE_USER:
-            if text_parts or image_parts:
-                content_parts = []
-                text_content = "".join(text_parts).strip()
-                if text_content:
-                    content_parts.append({"type": Constants.CONTENT_TEXT, "text": text_content})
-                content_parts.extend(image_parts)
-                
-                litellm_messages.append({
-                    "role": Constants.ROLE_USER,
-                    "content": content_parts[0]["text"] if len(content_parts) == 1 and content_parts[0]["type"] == Constants.CONTENT_TEXT else content_parts
-                })
-            litellm_messages.extend(pending_tool_messages)
-            pending_tool_messages.clear()
+            # OpenAI-compatible providers require:
+            # assistant(tool_calls) -> tool(tool_call_id=...) -> optional user text
+            # Anthropic user messages may mix tool_result and text blocks in one turn,
+            # so we emit all tool results first to preserve a valid protocol sequence.
+            if tool_result_messages:
+                litellm_messages.extend(tool_result_messages)
+            append_user_message(text_parts, image_parts)
             
         elif msg.role == Constants.ROLE_ASSISTANT:
             assistant_msg = {"role": Constants.ROLE_ASSISTANT}

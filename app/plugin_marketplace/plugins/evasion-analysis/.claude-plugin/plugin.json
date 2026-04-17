@@ -5,6 +5,5 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/evasion-analysis.md"],
   "skills": ["./skills/evasion-analysis"]
 }

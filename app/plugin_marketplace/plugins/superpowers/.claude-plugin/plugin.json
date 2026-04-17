@@ -1,0 +1,25 @@
+{
+  "name": "superpowers",
+  "displayName": "超级力量",
+  "description": "为编码代理提供头脑风暴、计划编写、TDD、系统化调试、并行协作和代码评审流程。",
+  "version": "5.0.7",
+  "author": {
+    "name": "Jesse Vincent",
+    "email": "jesse@fsck.com"
+  },
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": "https://github.com/obra/superpowers",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "collaboration",
+    "best-practices",
+    "workflows"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json"
+}

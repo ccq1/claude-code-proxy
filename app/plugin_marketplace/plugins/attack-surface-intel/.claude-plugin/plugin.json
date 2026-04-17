@@ -5,7 +5,6 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/attack-surface-intel.md"],
   "skills": ["./skills/attack-surface-intel"],
   "settingsSchema": {
     "title": "攻击面情报配置",

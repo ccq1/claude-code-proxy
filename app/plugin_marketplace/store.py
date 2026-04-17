@@ -156,21 +156,6 @@ PLUGIN_CATALOG: Dict[str, Dict[str, Any]] = {
                 "description": "推演从当前 foothold 到目标资产的攻击链。",
             }
         ],
-        "settingsSchema": {
-            "title": "攻击路径推演配置",
-            "description": "默认适配离线环境。可选指定本地 ATT&CK STIX 镜像目录，用于离线映射 tactic / technique。",
-            "fields": [
-                {
-                    "key": "attackDataRoot",
-                    "label": "ATT&CK 数据目录",
-                    "type": "text",
-                    "required": False,
-                    "placeholder": "/var/lib/pandoraq/open-intel/attack",
-                    "description": "本地 MITRE ATT&CK STIX 数据目录。",
-                    "placeholderToken": "ATTACK_DATA_ROOT",
-                },
-            ],
-        },
     },
     "malware-capability-review": {
         "id": "malware-capability-review",
@@ -228,30 +213,6 @@ PLUGIN_CATALOG: Dict[str, Dict[str, Any]] = {
                 "description": "生成并打磨 YARA、Sigma 等检测规则。",
             }
         ],
-        "settingsSchema": {
-            "title": "检测规则工程配置",
-            "description": "默认适配离线环境。可选指定本地漏洞与 ATT&CK 镜像目录，用于离线引用 CVE、KEV 与 ATT&CK 数据。",
-            "fields": [
-                {
-                    "key": "vulnDataRoot",
-                    "label": "漏洞数据目录",
-                    "type": "text",
-                    "required": False,
-                    "placeholder": "/var/lib/pandoraq/open-intel/vuln",
-                    "description": "本地 NVD、KEV、CVE 等漏洞数据目录。",
-                    "placeholderToken": "VULN_DATA_ROOT",
-                },
-                {
-                    "key": "attackDataRoot",
-                    "label": "ATT&CK 数据目录",
-                    "type": "text",
-                    "required": False,
-                    "placeholder": "/var/lib/pandoraq/open-intel/attack",
-                    "description": "本地 MITRE ATT&CK STIX 数据目录。",
-                    "placeholderToken": "ATTACK_DATA_ROOT",
-                },
-            ],
-        },
     },
     "poc-engineering": {
         "id": "poc-engineering",
@@ -271,18 +232,75 @@ PLUGIN_CATALOG: Dict[str, Dict[str, Any]] = {
                 "description": "把漏洞验证思路落成可复现的 POC 模板。",
             }
         ],
+    },
+    "superpowers": {
+        "id": "superpowers",
+        "name": "超级力量",
+        "version": "5.0.7",
+        "publisher": "Prime Radiant",
+        "description": "把头脑风暴、需求澄清、实现计划、TDD、系统化调试、并行协作与代码评审串成一套可复用的编码代理工作流。",
+        "tags": ["开发流程", "TDD", "调试"],
+        "installable": True,
+        "kind": "skill-plugin",
+        "iconPath": "/plugins/superpowers/assets/icon.svg",
+        "iconText": "SP",
+        "slashCommands": [
+            {
+                "name": "brainstorm",
+                "forwardName": "superpowers:brainstorm",
+                "description": "先澄清需求、方案和边界，再开始实现。",
+            },
+            {
+                "name": "write-plan",
+                "forwardName": "superpowers:write-plan",
+                "description": "把已确认方案拆成可执行、可验证的实现计划。",
+            },
+            {
+                "name": "execute-plan",
+                "forwardName": "superpowers:execute-plan",
+                "description": "按计划推进实现、验证、评审与收尾。",
+            },
+        ],
+    },
+    "ghidra-decompiler": {
+        "id": "ghidra-decompiler",
+        "name": "Ghidra 反编译",
+        "version": "0.1.0",
+        "publisher": "PandoraQ Labs",
+        "description": "随插件分发固定版 Ghidra 官方 runtime，通过 bundled analyzeHeadless 提供二进制导入、函数枚举、反编译、字符串导出与符号检索能力。",
+        "tags": ["逆向", "反编译", "Ghidra"],
+        "installable": True,
+        "kind": "skill-plugin",
+        "iconPath": "/plugins/ghidra-decompiler/assets/icon.svg",
+        "iconText": "GH",
+        "slashCommands": [
+            {
+                "name": "ghidra-decompiler",
+                "forwardName": "ghidra-decompiler:ghidra-decompiler",
+                "description": "用 bundled Ghidra headless 导入样本并做函数级反编译分析。",
+            }
+        ],
         "settingsSchema": {
-            "title": "POC 工程化配置",
-            "description": "默认适配离线环境。可选指定本地漏洞镜像目录，用于离线引用 CVE、KEV 与版本信息。",
+            "title": "Ghidra 反编译配置",
+            "description": "配置本地 JDK 21 路径和 Ghidra 工程缓存目录。插件自带官方 Ghidra runtime，但仍需要本机可用的 Java 21。",
             "fields": [
                 {
-                    "key": "vulnDataRoot",
-                    "label": "漏洞数据目录",
+                    "key": "javaHome",
+                    "label": "JDK 目录",
                     "type": "text",
                     "required": False,
-                    "placeholder": "/var/lib/pandoraq/open-intel/vuln",
-                    "description": "本地 NVD、KEV、CVE 等漏洞数据目录。",
-                    "placeholderToken": "VULN_DATA_ROOT",
+                    "placeholder": "/usr/lib/jvm/jdk-21",
+                    "description": "可选。若未填写，MCP server 会先尝试 GHIDRA_JAVA_HOME、JAVA_HOME，再回退到 PATH 中的 java。",
+                    "placeholderToken": "GHIDRA_JAVA_HOME",
+                },
+                {
+                    "key": "workspaceRoot",
+                    "label": "工程缓存目录",
+                    "type": "text",
+                    "required": False,
+                    "placeholder": "~/.cache/pandoraq-ghidra-decompiler",
+                    "description": "可选。用于保存 headless project、导入元数据和临时产物。默认写到当前用户缓存目录。",
+                    "placeholderToken": "GHIDRA_WORKSPACE_ROOT",
                 },
             ],
         },
@@ -348,7 +366,12 @@ def build_plugin_runtime_config(plugin_id: str) -> Dict[str, Any]:
             "plugin": plugin_id,
         }
 
-    if plugin_id in {"malware-capability-review", "evasion-analysis"}:
+    if plugin_id in {
+        "malware-capability-review",
+        "evasion-analysis",
+        "superpowers",
+        "ghidra-decompiler",
+    }:
         return {"plugin": plugin_id}
 
     raise HTTPException(status_code=404, detail=f"plugin not found: {plugin_id}")
@@ -362,6 +385,8 @@ def _read_bundle_files(plugin_id: str) -> List[Dict[str, Any]]:
     files: List[Dict[str, Any]] = []
     for path in sorted(base_dir.rglob("*")):
         if not path.is_file():
+            continue
+        if "__pycache__" in path.parts or path.suffix.lower() == ".pyc":
             continue
         relative_path = path.relative_to(base_dir).as_posix()
         suffix = path.suffix.lower()

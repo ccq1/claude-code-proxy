@@ -61,16 +61,39 @@ def split_text_for_tool_call_streaming(text: str) -> tuple[str, str]:
     return text, ""
 
 
-async def handle_streaming_with_recovery(response_generator, original_request, input_tokens: int):
+def should_continue_buffering_tool_call_candidate(text: str) -> bool:
+    """判断当前缓冲内容是否仍然像 text-based tool call 的起始片段。"""
+    if not text:
+        return False
+
+    lowered = text.lower()
+
+    if any(marker.lower() in lowered for marker in STREAMING_TEXT_TOOL_CALL_MARKERS):
+        return True
+
+    return any(marker.lower().startswith(lowered) for marker in STREAMING_TEXT_TOOL_CALL_MARKERS)
+
+
+async def handle_streaming_with_recovery(
+    response_generator,
+    original_request,
+    input_tokens: int,
+    retry_factory=None,
+    max_empty_thinking_retries: int = 0,
+    emit_preamble: bool = True,
+    retry_attempt: int = 0,
+    starting_block_index: int = 0,
+):
     """增强的流式处理器，带有错误恢复机制"""
     logger.info(f"stream解析开始")
     message_id = f"msg_{__import__('uuid').uuid4().hex[:24]}"
     initial_input_tokens = input_tokens
     
     # 发送初始 SSE 事件
-    yield f"event: {Constants.EVENT_MESSAGE_START}\ndata: {json.dumps({'type': Constants.EVENT_MESSAGE_START, 'message': {'id': message_id, 'type': 'message', 'role': Constants.ROLE_ASSISTANT, 'model': original_request.original_model or original_request.model, 'content': [], 'stop_reason': None, 'stop_sequence': None, 'usage': {'input_tokens': input_tokens, 'output_tokens': 0}}})}\n\n"
-    
-    yield f"event: {Constants.EVENT_PING}\ndata: {json.dumps({'type': Constants.EVENT_PING})}\n\n"
+    if emit_preamble:
+        yield f"event: {Constants.EVENT_MESSAGE_START}\ndata: {json.dumps({'type': Constants.EVENT_MESSAGE_START, 'message': {'id': message_id, 'type': 'message', 'role': Constants.ROLE_ASSISTANT, 'model': original_request.original_model or original_request.model, 'content': [], 'stop_reason': None, 'stop_sequence': None, 'usage': {'input_tokens': input_tokens, 'output_tokens': 0}}})}\n\n"
+        
+        yield f"event: {Constants.EVENT_PING}\ndata: {json.dumps({'type': Constants.EVENT_PING})}\n\n"
 
     # 流式状态管理
     accumulated_text = ""
@@ -83,7 +106,7 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
     thinking_block_started = False
     thinking_block_ended = False
     text_block_started = False
-    next_block_index = 0
+    next_block_index = starting_block_index
     text_block_index = -1
     thinking_block_index = -1
     tool_block_counter = 0
@@ -281,9 +304,18 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     accumulated_thinking += delta_reasoning_text
 
                     if buffered_thinking_tool_call:
-                        buffered_thinking_tool_call += pending_thinking_suffix + delta_reasoning_text
+                        combined_thinking_candidate = (
+                            buffered_thinking_tool_call
+                            + pending_thinking_suffix
+                            + delta_reasoning_text
+                        )
                         pending_thinking_suffix = ""
-                        safe_thinking_to_emit = ""
+                        if should_continue_buffering_tool_call_candidate(combined_thinking_candidate):
+                            buffered_thinking_tool_call = combined_thinking_candidate
+                            safe_thinking_to_emit = ""
+                        else:
+                            buffered_thinking_tool_call = ""
+                            safe_thinking_to_emit = combined_thinking_candidate
                     else:
                         combined_thinking = pending_thinking_suffix + delta_reasoning_text
                         pending_thinking_suffix = ""
@@ -311,9 +343,18 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
 
                 if delta_content_text:
                     if buffered_text_tool_call:
-                        buffered_text_tool_call += pending_text_suffix + delta_content_text
+                        combined_text_candidate = (
+                            buffered_text_tool_call
+                            + pending_text_suffix
+                            + delta_content_text
+                        )
                         pending_text_suffix = ""
-                        text_to_emit = ""
+                        if should_continue_buffering_tool_call_candidate(combined_text_candidate):
+                            buffered_text_tool_call = combined_text_candidate
+                            text_to_emit = ""
+                        else:
+                            buffered_text_tool_call = ""
+                            text_to_emit = combined_text_candidate
                     else:
                         combined_text = pending_text_suffix + delta_content_text
                         pending_text_suffix = ""
@@ -523,6 +564,18 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                     yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
                 accumulated_text += buffered_text_tool_call
                 yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': buffered_text_tool_call}})}\n\n"
+            else:
+                logger.warning(
+                    "⚠️ Buffered text suffix did not form a tool-call marker; emitting it as plain text. content_preview=%r",
+                    buffered_text_tool_call[:120],
+                )
+                if not text_block_started:
+                    text_block_index = next_block_index
+                    next_block_index += 1
+                    text_block_started = True
+                    yield f"event: {Constants.EVENT_CONTENT_BLOCK_START}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_START, 'index': text_block_index, 'content_block': {'type': Constants.CONTENT_TEXT, 'text': ''}})}\n\n"
+                accumulated_text += buffered_text_tool_call
+                yield f"event: {Constants.EVENT_CONTENT_BLOCK_DELTA}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_DELTA, 'index': text_block_index, 'delta': {'type': Constants.DELTA_TEXT, 'text': buffered_text_tool_call}})}\n\n"
 
         # 兜底: 某些模型会把 tool_call 协议吐到 reasoning(thinking) 里而不是 content/tool_calls
         thinking_recovery_source = buffered_thinking_tool_call or accumulated_thinking
@@ -588,6 +641,43 @@ async def handle_streaming_with_recovery(response_generator, original_request, i
                             logger.warning(f"⚠️ 工具 {tool_name} 参数为空")
                     except Exception as validation_error:
                         logger.warning(f"⚠️ 工具 {tool_name} 校验失败: {validation_error}")
+
+        only_thinking_without_visible_output = (
+            bool(accumulated_thinking or buffered_thinking_tool_call)
+            and not accumulated_text
+            and not current_tool_calls
+            and not stream_terminated_early
+            and final_stop_reason in {Constants.STOP_END_TURN, Constants.STOP_MAX_TOKENS}
+            and retry_factory is not None
+            and retry_attempt < max_empty_thinking_retries
+        )
+
+        if only_thinking_without_visible_output:
+            if thinking_block_started and not thinking_block_ended:
+                thinking_block_ended = True
+                yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': thinking_block_index})}\n\n"
+            logger.warning(
+                "⚠️ Empty thinking-only streaming response detected; silently retrying upstream request "
+                "(attempt %s/%s). model=%s thinking_len=%s stop_reason=%s",
+                retry_attempt + 1,
+                max_empty_thinking_retries,
+                original_request.original_model or original_request.model,
+                len(accumulated_thinking),
+                final_stop_reason,
+            )
+            new_response_generator = await retry_factory()
+            async for chunk in handle_streaming_with_recovery(
+                new_response_generator,
+                original_request,
+                initial_input_tokens,
+                retry_factory=retry_factory,
+                max_empty_thinking_retries=max_empty_thinking_retries,
+                emit_preamble=False,
+                retry_attempt=retry_attempt + 1,
+                starting_block_index=next_block_index,
+            ):
+                yield chunk
+            return
         
         if thinking_block_started and not thinking_block_ended:
             yield f"event: {Constants.EVENT_CONTENT_BLOCK_STOP}\ndata: {json.dumps({'type': Constants.EVENT_CONTENT_BLOCK_STOP, 'index': thinking_block_index})}\n\n"

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Ghidra Decompiler Icon</title>
+  <desc id="desc">A teal chip-like badge with GH letters and decompiler brackets.</desc>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#164E63"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="20" width="216" height="216" rx="44" fill="url(#bg)"/>
+  <rect x="48" y="60" width="160" height="136" rx="24" fill="#0B1120" opacity=".26"/>
+  <path d="M82 102 58 128l24 26" fill="none" stroke="#93C5FD" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"/>
+  <path d="M174 102 198 128l-24 26" fill="none" stroke="#93C5FD" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"/>
+  <path d="m136 92-20 72" fill="none" stroke="#F8FAFC" stroke-linecap="round" stroke-width="14"/>
+  <text x="128" y="168" fill="#FDE68A" font-family="monospace" font-size="44" font-weight="700" text-anchor="middle">GH</text>
+</svg>

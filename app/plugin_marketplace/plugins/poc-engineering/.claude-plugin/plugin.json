@@ -5,7 +5,6 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/poc-engineering.md"],
   "skills": ["./skills/poc-engineering"],
   "settingsSchema": {
     "title": "POC 工程化配置",

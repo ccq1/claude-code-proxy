@@ -32,6 +32,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def is_streaming_disabled_for_model(requested_model: str, routed_model: str) -> bool:
+    disabled_models = {name.strip() for name in config.force_disable_streaming_models if name.strip()}
+    if not disabled_models:
+        return False
+
+    return requested_model in disabled_models or routed_model in disabled_models
+
+
+def should_retry_empty_thinking_stream(routed_model: str) -> bool:
+    return "qwen" in (routed_model or "").lower()
+
+
 @router.post("/v1/messages")
 async def create_message(request: MessagesRequest, raw_request: Request):
     """创建消息接口"""
@@ -103,6 +115,18 @@ async def create_message(request: MessagesRequest, raw_request: Request):
             input_tokens = 0
 
         # 流式处理
+        if request.stream and is_streaming_disabled_for_model(
+            request.original_model or request.model,
+            model_route.model_name,
+        ):
+            logger.warning(
+                "Streaming disabled for model via FORCE_DISABLE_STREAMING_MODELS: requested=%s routed=%s",
+                request.original_model or request.model,
+                model_route.model_name,
+            )
+            request.stream = False
+            litellm_request["stream"] = False
+
         if request.stream:
             streaming_retry_count = 0
             max_retries = config.max_streaming_retries
@@ -116,10 +140,19 @@ async def create_message(request: MessagesRequest, raw_request: Request):
                         logger.debug(f"Waiting {delay}s before retry...")
                         await asyncio.sleep(delay)
 
-                    response_generator = await litellm.acompletion(**litellm_request)
+                    async def create_streaming_attempt():
+                        return await litellm.acompletion(**litellm_request)
+
+                    response_generator = await create_streaming_attempt()
                     
                     return StreamingResponse(
-                        handle_streaming_with_recovery(response_generator, request, input_tokens),
+                        handle_streaming_with_recovery(
+                            response_generator,
+                            request,
+                            input_tokens,
+                            retry_factory=create_streaming_attempt,
+                            max_empty_thinking_retries=1 if should_retry_empty_thinking_stream(model_route.model_name) else 0,
+                        ),
                         media_type="text/event-stream",
                         headers={
                             "Cache-Control": "no-cache",

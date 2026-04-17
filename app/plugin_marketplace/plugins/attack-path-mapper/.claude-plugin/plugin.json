@@ -5,7 +5,6 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/attack-path-mapper.md"],
   "skills": ["./skills/attack-path-mapper"],
   "settingsSchema": {
     "title": "攻击路径推演配置",

@@ -72,6 +72,11 @@ class Config:
         self.max_streaming_retries = int(os.environ.get("MAX_STREAMING_RETRIES", "12"))
         self.force_disable_streaming = os.environ.get("FORCE_DISABLE_STREAMING", "false").lower() == "true"
         self.emergency_disable_streaming = os.environ.get("EMERGENCY_DISABLE_STREAMING", "false").lower() == "true"
+        self.force_disable_streaming_models = [
+            item.strip()
+            for item in os.environ.get("FORCE_DISABLE_STREAMING_MODELS", "").split(",")
+            if item.strip()
+        ]
         
         # 日志细节开关
         self.log_tool_names_detail = os.environ.get("LOG_TOOL_NAMES_DETAIL", "false").lower() == "true"
@@ -185,6 +190,7 @@ class Config:
         print(f"   MAX_STREAMING_RETRIES={self.max_streaming_retries}")
         print(f"   FORCE_DISABLE_STREAMING={self.force_disable_streaming}")
         print(f"   EMERGENCY_DISABLE_STREAMING={self.emergency_disable_streaming}")
+        print(f"   FORCE_DISABLE_STREAMING_MODELS={self.force_disable_streaming_models}")
         print(f"   LOG_TOOL_NAMES_DETAIL={self.log_tool_names_detail}")
         print(f"   LOG_RESPONSE_DETAILS={self.log_response_details}")
         print(f"   DEBUG_MODE={self.debug_mode}")

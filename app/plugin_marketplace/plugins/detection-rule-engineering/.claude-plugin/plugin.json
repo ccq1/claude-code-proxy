@@ -5,7 +5,6 @@
   "author": {
     "name": "PandoraQ Labs"
   },
-  "commands": ["./commands/detection-rule-engineering.md"],
   "skills": ["./skills/detection-rule-engineering"],
   "settingsSchema": {
     "title": "检测规则工程配置",

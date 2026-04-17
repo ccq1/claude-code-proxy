@@ -1,125 +1,99 @@
 ---
 name: evasion-analysis
-description: >-
-  Analyze anti-sandbox, anti-debug, anti-VM, and environment-gating behavior in
-  malware or tooling. Use when a red-team task needs to explain how code hides,
-  delays, or alters behavior in analysis environments.
+description: 分析样本中的反沙箱、反调试、反虚拟机、延时触发和环境探测逻辑。
 ---
 
-# Evasion Analysis
+# 沙箱对抗分析
 
-Use this skill when the user wants to answer:
-- Does this sample detect sandboxes, virtual machines, or analyst tooling?
-- Which checks are actually gating payload execution?
-- What would an analyst need to fake, patch, or emulate to trigger the real behavior?
-- Which evasion behaviors matter operationally versus cosmetically?
+## 何时使用
 
-## Working Directory First
+当用户要回答下面这些问题时使用本 skill：
+- 样本是否存在反沙箱、反调试、反虚拟机或环境探测逻辑
+- 哪些检查会真正阻断载荷释放，哪些只是噪声或降噪手段
+- 需要补哪些环境、伪造哪些对象，才能触发真实行为
+- 绕过这些逻辑后，最该重点观察哪些后续动作
 
-Assume the relevant sample, report, or notes are already in the current working directory.
+## skill 基目录约定
 
-Before asking for additional parameters:
-- scan the current directory for likely inputs such as `*.exe`, `*.dll`, `*.bin`, `*.ps1`, `*.js`, `strings*`, `sandbox*`, `trace*`, `api*`, `report*`, `notes*`
-- if one sample or one report is clearly the focus, start immediately
-- if multiple candidates exist, choose the most relevant and state the assumption briefly
-- cite evidence with relative paths
+本 skill 加载后，以下路径都相对于 skill 基目录：
+- `references/REFERENCE_INDEX.md`
 
-## Large Files
+这个插件默认**不自带 ATT&CK 或反沙箱静态镜像**。如果用户问“有哪些 reference”，优先枚举：
+1. 当前工作目录中的样本、trace、报告和笔记
+2. 同目录中的本地 ATT&CK、沙箱笔记或逆向手册
+3. 同目录下其他插件已生成的分析结果
 
-Large sandboxes and API traces should be searched, not read end to end.
+## 工作目录优先
 
-Use this order:
-1. `rg -n` for sandbox markers, VM vendors, debugger APIs, sleep logic, and hook checks
-2. read only the surrounding lines or the specific JSON objects that match
-3. keep the analysis anchored to a short list of strong hits rather than a full trace dump
+优先扫描：
+- 样本文件
+- 字符串导出
+- API trace
+- 沙箱报告
+- 调试笔记
+- 反汇编摘录
 
-## Core Categories
+规则：
+- 有明显主输入就直接开始。
+- 多份候选时，优先选最接近用户问题、内容最完整的一组。
+- 引用证据优先使用相对路径。
 
-Organize the analysis into these buckets:
-- virtual machine and hypervisor artifacts
-- sandbox and analysis tooling checks
-- debugger and instrumentation checks
-- user-activity or environment-quality checks
-- timing, sleep, and delayed execution
-- staged decryption or payload release gates
+## 大文件策略
 
-## What to Look For
+对大 trace、大沙箱 JSON 和长字符串转储：
+1. 先用 `rg -n` 找环境探测、反调试、时间延迟、厂商字符串、注册表路径、设备名。
+2. 再读取附近的局部片段。
+3. 不要整份 trace 或报告通读。
 
-### Environment fingerprinting
+## 核心工作流
 
-Look for checks involving:
-- device drivers, services, registry keys, MAC OUIs
-- BIOS strings, DMI values, vendor strings, hostname heuristics
-- CPU count, RAM size, disk size, screen size, uptime
-- running processes, modules, security tools, hooks, or tracing DLLs
+1. 识别规避类别。
+   - 反沙箱
+   - 反调试
+   - 反虚拟机
+   - 环境探测
+   - 延时执行
+   - 载荷解锁前置条件
 
-### User-presence gating
+2. 判断影响级别。
+   - `硬阻断`：不满足就不释放核心行为
+   - `软信号`：影响分支或降噪
+   - `噪声`：只是信息采集，未必改变主行为
 
-Look for:
-- mouse movement, keyboard activity, foreground window changes
-- recent document count, browser history, desktop artifacts
-- domain join state, locale, timezone, username quality
+3. 关联触发后果。
+   - 哪个检查决定是否联网、解密、注入、落地或持久化
+   - 绕过后最可能出现哪些后续动作
 
-### Timing and patience
+4. 给最小绕过建议。
+   - 优先推荐最小环境补齐、最小补丁或最小伪造动作
 
-Look for:
-- long sleep chains
-- loop-based stalling
-- API combinations that spread work across delayed stages
-- execution that only continues after reboot, logon, or scheduled task windows
-
-### Anti-debug and anti-instrumentation
-
-Look for:
-- `IsDebuggerPresent`, `CheckRemoteDebuggerPresent`
-- `NtQueryInformationProcess`, debug object or debug flag checks
-- SEH abuse, timing deltas, trap flags, exception tricks
-- hook stripping, direct syscalls, integrity checks, or unhooking
-
-## Analysis Workflow
-
-1. Mark every environment check you can find.
-2. Decide whether each one is:
-   - `hard gate`: prevents core payload behavior
-   - `soft gate`: degrades behavior or changes branch selection
-   - `noise`: weak heuristic with little operational impact
-3. Connect the check to its consequence.
-   - exits process
-   - withholds secondary payload
-   - decrypts nothing
-   - disables beaconing
-   - suppresses credential theft, injection, or persistence
-4. Summarize what must be emulated or patched to reproduce the true path.
-
-## Output Template
+## 输出格式
 
 ```text
 Evasion Summary
-- Overall confidence:
-- Primary gating family:
-- Most important blockers:
+- Overall judgment:
+- Hard gates:
+- Soft gates:
+- Noise:
 
-Checks
+Key Checks
 - Check:
-  category:
   evidence:
-  effect if triggered:
-  severity:
+  impact:
+  bypass idea:
 
-Reproduction Notes
-- What to fake:
-- What to patch:
-- What to monitor after bypass:
+Reproduction Priorities
+- Priority 1:
+- Priority 2:
+
+References Used
+- Working directory evidence:
+- Additional local materials:
+- Bundled references:
 ```
 
-## Guardrails
+## 护栏
 
-- Separate anti-analysis from ordinary environment adaptation.
-- Not every sleep call is sandbox evasion; explain why it matters.
-- Prefer exact evidence over long lists of possible APIs.
-- Highlight the minimal change needed to confirm the gated branch.
-
-## Reference Policy
-
-- Prefer current working directory evidence and bundled/local ATT&CK material.
-- Do not browse the public internet for sandbox-evasion context when local references are available.
+- 不是所有 `sleep`、时间判断和环境信息采集都等于真正规避。
+- 不要只堆 API 名称，要解释这些逻辑怎么影响真实行为。
+- 如果本轮没有用到插件自带静态 reference，要明确说未使用。

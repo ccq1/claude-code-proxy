@@ -1,110 +1,88 @@
 ---
 name: attack-surface-intel
-description: >-
-  Turn domains, IPs, URLs, hashes, and organization clues into prioritized
-  attack-surface findings. Use when a red-team task needs passive
-  infrastructure pivots, exposed-service triage, or entry-point hypotheses,
-  including offline or air-gapped environments.
+description: 将域名、IP、URL、资产清单、IOC 和基础设施线索整理为离线优先的攻击面情报结果。
 ---
 
-# Attack Surface Intelligence
+# 攻击面情报研判
 
-Use this skill when the user wants to answer questions like:
-- Which domains, hosts, URLs, or samples are most relevant to a target?
-- What internet-exposed assets look valuable for initial access?
-- Which pieces of infrastructure appear shared, historical, or suspicious?
-- Which findings are facts, and which are only pivots or hypotheses?
+## 何时使用
 
-## Working Directory First
+当用户要回答下面这些问题时使用本 skill：
+- 哪些域名、IP、URL、证书或服务最值得优先验证
+- 哪些暴露面可能成为初始入口
+- 哪些基础设施是真实归属，哪些只是共享资源或噪声
+- 现有材料里哪些是事实，哪些只是可继续 pivot 的线索
 
-Assume the user will usually place the needed inputs in the current working directory.
+## skill 基目录约定
 
-Before asking for parameters:
-- scan the current directory and a few levels of subdirectories for likely inputs
-- prefer obvious files such as `*.csv`, `*.json`, `*.txt`, `*.xlsx`, `domains*`, `assets*`, `inventory*`, `ioc*`, `cert*`, `nmap*`, `hosts*`
-- if one candidate set is clearly dominant, use it immediately
-- if several candidates exist, choose the most relevant set and briefly state the assumption
-- when citing evidence, prefer relative paths
+本 skill 加载后，以下路径都相对于 skill 基目录：
+- `references/REFERENCE_INDEX.md`
 
-This skill is for passive and low-noise attack-surface work. It is strongest when the input is one or more of:
-- domain / subdomain
-- IP address / CIDR
-- URL
-- file hash
-- TLS certificate clue
-- organization, product, or brand name
-- local asset inventory or CMDB export
-- IOC spreadsheet, JSON export, or passive scan snapshot
+这个插件默认**不自带公网情报镜像**。如果用户问“你有哪些 reference”，应按下面顺序枚举：
+1. 当前工作目录中的证据
+2. `{{INTEL_WORKSPACE}}`
+3. 管理员显式配置的内部服务
+4. 本次实际使用到的远程增强源
 
-## Offline-First Mode
+## 工作目录优先
 
-Assume the deployment may be air-gapped.
+默认认为用户会把材料放在当前工作目录。
 
-Prefer these local sources first:
-- asset inventory exports
-- Nmap or banner snapshots
-- passive DNS / certificate exports already present on disk
-- IOC spreadsheets or JSON bundles
-- malware sample indexes, sandbox reports, and internal incident notes
-- files already present in the current working directory
+先扫描：
+- `domains*`
+- `assets*`
+- `inventory*`
+- `ioc*`
+- `hosts*`
+- `cert*`
+- `nmap*`
+- `*.csv`
+- `*.json`
+- `*.txt`
 
-If `{{INTEL_WORKSPACE}}` is configured, treat it as the default root for local intelligence artifacts. Only reach for internet intelligence if the environment allows it and the user actually needs it.
+规则：
+- 如果有一组明显主输入，直接开始，不先追问参数。
+- 如果候选很多，选最完整、最贴近用户问题的一组，并在开头说明假设。
+- 引用证据优先使用相对路径。
 
-## Core Workflow
+## 离线优先
 
-1. Normalize the starting indicators.
-   - Canonicalize domains, URLs, hashes, ports, and organization names.
-   - Separate target-owned assets from third-party services, CDNs, and shared SaaS.
+优先使用：
+- 本地资产清单和 CMDB 导出
+- 本地 IOC JSON / CSV / 文本导出
+- 证书快照、DNS 导出、扫描结果
+- 样本索引、沙箱报告、内部事件笔记
+- `{{INTEL_WORKSPACE}}` 中已存在的材料
 
-2. Pull passive intelligence first.
-   - In offline environments, start from local exports, snapshots, and previously collected passive data.
-   - If external access exists, VirusTotal or similar passive lookup can enrich files, URLs, domains, IPs, and relationships.
-   - Use passive DNS, certificate, and exposed-service data to find pivots whether the source is local or remote.
+只有用户明确要求且环境允许时，才使用远程情报源。不要因为 skill 里提到增强来源，就主动访问公网。
 
-3. Build infrastructure pivots.
-   - Group by certificate, ASN, registrar, name server, favicon, banner, or hosting provider.
-   - Distinguish current infrastructure from stale or historical overlap.
-   - Note whether the pivot is strongly owned, weakly related, or only adjacent noise.
+## 大文件策略
 
-4. Prioritize entry points.
-   - Score findings by reachability, authentication exposure, exploitability, and relevance to the engagement objective.
-   - Favor assets that plausibly lead to foothold, credential capture, or application-layer validation.
+对大型资产清单、扫描结果和 JSON 导出：
+1. 先用 `rg -n` 或文件名模式锁定域名、IP、组织名、证书主题等关键字段。
+2. JSON 再用 `jq` 或局部 Python 读取目标对象。
+3. 只读取需要的片段，不整文件灌进上下文。
 
-5. Produce evidence and next actions.
-   - Facts: directly observed and reproducible.
-   - Pivots: related infrastructure that needs confirmation.
-   - Hypotheses: promising paths that still need validation.
+## 核心工作流
 
-## Source Preference
+1. 归一化输入。
+   - 统一域名、URL、IP、CIDR、组织名、证书主题和哈希。
+   - 区分目标自有资产、第三方服务、CDN 和共享 SaaS。
 
-Use sources in this order:
-1. Local asset inventories, incident artifacts, and internal knowledge bases
-2. Previously collected passive intelligence exports and snapshots
-3. Official platform or vendor documentation
-4. High-quality passive intelligence platforms
-5. Security vendor writeups and incident reports
-6. Generic search results only as a starting point
+2. 构建基础设施关联。
+   - 结合域名、IP、证书、Banner、端口、组织名、托管商等信息做聚类。
+   - 明确哪些是强归属，哪些只是弱关联。
 
-Do not turn a single reputation signal into a strong conclusion. Reputation, geolocation, and shared-hosting overlap are weak by themselves.
+3. 排序高价值入口。
+   - 按可达性、认证暴露、可验证性和业务相关性排序。
+   - 优先推荐低噪声验证路径。
 
-## Optional API Patterns
+4. 明确证据等级。
+   - `Facts`：直接观察到、可复验。
+   - `Pivots`：和目标相关，但仍需确认。
+   - `Hypotheses`：基于证据推断的方向。
 
-If the user has configured local or remote sources, these placeholders may be available:
-- `{{INTEL_WORKSPACE}}`
-- `{{VT_API_KEY}}`
-- `{{SHODAN_API_KEY}}`
-- `{{CENSYS_API_ID}}`
-- `{{CENSYS_API_SECRET}}`
-
-Typical uses:
-- Local workspace: inventories, IOC bundles, exported scan results, certificate or passive DNS snapshots
-- VirusTotal: search and relationship pivots for file / URL / domain / IP objects
-- Shodan: exposed services, open ports, and banners
-- Censys: certificate-centric and host-centric passive discovery
-
-## Output Format
-
-Use a compact structure:
+## 输出格式
 
 ```text
 Target Surface Summary
@@ -124,18 +102,17 @@ Recommended Next Actions
 - Action 1:
 - Action 2:
 - Action 3:
+
+References Used
+- Working directory evidence:
+- Configured local workspace:
+- Internal services:
+- Remote enrichment actually used:
 ```
 
-## Guardrails
+## 护栏
 
-- Prefer passive intelligence before active probing.
-- In air-gapped deployments, prefer local evidence over synthetic guesses.
-- Keep third-party shared infrastructure clearly labeled.
-- Always state when the evidence is historical, cached, or indirectly inferred.
-- If the user asks for active validation, first identify the lowest-noise check that proves or disproves the hypothesis.
-
-## Reference Policy
-
-- Do not browse the public internet just because the skill mentions enrichment options.
-- Prefer current working directory, bundled `references/`, local mirrors, and admin-provided internal services.
-- Only use a remote source if the user explicitly asks for it and the environment actually permits it.
+- 共享证书、共享 ASN、共享云资源本身不等于强归属。
+- 历史数据、缓存数据和推断必须显式标注。
+- 不要把单一信誉信号直接写成高置信结论。
+- 若用户要求主动验证，先给最低噪声的验证动作。

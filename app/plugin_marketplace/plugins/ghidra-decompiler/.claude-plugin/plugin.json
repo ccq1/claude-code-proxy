@@ -1,0 +1,37 @@
+{
+  "name": "ghidra-decompiler",
+  "version": "0.1.0",
+  "description": "随插件分发固定版 Ghidra 官方 runtime，通过 bundled analyzeHeadless 提供导入、符号检索与函数级反编译能力。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "homepage": "https://github.com/NationalSecurityAgency/ghidra",
+  "repository": "https://github.com/NationalSecurityAgency/ghidra",
+  "license": "Apache-2.0",
+  "skills": ["./skills/ghidra-decompiler"],
+  "mcpServers": "./.mcp.json",
+  "settingsSchema": {
+    "title": "Ghidra 反编译配置",
+    "description": "配置本地 JDK 21 路径和 Ghidra 工程缓存目录。插件自带官方 Ghidra runtime，但仍需要本机可用的 Java 21。",
+    "fields": [
+      {
+        "key": "javaHome",
+        "label": "JDK 目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/usr/lib/jvm/jdk-21",
+        "description": "可选。若未填写，MCP server 会先尝试 GHIDRA_JAVA_HOME、JAVA_HOME，再回退到 PATH 中的 java。",
+        "placeholderToken": "GHIDRA_JAVA_HOME"
+      },
+      {
+        "key": "workspaceRoot",
+        "label": "工程缓存目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "~/.cache/pandoraq-ghidra-decompiler",
+        "description": "可选。用于保存 headless project、导入元数据和临时产物。默认写到当前用户缓存目录。",
+        "placeholderToken": "GHIDRA_WORKSPACE_ROOT"
+      }
+    ]
+  }
+}
