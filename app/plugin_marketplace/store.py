@@ -390,22 +390,29 @@ def _read_bundle_files(plugin_id: str) -> List[Dict[str, Any]]:
             continue
         relative_path = path.relative_to(base_dir).as_posix()
         suffix = path.suffix.lower()
+        raw_bytes = path.read_bytes()
         if suffix in TEXT_SUFFIXES:
-            files.append(
-                {
-                    "path": relative_path,
-                    "encoding": "utf-8",
-                    "content": path.read_text(encoding="utf-8"),
-                }
-            )
-        else:
-            files.append(
-                {
-                    "path": relative_path,
-                    "encoding": "base64",
-                    "content": base64.b64encode(path.read_bytes()).decode("ascii"),
-                }
-            )
+            try:
+                files.append(
+                    {
+                        "path": relative_path,
+                        "encoding": "utf-8",
+                        "content": raw_bytes.decode("utf-8"),
+                    }
+                )
+                continue
+            except UnicodeDecodeError:
+                # Some upstream runtime files use text-like extensions but are not UTF-8.
+                # Fall back to base64 so plugin download never fails on decode errors.
+                pass
+
+        files.append(
+            {
+                "path": relative_path,
+                "encoding": "base64",
+                "content": base64.b64encode(raw_bytes).decode("ascii"),
+            }
+        )
     return files
 
 
