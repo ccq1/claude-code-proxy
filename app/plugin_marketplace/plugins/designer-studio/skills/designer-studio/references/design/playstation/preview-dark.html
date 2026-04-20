@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of PlayStation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ps-blue: #0070cc;
+    --ps-blue-dark: #0068bd;
+    --ps-cyan: #1eaedb;
+    --link-hover-blue: #1883fd;
+    --link-dark-blue: #53b1ff;
+    --commerce-orange: #d53b00;
+    --commerce-orange-active: #aa2f00;
+    --warning-red: #c81b3a;
+
+    --console-black: #000000;
+    --shadow-black: #121314;
+    --canvas: #000000;
+    --surface: #0d0e10;
+    --surface-2: #17181b;
+    --surface-3: #222326;
+    --paper-white: #ffffff;
+    --divider-tint: rgba(255, 255, 255, 0.08);
+
+    --primary-text: #ffffff;
+    --secondary-text: #cccccc;
+    --body-gray: #949494;
+    --mute-gray: #6b6b6b;
+    --placeholder-ink: rgba(255, 255, 255, 0.5);
+
+    --shadow-feather: rgba(0, 0, 0, 0.4);
+    --shadow-light: rgba(0, 0, 0, 0.5);
+    --shadow-mid: rgba(0, 0, 0, 0.7);
+    --shadow-dramatic: rgba(0, 0, 0, 0.9);
+
+    --font-sans: 'Manrope', 'SST', Arial, Helvetica, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    background: var(--canvas);
+    color: var(--primary-text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: 0.1px;
+  }
+  a { color: inherit; text-decoration: none; transition: color 180ms ease; }
+  a:hover { color: var(--link-hover-blue); }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    padding: 16px 48px;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--divider-tint);
+  }
+  .nav-brand {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--primary-text);
+    letter-spacing: 0.1px;
+  }
+  .nav-links {
+    display: flex; gap: 32px; list-style: none; align-items: center;
+  }
+  .nav-links a {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-text);
+    letter-spacing: 0.14px;
+  }
+  .nav-cta {
+    display: inline-block;
+    background: var(--ps-blue);
+    color: var(--paper-white);
+    padding: 10px 22px;
+    border: none;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.324px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+  .nav-cta:hover {
+    background: var(--ps-cyan);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--paper-white), 0 0 0 4px var(--ps-blue);
+  }
+
+  /* HERO */
+  .hero {
+    padding: 96px 48px 88px;
+    background: linear-gradient(180deg, var(--shadow-black) 0%, var(--canvas) 100%);
+    color: var(--primary-text);
+  }
+  .hero-eyebrow {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--link-dark-blue);
+    margin-bottom: 20px;
+    letter-spacing: 0.14px;
+  }
+  .hero h1 {
+    font-family: var(--font-sans);
+    font-size: 88px;
+    font-weight: 300;
+    line-height: 1.10;
+    letter-spacing: -0.5px;
+    color: var(--primary-text);
+    margin-bottom: 28px;
+    max-width: 1100px;
+  }
+  .hero p {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: 0.1px;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 680px;
+    margin-bottom: 44px;
+  }
+  .hero-buttons { display: flex; gap: 18px; flex-wrap: wrap; }
+
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-block;
+    background: var(--ps-blue);
+    color: var(--paper-white);
+    padding: 14px 30px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .btn-primary:hover {
+    background: var(--ps-cyan);
+    color: var(--paper-white);
+    border-color: var(--paper-white);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--ps-blue);
+  }
+  .btn-secondary {
+    display: inline-block;
+    background: var(--paper-white);
+    color: var(--ps-blue-dark);
+    padding: 14px 30px;
+    border: 2px solid var(--paper-white);
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  .btn-secondary:hover {
+    background: var(--ps-cyan);
+    color: var(--paper-white);
+    border-color: var(--paper-white);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--ps-blue);
+  }
+  .btn-commerce {
+    display: inline-block;
+    background: var(--commerce-orange);
+    color: var(--paper-white);
+    padding: 14px 30px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.45px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .btn-commerce:hover {
+    background: var(--ps-cyan);
+    color: var(--paper-white);
+    border-color: var(--paper-white);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--ps-blue);
+  }
+  .btn-ghost {
+    display: inline-block;
+    background: transparent;
+    color: var(--primary-text);
+    padding: 12px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+  .btn-ghost:hover {
+    background: var(--ps-cyan);
+    color: var(--paper-white);
+    border-color: var(--paper-white);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--ps-blue);
+  }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--primary-text);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 100%;
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 500;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+  .btn-icon:hover {
+    background: var(--ps-cyan);
+    color: var(--paper-white);
+    border-color: var(--paper-white);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px var(--ps-blue);
+  }
+  .btn-pill {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--primary-text);
+    padding: 14px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* SECTION FRAME */
+  section.preview-section {
+    padding: 96px 48px;
+    background: var(--canvas);
+    border-top: 1px solid var(--divider-tint);
+  }
+  section.preview-section.mist {
+    background: linear-gradient(180deg, var(--canvas) 0%, var(--surface) 100%);
+  }
+  .section-eyebrow {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--link-dark-blue);
+    margin-bottom: 16px;
+    letter-spacing: 0.14px;
+  }
+  .section-title {
+    font-family: var(--font-sans);
+    font-size: 54px;
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.1px;
+    color: var(--primary-text);
+    margin-bottom: 16px;
+  }
+  .section-subtitle {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: 0.1px;
+    color: var(--secondary-text);
+    margin-bottom: 56px;
+    max-width: 760px;
+  }
+
+  /* COLOR PALETTE */
+  .color-group { margin-bottom: 40px; }
+  .color-group-label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-text);
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--divider-tint);
+  }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+  }
+  .color-swatch {
+    background: var(--surface-2);
+    border-radius: 19px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--divider-tint);
+  }
+  .color-block { height: 150px; }
+  .color-meta { padding: 22px 24px 24px; }
+  .color-name {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.25;
+    color: var(--primary-text);
+    letter-spacing: 0.1px;
+    margin-bottom: 8px;
+  }
+  .color-hex {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--body-gray);
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+  .color-role {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.50;
+    color: var(--secondary-text);
+  }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--divider-tint);
+    align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--body-gray);
+    line-height: 1.60;
+  }
+  .type-meta strong {
+    display: block;
+    color: var(--primary-text);
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .type-sample { color: var(--primary-text); }
+
+  /* BUTTONS GRID */
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .button-cell {
+    padding: 44px 36px;
+    border-radius: 24px;
+    background: var(--surface-2);
+    border: 1px solid var(--divider-tint);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .button-cell .label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--secondary-text);
+    letter-spacing: 0.14px;
+  }
+
+  /* PRODUCT TILE */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+  }
+  .product-tile {
+    background: var(--surface-2);
+    border-radius: 19px;
+    overflow: hidden;
+    border: 1px solid var(--divider-tint);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .product-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px 0 var(--shadow-dramatic);
+  }
+  .product-image {
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(135deg, #0070cc 0%, #121314 100%);
+    border-radius: 12px;
+    margin: 16px 16px 0;
+  }
+  .product-tile.variant-2 .product-image { background: linear-gradient(135deg, #d53b00 0%, #4a1800 100%); }
+  .product-tile.variant-3 .product-image { background: linear-gradient(135deg, #1eaedb 0%, #0070cc 100%); }
+  .product-tile.variant-4 .product-image { background: linear-gradient(135deg, #4a00a4 0%, #000000 100%); }
+  .product-meta {
+    padding: 20px 22px 22px;
+  }
+  .product-platform {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--secondary-text);
+    padding: 4px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    margin-bottom: 12px;
+  }
+  .product-title {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--primary-text);
+    margin-bottom: 16px;
+    letter-spacing: 0.1px;
+  }
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .product-price {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--commerce-orange);
+    letter-spacing: 0.14px;
+  }
+
+  /* FORMS */
+  .form-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 920px;
+  }
+  .form-field { display: flex; flex-direction: column; gap: 10px; }
+  .form-label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-text);
+    letter-spacing: 0.14px;
+  }
+  .form-input {
+    background: var(--surface-2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    padding: 14px 16px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--primary-text);
+    outline: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .form-input::placeholder { color: var(--placeholder-ink); }
+  .form-input.focus { border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 0 0 2px var(--ps-blue); }
+  .form-input.error { border-color: var(--warning-red); color: #ff6b82; }
+  .form-error {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: #ff6b82;
+  }
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* SPACING */
+  .spacing-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .spacing-item { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .spacing-block {
+    background: var(--ps-blue);
+    height: 72px;
+    border-radius: 6px;
+  }
+  .spacing-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--secondary-text);
+  }
+
+  /* RADIUS */
+  .radius-row {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .radius-item { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .radius-block {
+    width: 110px;
+    height: 110px;
+    background: var(--ps-blue);
+  }
+  .radius-block.r2 { border-radius: 2px; }
+  .radius-block.r3 { border-radius: 3px; }
+  .radius-block.r6 { border-radius: 6px; }
+  .radius-block.r12 { border-radius: 12px; }
+  .radius-block.r19 { border-radius: 19px; }
+  .radius-block.r20 { border-radius: 20px; }
+  .radius-block.r24 { border-radius: 24px; }
+  .radius-block.r36 { border-radius: 36px; }
+  .radius-block.r48 { border-radius: 48px; }
+  .radius-block.r999 { border-radius: 999px; width: 160px; height: 50px; }
+  .radius-block.rfull { border-radius: 100%; }
+  .radius-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--primary-text);
+    text-align: center;
+  }
+  .radius-label small { display: block; color: var(--body-gray); margin-top: 4px; font-weight: 400; font-size: 10px; }
+
+  /* ELEVATION */
+  .elevation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+  }
+  .elevation-cell {
+    padding: 44px 28px;
+    border-radius: 24px;
+    background: var(--surface-2);
+    text-align: center;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    color: var(--primary-text);
+  }
+  .elevation-cell.lvl-0 { border: 1px solid var(--divider-tint); }
+  .elevation-cell.lvl-1 { box-shadow: 0 5px 9px 0 var(--shadow-feather); }
+  .elevation-cell.lvl-2 { box-shadow: 0 5px 9px 0 var(--shadow-light); }
+  .elevation-cell.lvl-3 { box-shadow: 0 5px 9px 0 var(--shadow-mid); }
+  .elevation-cell.lvl-4 { box-shadow: 0 5px 9px 0 var(--shadow-dramatic); }
+  .elevation-cell.lvl-5 { box-shadow: 0 0 0 2px var(--ps-blue); }
+  .elevation-cell.lvl-6 { box-shadow: 0 0 0 2px var(--paper-white); }
+  .elevation-cell.lvl-7 {
+    background: linear-gradient(180deg, var(--shadow-black) 0%, var(--canvas) 100%);
+    color: var(--primary-text);
+  }
+  .elevation-cell .label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: inherit;
+    letter-spacing: 0.14px;
+  }
+  .elevation-cell .desc {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.50;
+    color: inherit;
+    opacity: 0.75;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--ps-blue);
+    color: var(--paper-white);
+    padding: 48px 48px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.14px;
+  }
+  .footer a { color: var(--paper-white); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { padding: 64px 24px 56px; }
+    .hero h1 { font-size: 44px; }
+    .section-title { font-size: 36px; }
+    section.preview-section { padding: 64px 24px; }
+    .form-stack { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 16px; }
+    .nav { padding: 12px 20px; }
+    .nav-links { display: none; }
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 20px; }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .nav > .nav-left { justify-self: start; }
+  .nav > .nav-links { justify-self: center; }
+  .nav > :last-child { justify-self: end; }
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#palette">Palette</a></li>
+    <li><a href="#typography">Type</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#layout">Layout</a></li>
+  </ul>
+
+  <button class="nav-cta">Sign In</button>
+</nav>
+
+<section class="hero">
+  <span class="hero-eyebrow">Design System / Console Retail</span>
+  <h1>Design System Inspiration of PlayStation</h1>
+  <p>Quiet-authority display type, cyan hover-scale interactions, and a three-surface channel layout anchored by PlayStation Blue. Generated from DESIGN.md.</p>
+  <div class="hero-buttons">
+    <button class="btn-primary">Explore the System</button>
+    <button class="btn-commerce">Add to Cart</button>
+  </div>
+</section>
+
+<section class="preview-section" id="palette">
+  <span class="section-eyebrow">Section 01 / Palette</span>
+  <h2 class="section-title">Color Palette</h2>
+  <p class="section-subtitle">PlayStation Blue as the anchor, Cyan reserved for hover states, Commerce Orange for purchase moments.</p>
+
+  <div class="color-group">
+    <div class="color-group-label">Primary — Brand Anchor</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #0070cc;"></div>
+        <div class="color-meta">
+          <div class="color-name">PlayStation Blue</div>
+          <div class="color-hex">#0070CC</div>
+          <div class="color-role">The anchor. Primary CTAs, footer, and inline link color.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #000000;"></div>
+        <div class="color-meta">
+          <div class="color-name">Console Black</div>
+          <div class="color-hex">#000000</div>
+          <div class="color-role">The masthead and hero canvas — framing hardware like a museum piece.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Secondary & Accent</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #1eaedb;"></div>
+        <div class="color-meta">
+          <div class="color-name">PlayStation Cyan</div>
+          <div class="color-hex">#1EAEDB</div>
+          <div class="color-role">The interaction color. Hover, focus, and active states only — never at rest.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #1883fd;"></div>
+        <div class="color-meta">
+          <div class="color-name">Link Hover Blue</div>
+          <div class="color-hex">#1883FD</div>
+          <div class="color-role">Brighter variant for inline text-link hover states.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #53b1ff;"></div>
+        <div class="color-meta">
+          <div class="color-name">Dark-Link Blue</div>
+          <div class="color-hex">#53B1FF</div>
+          <div class="color-role">Link rest color on dark surfaces.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Commerce & Semantic</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #d53b00;"></div>
+        <div class="color-meta">
+          <div class="color-name">Commerce Orange</div>
+          <div class="color-hex">#D53B00</div>
+          <div class="color-role">Reserved for PlayStation Store buy CTAs and price callouts.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #aa2f00;"></div>
+        <div class="color-meta">
+          <div class="color-name">Commerce Orange Active</div>
+          <div class="color-hex">#AA2F00</div>
+          <div class="color-role">Pressed state for commerce buttons.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #c81b3a;"></div>
+        <div class="color-meta">
+          <div class="color-name">Warning Red</div>
+          <div class="color-hex">#C81B3A</div>
+          <div class="color-role">Form errors and destructive warnings.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Surface & Background</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #ffffff;"></div>
+        <div class="color-meta">
+          <div class="color-name">Paper White</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-role">Primary content canvas for editorial panels.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #f5f7fa;"></div>
+        <div class="color-meta">
+          <div class="color-name">Ice Mist</div>
+          <div class="color-hex">#F5F7FA</div>
+          <div class="color-role">Atmospheric end-stop of the light section gradient.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #121314;"></div>
+        <div class="color-meta">
+          <div class="color-name">Shadow Black</div>
+          <div class="color-hex">#121314</div>
+          <div class="color-role">Starting anchor of the dark section gradient.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #f3f3f3;"></div>
+        <div class="color-meta">
+          <div class="color-name">Divider Tint</div>
+          <div class="color-hex">#F3F3F3</div>
+          <div class="color-role">Quiet horizontal-rule color between content rows.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Neutrals & Text</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #1f1f1f;"></div>
+        <div class="color-meta">
+          <div class="color-name">Deep Charcoal</div>
+          <div class="color-hex">#1F1F1F</div>
+          <div class="color-role">Body headlines and link color at rest on light surfaces.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #6b6b6b;"></div>
+        <div class="color-meta">
+          <div class="color-name">Body Gray</div>
+          <div class="color-hex">#6B6B6B</div>
+          <div class="color-role">Secondary body text and metadata.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #cccccc;"></div>
+        <div class="color-meta">
+          <div class="color-name">Mute Gray</div>
+          <div class="color-hex">#CCCCCC</div>
+          <div class="color-role">Tertiary labels and disabled states.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section mist" id="typography">
+  <span class="section-eyebrow">Section 02 / Typography</span>
+  <h2 class="section-title">Typographic Hierarchy</h2>
+  <p class="section-subtitle">SST weight 300 for display — quiet authority. Weights rise to 500–700 only at the UI layer.</p>
+
+  <div class="type-row">
+    <div class="type-meta"><strong>Hero Display XL</strong>SST · 54px / 300 / 1.25 / -0.1px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 54px; font-weight: 300; line-height: 1.25; letter-spacing: -0.1px;">Play has no limits</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Hero Display L</strong>SST · 44px / 300 / 1.25 / 0.1px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 44px; font-weight: 300; line-height: 1.25; letter-spacing: 0.1px;">Explore the new console</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Large Display</strong>SST · 35px / 300 / 1.25</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 35px; font-weight: 300; line-height: 1.25;">Feature panel headline</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Mid Display</strong>SST · 28px / 300 / 1.25 / 0.1px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 28px; font-weight: 300; line-height: 1.25; letter-spacing: 0.1px;">Section heading text</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Compact Display</strong>SST · 22px / 300 / 1.25 / 0.1px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 22px; font-weight: 300; line-height: 1.25; letter-spacing: 0.1px;">Module title — still in light weight</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>UI Heading</strong>SST · 18px / 600 / 1.00</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 18px; font-weight: 600; line-height: 1.00;">Tight UI heading</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Primary Button</strong>SST · 18px / 500 / 1.25 / 0.4px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 18px; font-weight: 500; line-height: 1.25; letter-spacing: 0.4px;">Primary CTA label</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Emphasized Button</strong>SST · 18px / 700 / 1.25 / 0.45px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 18px; font-weight: 700; line-height: 1.25; letter-spacing: 0.45px;">Buy PlayStation Plus</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Body Relaxed</strong>SST · 18px / 400 / 1.50 / 0.1px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 18px; font-weight: 400; line-height: 1.50; letter-spacing: 0.1px;">Standard reading body — generous leading for product narrative, with just enough letter-spacing to feel composed without looking designed.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Compact Button</strong>SST · 14px / 700 / 1.25 / 0.324px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 14px; font-weight: 700; line-height: 1.25; letter-spacing: 0.324px;">Add to Cart</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Utility Caption</strong>SST · 14px / 500 / 1.50</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.50;">Rated E · PS5 · PS4</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Micro Caption</strong>SST · 12px / 500 / 1.50</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; line-height: 1.50;">© 2026 Sony Interactive Entertainment LLC</div>
+  </div>
+</section>
+
+<section class="preview-section" id="components">
+  <span class="section-eyebrow">Section 03 / Buttons</span>
+  <h2 class="section-title">Button Variants</h2>
+  <p class="section-subtitle">Every primary button shares the same hover move: cyan fill, white border, blue ring, scale 1.2×. Hover to see.</p>
+  <div class="button-grid">
+    <div class="button-cell">
+      <span class="label">Primary — Blue Pill</span>
+      <div><button class="btn-primary">Sign Up</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Secondary — White Pill</span>
+      <div><button class="btn-secondary">Learn More</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Commerce — Orange Pill</span>
+      <div><button class="btn-commerce">Buy Now $69.99</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Ghost — Transparent</span>
+      <div><button class="btn-ghost">Filter Results</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Icon Circle — 100%</span>
+      <div><button class="btn-icon">→</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Neutral Pill Tag</span>
+      <div><span class="btn-pill">PS5</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section mist">
+  <span class="section-eyebrow">Section 04 / Product Tiles</span>
+  <h2 class="section-title">Game Cover Grid</h2>
+  <p class="section-subtitle">3:4 cover art in 12px rounded frames, feather-weight elevation, commerce-orange prices.</p>
+  <div class="product-grid">
+    <div class="product-tile">
+      <div class="product-image"></div>
+      <div class="product-meta">
+        <span class="product-platform">PS5</span>
+        <h3 class="product-title">Astro Bot — Galaxy Edition</h3>
+        <div class="product-footer">
+          <span class="product-price">$69.99</span>
+          <button class="btn-primary" style="font-size: 14px; padding: 8px 18px;">Buy</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-tile variant-2">
+      <div class="product-image"></div>
+      <div class="product-meta">
+        <span class="product-platform">PS5 · PS4</span>
+        <h3 class="product-title">Horizon Forbidden West</h3>
+        <div class="product-footer">
+          <span class="product-price">$49.99</span>
+          <button class="btn-primary" style="font-size: 14px; padding: 8px 18px;">Buy</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-tile variant-3">
+      <div class="product-image"></div>
+      <div class="product-meta">
+        <span class="product-platform">PS5</span>
+        <h3 class="product-title">Rift Apart: Beyond Dimensions</h3>
+        <div class="product-footer">
+          <span class="product-price">$39.99</span>
+          <button class="btn-primary" style="font-size: 14px; padding: 8px 18px;">Buy</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-tile variant-4">
+      <div class="product-image"></div>
+      <div class="product-meta">
+        <span class="product-platform">PSVR2</span>
+        <h3 class="product-title">Synthwave Odyssey VR</h3>
+        <div class="product-footer">
+          <span class="product-price">$29.99</span>
+          <button class="btn-primary" style="font-size: 14px; padding: 8px 18px;">Buy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section">
+  <span class="section-eyebrow">Section 05 / Forms</span>
+  <h2 class="section-title">Inputs & Newsletter</h2>
+  <p class="section-subtitle">Tight 3px radius inputs — the one place PlayStation gets genuinely compact. Focus uses a 2px blue ring.</p>
+  <div class="form-stack">
+    <div class="form-field">
+      <label class="form-label">Email — Default</label>
+      <input class="form-input" type="email" placeholder="player@playstation.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email — Focus</label>
+      <input class="form-input focus" type="email" placeholder="player@playstation.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email — Error</label>
+      <input class="form-input error" type="email" value="not-an-email">
+      <span class="form-error">Please enter a valid email address</span>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Message — Textarea</label>
+      <textarea class="form-input form-textarea" placeholder="Share your thoughts..."></textarea>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section mist" id="layout">
+  <span class="section-eyebrow">Section 06 / Spacing</span>
+  <h2 class="section-title">Spacing Scale (8px System)</h2>
+  <p class="section-subtitle">Fine micro-scale (1–5px) for pills, editorial scale (12–21px) for the grid.</p>
+  <div class="spacing-row">
+    <div class="spacing-item"><div class="spacing-block" style="width: 1px;"></div><span class="spacing-label">1px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 2px;"></div><span class="spacing-label">2px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 5px;"></div><span class="spacing-label">5px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 8px;"></div><span class="spacing-label">8px · base</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 10px;"></div><span class="spacing-label">10px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 12px;"></div><span class="spacing-label">12px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 14px;"></div><span class="spacing-label">14px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 16px;"></div><span class="spacing-label">16px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 18px;"></div><span class="spacing-label">18px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 20px;"></div><span class="spacing-label">20px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 21px;"></div><span class="spacing-label">21px</span></div>
+  </div>
+</section>
+
+<section class="preview-section">
+  <span class="section-eyebrow">Section 07 / Radius</span>
+  <h2 class="section-title">Border Radius Scale</h2>
+  <p class="section-subtitle">Eleven discrete radii — from 2px utility UI to 999px full-pill CTAs.</p>
+  <div class="radius-row">
+    <div class="radius-item">
+      <div class="radius-block r2"></div>
+      <span class="radius-label">2px<small>Admin UI</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r3"></div>
+      <span class="radius-label">3px<small>Inputs, tabs</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r6"></div>
+      <span class="radius-label">6px<small>Compact buttons</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r12"></div>
+      <span class="radius-label">12px<small>Media, figures</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r19"></div>
+      <span class="radius-label">19px<small>Feature cards</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r24"></div>
+      <span class="radius-label">24px<small>Hero cards</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r36"></div>
+      <span class="radius-label">36px<small>Secondary pills</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r48"></div>
+      <span class="radius-label">48px<small>Feature buttons</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r999"></div>
+      <span class="radius-label">999px<small>Primary pill</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block rfull"></div>
+      <span class="radius-label">100%<small>Icon circles</small></span>
+    </div>
+  </div>
+</section>
+
+<section class="preview-section mist">
+  <span class="section-eyebrow">Section 08 / Elevation</span>
+  <h2 class="section-title">Depth & Elevation</h2>
+  <p class="section-subtitle">Shadow opacity lands on 0.06 / 0.08 / 0.16 / 0.8 — whispered or shouted, never muttered.</p>
+  <div class="elevation-grid">
+    <div class="elevation-cell lvl-0">
+      <span class="label">Level 0</span>
+      <div class="desc">Border only — divider tint</div>
+    </div>
+    <div class="elevation-cell lvl-1">
+      <span class="label">Level 1</span>
+      <div class="desc">Feather-weight shadow</div>
+    </div>
+    <div class="elevation-cell lvl-2">
+      <span class="label">Level 2</span>
+      <div class="desc">Standard tile elevation</div>
+    </div>
+    <div class="elevation-cell lvl-3">
+      <span class="label">Level 3</span>
+      <div class="desc">Emphasized active state</div>
+    </div>
+    <div class="elevation-cell lvl-4">
+      <span class="label">Level 4</span>
+      <div class="desc">Dramatic hero drop</div>
+    </div>
+    <div class="elevation-cell lvl-5">
+      <span class="label">Level 5</span>
+      <div class="desc">2px #0070CC focus ring</div>
+    </div>
+    <div class="elevation-cell lvl-6">
+      <span class="label">Level 6</span>
+      <div class="desc">2px white hover ring</div>
+    </div>
+    <div class="elevation-cell lvl-7">
+      <span class="label">Level 7</span>
+      <div class="desc">Dark gradient hero surface</div>
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>

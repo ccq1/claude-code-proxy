@@ -20,7 +20,9 @@ description: 将公告、请求样本、漏洞说明和利用思路工程化为�
 - `references/vuln/known_exploited_vulnerabilities.json`
 - `references/vuln/nvdcve-2.0-recent.json`
 - `scripts/lookup_vuln_mirror.py`
+- `scripts/poc_oneclick.py`
 - `scripts/scaffold_poc.py`
+- `scripts/run_batch_verify.py`
 
 涉及 CVE / KEV / 厂商公告背景时，优先运行：
 ```bash
@@ -29,10 +31,33 @@ python scripts/lookup_vuln_mirror.py CVE-2026-34197
 
 ## 生产快速路径（默认）
 
-默认先执行脚手架生成，再基于结果做最小改动：
+当用户通过 `/poc-engineering ...` 触发时，默认执行一键流水线，不要求用户逐个输入参数：
+
+```bash
+python scripts/poc_oneclick.py --workdir .
+```
+
+档位映射（仅在用户明确提到时切换）：
+- 保守 / safe -> `--profile safe`
+- 默认 / balanced -> `--profile balanced`
+- 激进 / aggressive -> `--profile aggressive`
+
+只有在用户明确要求“拆开执行”时，才使用分步命令。
+
+分步命令如下：
 
 ```bash
 python scripts/scaffold_poc.py --workdir . --name incident_case
+```
+
+需要更稳的成功判定时：
+```bash
+python scripts/scaffold_poc.py --workdir . --name incident_case --success-status 200,204 --signal-status 401,403 --success-keyword success
+```
+
+批量验证时：
+```bash
+python scripts/run_batch_verify.py --targets-file ./targets.txt --manifest ./generated_poc_pack/manifest.json --workers 20
 ```
 
 规则：
@@ -107,12 +132,18 @@ python scripts/scaffold_poc.py --workdir . --name incident_case
 - 协议不明确
 - 认证必需但缺失
 - 动作可能具有破坏性且用户未授权
+- 缺少最小输入材料（请求样本或目标清单）
 
 如果必须提问：
 - 必须使用 `AskUserQuestion`
 - 最多一个简短阻塞问题
 - 先把目录和本地 reference 中能提取的信息都提取完
 - 如果不影响安全首版结果，就直接带假设继续，不要提问
+
+Slash 命令特殊规则：
+- 不要问“要不要脚本 / 要不要批量 / 要不要报告”。
+- 不要让用户逐个输入 `workers/timeout/success-status/signal-status`。
+- 默认用 profile 预设跑通首版，再在结果中说明采用的 profile 与关键参数。
 
 ## 核心工作流
 

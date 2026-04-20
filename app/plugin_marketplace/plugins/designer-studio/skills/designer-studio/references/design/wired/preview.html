@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of WIRED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lora:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wired-black: #000000;
+    --page-ink: #1a1a1a;
+    --paper-white: #ffffff;
+    --caption-gray: #757575;
+    --disabled-gray: #999999;
+    --hairline-tint: #e2e8f0;
+    --hairline-mid: #4a5568;
+    --link-blue: #057dbc;
+    --error-red: #e53e3e;
+
+    --font-display: 'Playfair Display', 'WiredDisplay', Helvetica, serif;
+    --font-serif: 'Lora', 'BreveText', Helvetica, serif;
+    --font-sans: 'Inter', 'Apercu', Helvetica, sans-serif;
+    --font-mono: 'JetBrains Mono', 'WiredMono', Monaco, 'Courier New', Courier, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    background: var(--paper-white);
+    color: var(--page-ink);
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.50;
+    letter-spacing: 0.09px;
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    padding: 14px 32px;
+    background: var(--paper-white);
+    border-bottom: 2px solid var(--wired-black);
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--page-ink);
+    letter-spacing: -0.4px;
+  }
+  .nav-links {
+    display: flex; gap: 28px; list-style: none; align-items: center;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--page-ink);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    transition: color 150ms ease;
+  }
+  .nav-links a:hover { color: var(--link-blue); }
+  .nav-cta {
+    display: inline-block;
+    background: var(--paper-white);
+    color: var(--wired-black);
+    padding: 12px 24px;
+    border: 2px solid var(--wired-black);
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .nav-cta:hover { background: var(--wired-black); color: var(--paper-white); }
+
+  /* HERO */
+  .hero {
+    padding: 80px 48px 64px;
+    background: var(--paper-white);
+    border-bottom: 1px solid var(--wired-black);
+  }
+  .hero-kicker {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--page-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.92px;
+    padding: 6px 12px;
+    background: var(--wired-black);
+    color: var(--paper-white);
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: 84px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    color: var(--page-ink);
+    margin-bottom: 24px;
+    max-width: 1000px;
+  }
+  .hero p {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.47;
+    letter-spacing: 0.108px;
+    color: var(--page-ink);
+    max-width: 640px;
+    margin-bottom: 36px;
+  }
+  .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-block;
+    background: var(--paper-white);
+    color: var(--wired-black);
+    padding: 14px 28px;
+    border: 2px solid var(--wired-black);
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .btn-primary:hover { background: var(--wired-black); color: var(--paper-white); }
+  .btn-secondary {
+    display: inline-block;
+    background: var(--wired-black);
+    color: var(--paper-white);
+    padding: 14px 28px;
+    border: 2px solid var(--wired-black);
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .btn-secondary:hover { background: var(--paper-white); color: var(--wired-black); }
+  .btn-ghost {
+    display: inline-block;
+    background: transparent;
+    color: var(--page-ink);
+    padding: 14px 0;
+    border: none;
+    border-bottom: 2px solid var(--page-ink);
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+  .btn-ghost:hover { color: var(--link-blue); border-color: var(--link-blue); }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--paper-white);
+    color: var(--page-ink);
+    border: 1px solid var(--caption-gray);
+    border-radius: 50%;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .btn-icon:hover { background: var(--wired-black); color: var(--paper-white); border-color: var(--wired-black); }
+  .btn-pill {
+    display: inline-block;
+    background: var(--wired-black);
+    color: var(--paper-white);
+    padding: 6px 14px;
+    border: none;
+    border-radius: 1920px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+  }
+
+  /* SECTION FRAME */
+  section.preview-section {
+    padding: 64px 48px;
+    border-bottom: 1px solid var(--wired-black);
+    background: var(--paper-white);
+  }
+  .section-ribbon {
+    display: block;
+    background: var(--wired-black);
+    color: var(--paper-white);
+    padding: 12px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.6px;
+    color: var(--page-ink);
+    margin-bottom: 12px;
+  }
+  .section-subtitle {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.47;
+    color: var(--caption-gray);
+    margin-bottom: 40px;
+    max-width: 720px;
+  }
+
+  /* COLOR PALETTE */
+  .color-group { margin-bottom: 36px; }
+  .color-group-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--page-ink);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--wired-black);
+  }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0;
+    border-left: 1px solid var(--wired-black);
+    border-top: 1px solid var(--wired-black);
+  }
+  .color-swatch {
+    border-right: 1px solid var(--wired-black);
+    border-bottom: 1px solid var(--wired-black);
+    background: var(--paper-white);
+  }
+  .color-block {
+    height: 130px;
+    border-bottom: 1px solid var(--wired-black);
+  }
+  .color-meta {
+    padding: 16px 18px 18px;
+  }
+  .color-name {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.3px;
+    color: var(--page-ink);
+    margin-bottom: 6px;
+  }
+  .color-hex {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--page-ink);
+    margin-bottom: 10px;
+  }
+  .color-role {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--caption-gray);
+  }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--hairline-tint);
+    align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--caption-gray);
+    line-height: 1.6;
+  }
+  .type-meta strong {
+    display: block;
+    color: var(--page-ink);
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .type-sample { color: var(--page-ink); }
+
+  /* BUTTONS GRID */
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0;
+    border-left: 1px solid var(--wired-black);
+    border-top: 1px solid var(--wired-black);
+  }
+  .button-cell {
+    padding: 36px 28px;
+    border-right: 1px solid var(--wired-black);
+    border-bottom: 1px solid var(--wired-black);
+    background: var(--paper-white);
+  }
+  .button-cell .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--caption-gray);
+    margin-bottom: 18px;
+    display: block;
+  }
+
+  /* CARDS / EDITORIAL TILES */
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--wired-black);
+    border-bottom: 1px solid var(--wired-black);
+  }
+  .story-tile {
+    padding: 28px 32px 36px;
+    border-right: 1px solid var(--wired-black);
+    background: var(--paper-white);
+  }
+  .story-tile:last-child { border-right: none; }
+  .story-image {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #1a1a1a 0%, #4a5568 100%);
+    margin-bottom: 20px;
+    border-radius: 0;
+  }
+  .story-tile.small .story-image { aspect-ratio: 4 / 3; }
+  .story-kicker {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.92px;
+    color: var(--page-ink);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .story-headline {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 0.96;
+    letter-spacing: -0.5px;
+    color: var(--page-ink);
+    margin-bottom: 14px;
+  }
+  .story-tile.small .story-headline {
+    font-size: 22px;
+    line-height: 1.08;
+    letter-spacing: -0.2px;
+  }
+  .story-deck {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.50;
+    letter-spacing: 0.09px;
+    color: var(--page-ink);
+    margin-bottom: 16px;
+  }
+  .story-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--caption-gray);
+  }
+  .story-tile a:hover .story-headline { color: var(--link-blue); }
+
+  /* MOST POPULAR */
+  .most-popular-list {
+    border-top: 1px solid var(--wired-black);
+  }
+  .most-popular-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--wired-black);
+    align-items: baseline;
+  }
+  .mp-number {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    color: var(--page-ink);
+  }
+  .mp-content .story-kicker { margin-bottom: 6px; }
+  .mp-headline {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.3px;
+    color: var(--page-ink);
+  }
+
+  /* FORMS */
+  .form-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 880px;
+  }
+  .form-field { display: flex; flex-direction: column; gap: 10px; }
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--page-ink);
+  }
+  .form-input {
+    background: var(--paper-white);
+    border: 2px solid var(--wired-black);
+    border-radius: 0;
+    padding: 14px 16px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--page-ink);
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+  .form-input::placeholder { color: var(--caption-gray); }
+  .form-input.focus { box-shadow: inset 0 0 0 2px var(--wired-black); }
+  .form-input.error { border-color: var(--error-red); color: var(--error-red); }
+  .form-error {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--error-red);
+  }
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* SPACING */
+  .spacing-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .spacing-item { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .spacing-block {
+    background: var(--wired-black);
+    height: 64px;
+  }
+  .spacing-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--page-ink);
+  }
+
+  /* RADIUS */
+  .radius-row {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .radius-item { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .radius-block {
+    width: 100px;
+    height: 100px;
+    background: var(--paper-white);
+    border: 2px solid var(--wired-black);
+  }
+  .radius-block.r-pill { border-radius: 1920px; width: 140px; height: 50px; }
+  .radius-block.r-circle { border-radius: 50%; }
+  .radius-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--page-ink);
+    text-align: center;
+  }
+  .radius-label small { display: block; color: var(--caption-gray); margin-top: 4px; font-weight: 400; }
+
+  /* ELEVATION */
+  .elevation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0;
+    border-left: 1px solid var(--wired-black);
+    border-top: 1px solid var(--wired-black);
+  }
+  .elevation-cell {
+    padding: 36px 24px;
+    border-right: 1px solid var(--wired-black);
+    border-bottom: 1px solid var(--wired-black);
+    background: var(--paper-white);
+    text-align: center;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+  }
+  .elevation-cell.lvl-0 { background: var(--paper-white); }
+  .elevation-cell.lvl-1 { border-top: 1px solid var(--hairline-tint); }
+  .elevation-cell.lvl-2 { border-top: 2px solid var(--wired-black); }
+  .elevation-cell.lvl-3 .demo-box { border: 2px solid var(--wired-black); padding: 14px 28px; font-family: var(--font-sans); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .elevation-cell.lvl-4 { background: var(--wired-black); color: var(--paper-white); }
+  .elevation-cell.lvl-5 { background: var(--page-ink); color: var(--paper-white); }
+  .elevation-cell .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+  }
+  .elevation-cell .desc {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    line-height: 1.4;
+    color: inherit;
+    opacity: 0.85;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--page-ink);
+    color: var(--paper-white);
+    padding: 40px 48px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    text-align: center;
+  }
+  .footer a { color: var(--paper-white); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { padding: 56px 24px 48px; }
+    .hero h1 { font-size: 48px; letter-spacing: -0.8px; }
+    .section-title { font-size: 30px; }
+    section.preview-section { padding: 48px 24px; }
+    .editorial-grid { grid-template-columns: 1fr; }
+    .story-tile { border-right: none; border-bottom: 1px solid var(--wired-black); }
+    .form-stack { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 12px; }
+    .nav { padding: 12px 20px; }
+    .nav-links { display: none; }
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 20px; }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .nav > .nav-left { justify-self: start; }
+  .nav > .nav-links { justify-self: center; }
+  .nav > :last-child { justify-self: end; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#palette">Palette</a></li>
+    <li><a href="#typography">Type</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#layout">Layout</a></li>
+  </ul>
+
+  <button class="nav-cta">Subscribe</button>
+</nav>
+
+<section class="hero">
+  <span class="hero-kicker">Design System / Editorial</span>
+  <h1>Design System Inspiration of WIRED</h1>
+  <p>A printerly, monochrome editorial system held together by hairline rules, hard 2px borders, and four typefaces with four distinct jobs. Generated from DESIGN.md.</p>
+  <div class="hero-buttons">
+    <a href="#palette" class="btn-primary">Explore the System</a>
+    <a href="#typography" class="btn-secondary">Read the Type</a>
+  </div>
+</section>
+
+<!-- 1. COLOR PALETTE -->
+<section class="preview-section" id="palette">
+  <span class="section-ribbon">Section 01 / Palette</span>
+  <h2 class="section-title">Color Palette</h2>
+  <p class="section-subtitle">Black, paper white, two grays, and one blue accent. The whole site lives inside this discipline.</p>
+
+  <div class="color-group">
+    <div class="color-group-label">Primary — Editorial Ink</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #000000;"></div>
+        <div class="color-meta">
+          <div class="color-name">WIRED Black</div>
+          <div class="color-hex">#000000</div>
+          <div class="color-role">Pure ink for ribbons, dividers, button borders, headline rules.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #1a1a1a;"></div>
+        <div class="color-meta">
+          <div class="color-name">Page Ink</div>
+          <div class="color-hex">#1A1A1A</div>
+          <div class="color-role">Near-black for headlines and body type — softened for long reading.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #ffffff; border-bottom: 1px solid #000;"></div>
+        <div class="color-meta">
+          <div class="color-name">Paper White</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-role">Default canvas. Treat it like newsprint — uninterrupted, never tinted.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Secondary — Editorial Voice</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #057dbc;"></div>
+        <div class="color-meta">
+          <div class="color-name">Link Blue</div>
+          <div class="color-hex">#057DBC</div>
+          <div class="color-role">The single brand accent. Inline link hover only — never a fill.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Neutrals & Text</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #757575;"></div>
+        <div class="color-meta">
+          <div class="color-name">Caption Gray</div>
+          <div class="color-hex">#757575</div>
+          <div class="color-role">Bylines, timestamps, photo credits, secondary metadata.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #999999;"></div>
+        <div class="color-meta">
+          <div class="color-name">Disabled Gray</div>
+          <div class="color-hex">#999999</div>
+          <div class="color-role">Inactive links and low-priority labels.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #e2e8f0;"></div>
+        <div class="color-meta">
+          <div class="color-name">Hairline Tint</div>
+          <div class="color-hex">#E2E8F0</div>
+          <div class="color-role">Reserved for &lt;hr&gt; — barely visible, like a margin rule.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #4a5568;"></div>
+        <div class="color-meta">
+          <div class="color-name">Hairline Mid</div>
+          <div class="color-hex">#4A5568</div>
+          <div class="color-role">Quiet column dividers within editorial blocks.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Semantic — Used Sparingly</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #e53e3e;"></div>
+        <div class="color-meta">
+          <div class="color-name">Error Red</div>
+          <div class="color-hex">#E53E3E</div>
+          <div class="color-role">Form-error labels and the rare "BREAKING" pill.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. TYPOGRAPHY -->
+<section class="preview-section" id="typography">
+  <span class="section-ribbon">Section 02 / Typography</span>
+  <h2 class="section-title">Typographic Hierarchy</h2>
+  <p class="section-subtitle">Four faces, four jobs. Display serif shouts, humanist serif reads, geometric sans clicks, mono labels.</p>
+
+  <div class="type-row">
+    <div class="type-meta"><strong>Display Hero</strong>WiredDisplay · 64px / 0.93 / -0.5px</div>
+    <div class="type-sample" style="font-family: var(--font-display); font-size: 64px; font-weight: 900; line-height: 0.93; letter-spacing: -0.5px;">A Headline Loud Enough For Newsstand</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Display Mid</strong>WiredDisplay · 26px / 1.08</div>
+    <div class="type-sample" style="font-family: var(--font-display); font-size: 26px; font-weight: 900; line-height: 1.08;">Tighter grid headline for the inner story tiles</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Section Heading</strong>Apercu · 20px / 700 / 1.20 / -0.28px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 20px; font-weight: 700; line-height: 1.20; letter-spacing: -0.28px;">Most Popular This Week</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Subheading</strong>Apercu · 17px / 700 / 1.29 / -0.144px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 17px; font-weight: 700; line-height: 1.29; letter-spacing: -0.144px;">Story decks within feature blocks</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Article Deck</strong>BreveText · 19px / 1.47 / 0.108px</div>
+    <div class="type-sample" style="font-family: var(--font-serif); font-size: 19px; line-height: 1.47; letter-spacing: 0.108px;">A long-form lead paragraph that should feel like reading a printed magazine page — generous leading and a humanist serif designed for sustained attention.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Article Body</strong>BreveText · 16px / 1.50 / 0.09px</div>
+    <div class="type-sample" style="font-family: var(--font-serif); font-size: 16px; line-height: 1.50; letter-spacing: 0.09px;">Standard paragraph text. The contrast between display tightness (0.93) and body openness (1.50) is the editorial fingerprint of this design system.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>UI Heading / Button</strong>Apercu · 16px / 700 / 1.25 / 0.3px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 16px; font-weight: 700; line-height: 1.25; letter-spacing: 0.3px;">Subscribe Now — Inline UI Label</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Inline Link</strong>Apercu · 14px / 1.29 / 0.4px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 14px; line-height: 1.29; letter-spacing: 0.4px;">Footer link · Secondary navigation</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Eyebrow / Kicker</strong>WiredMono · 13px / 1.23 / 0.92px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-mono); font-size: 13px; line-height: 1.23; letter-spacing: 0.92px; text-transform: uppercase;">Backchannel · The Story Behind The Story</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Section Ribbon</strong>WiredMono · 12px / 700 / 1.00 / 1.2px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-mono); font-size: 12px; font-weight: 700; line-height: 1; letter-spacing: 1.2px; text-transform: uppercase; background: var(--wired-black); color: var(--paper-white); padding: 10px 16px; display: inline-block;">Most Popular</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Photo Caption</strong>BreveText · 12.73px / 700 / 2.20 / 0.108px</div>
+    <div class="type-sample" style="font-family: var(--font-serif); font-size: 12.73px; font-weight: 700; line-height: 2.20; letter-spacing: 0.108px;">Photograph by The Editorial Team / WIRED Archives</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Timestamp</strong>WiredMono · 12px / 1.33 / 1.1px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-mono); font-size: 12px; line-height: 1.33; letter-spacing: 1.1px; text-transform: uppercase;">3 hours ago</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Footer Tertiary</strong>ProximaNova · 11px / 1.45</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 11px; line-height: 1.45;">Privacy Policy · Terms of Service · Ad Choices · Press</div>
+  </div>
+</section>
+
+<!-- 3. BUTTONS -->
+<section class="preview-section" id="components">
+  <span class="section-ribbon">Section 03 / Buttons</span>
+  <h2 class="section-title">Button Variants</h2>
+  <p class="section-subtitle">2px hard borders, square corners, instant hover inversion. Pills and circles only for non-rectangular roles.</p>
+  <div class="button-grid">
+    <div class="button-cell">
+      <span class="label">Primary — Outline</span>
+      <button class="btn-primary">Subscribe</button>
+    </div>
+    <div class="button-cell">
+      <span class="label">Secondary — Inverted</span>
+      <button class="btn-secondary">Sign In</button>
+    </div>
+    <div class="button-cell">
+      <span class="label">Ghost — Underlined</span>
+      <button class="btn-ghost">Read More</button>
+    </div>
+    <div class="button-cell">
+      <span class="label">Icon — Round 50%</span>
+      <button class="btn-icon">Q</button>
+    </div>
+    <div class="button-cell">
+      <span class="label">Pill — Inline Tag</span>
+      <span class="btn-pill">Breaking</span>
+    </div>
+    <div class="button-cell">
+      <span class="label">Hover — Inversion (illustrated)</span>
+      <button class="btn-secondary">Hover Active</button>
+    </div>
+  </div>
+</section>
+
+<!-- 4. EDITORIAL TILES -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 04 / Editorial Tiles</span>
+  <h2 class="section-title">Story Tiles & Containers</h2>
+  <p class="section-subtitle">There are no cards. There are story tiles separated by hairline rules and whitespace. No shadows, no rounded corners.</p>
+  <div class="editorial-grid">
+    <div class="story-tile">
+      <div class="story-image"></div>
+      <span class="story-kicker">Backchannel</span>
+      <h3 class="story-headline">The Strange Future Of Editorial Layout In A Generative Era</h3>
+      <p class="story-deck">A long-form deck describing how legacy magazine grids are being remade — and remembered — by a new wave of AI-driven publishing tools.</p>
+      <span class="story-meta">12 min read · Today</span>
+    </div>
+    <div class="story-tile small">
+      <div class="story-image"></div>
+      <span class="story-kicker">Gear</span>
+      <h3 class="story-headline">A New Mechanical Keyboard That Quiets The Office</h3>
+      <span class="story-meta">5 hours ago</span>
+    </div>
+    <div class="story-tile small">
+      <div class="story-image"></div>
+      <span class="story-kicker">Science</span>
+      <h3 class="story-headline">Inside The Lab Building A Synthetic Atmosphere</h3>
+      <span class="story-meta">Yesterday</span>
+    </div>
+  </div>
+</section>
+
+<!-- 5. MOST POPULAR (numbered list) -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 05 / Most Popular</span>
+  <h2 class="section-title">Numbered Editorial List</h2>
+  <p class="section-subtitle">WiredDisplay numerals at 48px, hairline rules between every item, no other decoration.</p>
+  <div class="most-popular-list">
+    <div class="most-popular-item">
+      <div class="mp-number">01</div>
+      <div class="mp-content">
+        <span class="story-kicker">Tech</span>
+        <h4 class="mp-headline">A Self-Driving Truck Quietly Reshaped American Logistics</h4>
+      </div>
+    </div>
+    <div class="most-popular-item">
+      <div class="mp-number">02</div>
+      <div class="mp-content">
+        <span class="story-kicker">Culture</span>
+        <h4 class="mp-headline">The Rise And Fall Of A Crypto Fashion Empire</h4>
+      </div>
+    </div>
+    <div class="most-popular-item">
+      <div class="mp-number">03</div>
+      <div class="mp-content">
+        <span class="story-kicker">Business</span>
+        <h4 class="mp-headline">Why Every Newsroom Is Shipping Its Own Model</h4>
+      </div>
+    </div>
+    <div class="most-popular-item">
+      <div class="mp-number">04</div>
+      <div class="mp-content">
+        <span class="story-kicker">Science</span>
+        <h4 class="mp-headline">The Quiet Engineering Win Behind The Last Fusion Headline</h4>
+      </div>
+    </div>
+    <div class="most-popular-item">
+      <div class="mp-number">05</div>
+      <div class="mp-content">
+        <span class="story-kicker">Security</span>
+        <h4 class="mp-headline">A Single Browser Bug, A Six-Year Investigation</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. FORMS -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 06 / Forms</span>
+  <h2 class="section-title">Inputs & Newsletter</h2>
+  <p class="section-subtitle">2px solid black border, square corners, no glow ring. Caret only on focus — printerly restraint.</p>
+  <div class="form-stack">
+    <div class="form-field">
+      <label class="form-label">Email Address — Default</label>
+      <input class="form-input" type="email" placeholder="reader@example.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email Address — Focus</label>
+      <input class="form-input focus" type="email" placeholder="reader@example.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email Address — Error</label>
+      <input class="form-input error" type="email" value="not-an-email">
+      <span class="form-error">Please enter a valid address</span>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Comment — Textarea</label>
+      <textarea class="form-input form-textarea" placeholder="Share your thoughts on the story..."></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- 7. SPACING -->
+<section class="preview-section" id="layout">
+  <span class="section-ribbon">Section 07 / Spacing</span>
+  <h2 class="section-title">Spacing Scale (8px System)</h2>
+  <p class="section-subtitle">From hairlines to full editorial breaks — every gap is a multiple of 8 (with one or two micro-exceptions).</p>
+  <div class="spacing-row">
+    <div class="spacing-item"><div class="spacing-block" style="width: 1px;"></div><span class="spacing-label">1px · hairline</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 4px;"></div><span class="spacing-label">4px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 8px;"></div><span class="spacing-label">8px · base</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 12px;"></div><span class="spacing-label">12px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 16px;"></div><span class="spacing-label">16px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 24px;"></div><span class="spacing-label">24px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 32px;"></div><span class="spacing-label">32px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 40px;"></div><span class="spacing-label">40px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 48px;"></div><span class="spacing-label">48px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 64px;"></div><span class="spacing-label">64px</span></div>
+  </div>
+</section>
+
+<!-- 8. RADIUS -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 08 / Radius</span>
+  <h2 class="section-title">Border Radius Scale</h2>
+  <p class="section-subtitle">Three values total. Two of them are reserved for shapes that aren't rectangles.</p>
+  <div class="radius-row">
+    <div class="radius-item">
+      <div class="radius-block"></div>
+      <span class="radius-label">0 · Square<small>Default — every container, image, button</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r-pill"></div>
+      <span class="radius-label">1920px · Pill<small>Inline text spans only</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r-circle"></div>
+      <span class="radius-label">50% · Circle<small>Icon buttons & avatars</small></span>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ELEVATION -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 09 / Elevation</span>
+  <h2 class="section-title">Depth & Elevation</h2>
+  <p class="section-subtitle">Flat by religion. Depth comes from rule weight, not from simulated lighting.</p>
+  <div class="elevation-grid">
+    <div class="elevation-cell lvl-0">
+      <span class="label">Level 0</span>
+      <div class="desc">No shadow, no border — text on paper</div>
+    </div>
+    <div class="elevation-cell lvl-1">
+      <span class="label">Level 1</span>
+      <div class="desc">1px hairline tint &lt;hr&gt; — quiet divider</div>
+    </div>
+    <div class="elevation-cell lvl-2">
+      <span class="label">Level 2</span>
+      <div class="desc">1px solid black hairline rule — printerly column divider</div>
+    </div>
+    <div class="elevation-cell lvl-3">
+      <span class="label">Level 3</span>
+      <div class="demo-box">2px Border</div>
+      <div class="desc">2px solid black border — interactive emphasis</div>
+    </div>
+    <div class="elevation-cell lvl-4">
+      <span class="label">Level 4</span>
+      <div class="desc">Black ribbon fill — section labels</div>
+    </div>
+    <div class="elevation-cell lvl-5">
+      <span class="label">Level 5</span>
+      <div class="desc">Inverted #1a1a1a footer block — the only dark zone</div>
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>

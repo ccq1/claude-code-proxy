@@ -1,7 +1,7 @@
 {
   "name": "ghidra-decompiler",
   "version": "0.1.0",
-  "description": "随插件分发固定版 Ghidra 官方 runtime，通过 bundled analyzeHeadless 提供导入、符号检索与函数级反编译能力。",
+  "description": "提供本地二进制导入、程序元信息提取、符号检索、交叉引用、反汇编、字符串导出、调用关系分析与函数级反编译能力。",
   "author": {
     "name": "PandoraQ Labs"
   },
@@ -12,8 +12,17 @@
   "mcpServers": "./.mcp.json",
   "settingsSchema": {
     "title": "Ghidra 反编译配置",
-    "description": "配置本地 JDK 21 路径和 Ghidra 工程缓存目录。插件自带官方 Ghidra runtime，但仍需要本机可用的 Java 21。",
+    "description": "配置本机 Ghidra 安装目录、JDK 21 路径和本地 stdio MCP server 使用的工程缓存目录。",
     "fields": [
+      {
+        "key": "ghidraInstallDir",
+        "label": "Ghidra 安装目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/opt/ghidra_12.0.4_PUBLIC",
+        "description": "可选。建议填写 Ghidra 安装目录（包含 support/analyzeHeadless）。未填写时会尝试自动发现。",
+        "placeholderToken": "GHIDRA_INSTALL_DIR"
+      },
       {
         "key": "javaHome",
         "label": "JDK 目录",

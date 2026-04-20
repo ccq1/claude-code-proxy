@@ -17,7 +17,11 @@ poc-engineering/
 │   │   └── vuln/
 │   │       ├── known_exploited_vulnerabilities.json
 │   │       └── nvdcve-2.0-recent.json
-│   └── scripts/lookup_vuln_mirror.py
+│   └── scripts/
+│       ├── lookup_vuln_mirror.py
+│       ├── poc_oneclick.py
+│       ├── scaffold_poc.py
+│       └── run_batch_verify.py
 ├── assets/icon.svg
 └── README.md
 ```
@@ -58,12 +62,62 @@ poc-engineering/
 - `/poc-engineering 基于这个请求样本，给我做一版安全验证模板`
 - `/poc-engineering 把这个 exploit note 工程化成可批量验证的脚手架`
 
+### 5.0 Agent 默认执行逻辑（重要）
+
+当用户输入 `/poc-engineering ...` 时，默认应执行：
+- 自动扫描当前工作目录
+- 使用 `poc_oneclick.py` 生成 + 批量验证
+- 默认 profile: `balanced`
+- 直接返回结果摘要与产物路径
+
+只有以下情况才允许追问一个阻塞问题：
+- 没有可用请求样本
+- 没有 `targets.txt` 且无法从上下文推断目标清单
+
 ## 5.1 一键生产模式
 
 ```bash
 cd skills/poc-engineering
 python scripts/scaffold_poc.py --workdir <your_case_dir> --name incident_case
 ```
+
+真正给普通用户推荐的一键命令（自动生成 + 自动批量）：
+
+```bash
+python scripts/poc_oneclick.py --workdir <your_case_dir>
+```
+
+可选只换一个档位：
+
+```bash
+python scripts/poc_oneclick.py --workdir <your_case_dir> --profile safe
+```
+
+支持更稳的判定参数：
+
+```bash
+python scripts/scaffold_poc.py \
+  --workdir <your_case_dir> \
+  --name incident_case \
+  --success-status 200,204 \
+  --signal-status 401,403 \
+  --success-keyword success
+```
+
+## 5.2 批量执行模式
+
+先准备 `targets.txt`（每行一个目标，支持 `host:port` 或完整 URL），再执行：
+
+```bash
+python scripts/run_batch_verify.py \
+  --targets-file <your_case_dir>/targets.txt \
+  --manifest <your_case_dir>/generated_poc_pack/manifest.json \
+  --profile balanced
+```
+
+输出：
+- `batch_results/batch_summary.json`
+- `batch_results/batch_results.csv`
 
 ## 6. 输出内容
 

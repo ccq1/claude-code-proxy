@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import mimetypes
 from pathlib import Path
 from typing import Any, Dict, List
@@ -15,6 +16,8 @@ TEXT_SUFFIXES = {
     ".md",
     ".txt",
     ".json",
+    ".css",
+    ".html",
     ".yml",
     ".yaml",
     ".py",
@@ -25,6 +28,80 @@ TEXT_SUFFIXES = {
     ".sh",
     ".svg",
 }
+
+
+def _plugin_dir(plugin_id: str) -> Path:
+    return PLUGIN_ROOT / plugin_id
+
+
+def _read_plugin_json(plugin_id: str, relative_path: str) -> Dict[str, Any]:
+    manifest_path = _plugin_dir(plugin_id) / relative_path
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise RuntimeError(f"plugin manifest not found: {manifest_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"plugin manifest is not valid JSON: {manifest_path}") from exc
+
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"plugin manifest must be a JSON object: {manifest_path}")
+
+    return payload
+
+
+def _read_author_name(manifest: Dict[str, Any]) -> str | None:
+    author = manifest.get("author")
+    if isinstance(author, dict):
+        name = author.get("name")
+        if isinstance(name, str) and name.strip():
+            return name.strip()
+    elif isinstance(author, str) and author.strip():
+        return author.strip()
+
+    return None
+
+
+def _build_manifest_backed_catalog_entry(
+    plugin_id: str,
+    *,
+    overrides: Dict[str, Any],
+) -> Dict[str, Any]:
+    claude_manifest = _read_plugin_json(plugin_id, ".claude-plugin/plugin.json")
+    codex_manifest = _read_plugin_json(plugin_id, ".codex-plugin/plugin.json")
+    interface = codex_manifest.get("interface")
+    interface = interface if isinstance(interface, dict) else {}
+
+    display_name = interface.get("displayName")
+    if not isinstance(display_name, str) or not display_name.strip():
+        display_name = claude_manifest.get("name")
+    if not isinstance(display_name, str) or not display_name.strip():
+        display_name = plugin_id
+
+    publisher = interface.get("developerName")
+    if not isinstance(publisher, str) or not publisher.strip():
+        publisher = _read_author_name(claude_manifest) or _read_author_name(codex_manifest)
+
+    description = codex_manifest.get("description")
+    if not isinstance(description, str) or not description.strip():
+        description = claude_manifest.get("description")
+    if not isinstance(description, str) or not description.strip():
+        description = interface.get("shortDescription")
+
+    version = claude_manifest.get("version")
+    if not isinstance(version, str) or not version.strip():
+        version = codex_manifest.get("version")
+
+    entry: Dict[str, Any] = {
+        "id": plugin_id,
+        "name": display_name,
+        "version": version,
+        "publisher": publisher,
+        "description": description,
+        "settingsSchema": claude_manifest.get("settingsSchema"),
+    }
+    entry.update(overrides)
+    return {key: value for key, value in entry.items() if value is not None}
+
 
 PLUGIN_CATALOG: Dict[str, Dict[str, Any]] = {
     "redteam-kb": {
@@ -262,54 +339,58 @@ PLUGIN_CATALOG: Dict[str, Dict[str, Any]] = {
             },
         ],
     },
-    "ghidra-decompiler": {
-        "id": "ghidra-decompiler",
-        "name": "Ghidra 反编译",
-        "version": "0.1.0",
-        "publisher": "PandoraQ Labs",
-        "description": "随插件分发固定版 Ghidra 官方 runtime，通过 bundled analyzeHeadless 提供二进制导入、函数枚举、反编译、字符串导出与符号检索能力。",
-        "tags": ["逆向", "反编译", "Ghidra"],
-        "installable": True,
-        "kind": "skill-plugin",
-        "iconPath": "/plugins/ghidra-decompiler/assets/icon.svg",
-        "iconText": "GH",
-        "slashCommands": [
-            {
-                "name": "ghidra-decompiler",
-                "forwardName": "ghidra-decompiler:ghidra-decompiler",
-                "description": "用 bundled Ghidra headless 导入样本并做函数级反编译分析。",
-            }
-        ],
-        "settingsSchema": {
-            "title": "Ghidra 反编译配置",
-            "description": "配置本地 JDK 21 路径和 Ghidra 工程缓存目录。插件自带官方 Ghidra runtime，但仍需要本机可用的 Java 21。",
-            "fields": [
+    "ghidra-decompiler": _build_manifest_backed_catalog_entry(
+        "ghidra-decompiler",
+        overrides={
+            "tags": ["逆向", "反编译", "Ghidra"],
+            "installable": True,
+            "kind": "skill-plugin",
+            "iconPath": "/plugins/ghidra-decompiler/assets/icon.svg",
+            "iconText": "GH",
+            "slashCommands": [
                 {
-                    "key": "javaHome",
-                    "label": "JDK 目录",
-                    "type": "text",
-                    "required": False,
-                    "placeholder": "/usr/lib/jvm/jdk-21",
-                    "description": "可选。若未填写，MCP server 会先尝试 GHIDRA_JAVA_HOME、JAVA_HOME，再回退到 PATH 中的 java。",
-                    "placeholderToken": "GHIDRA_JAVA_HOME",
-                },
-                {
-                    "key": "workspaceRoot",
-                    "label": "工程缓存目录",
-                    "type": "text",
-                    "required": False,
-                    "placeholder": "~/.cache/pandoraq-ghidra-decompiler",
-                    "description": "可选。用于保存 headless project、导入元数据和临时产物。默认写到当前用户缓存目录。",
-                    "placeholderToken": "GHIDRA_WORKSPACE_ROOT",
-                },
+                    "name": "ghidra-decompiler",
+                    "forwardName": "ghidra-decompiler:ghidra-decompiler",
+                    "description": "用本机 Ghidra headless 导入样本并做函数级反编译分析。",
+                }
             ],
         },
-    },
+    ),
+    "designer-studio": _build_manifest_backed_catalog_entry(
+        "designer-studio",
+        overrides={
+            "tags": ["前端", "离线", "设计系统"],
+            "installable": True,
+            "kind": "skill-plugin",
+            "iconPath": "/plugins/designer-studio/assets/icon.svg",
+            "iconText": "DS",
+            "slashCommands": [
+                {
+                    "name": "designer-studio",
+                    "forwardName": "designer-studio:designer-studio",
+                    "description": "在内网环境里做前端设计选型、离线框架接入和本地资产盘点。",
+                }
+            ],
+        },
+    ),
+    "pentest-agent": _build_manifest_backed_catalog_entry(
+        "pentest-agent",
+        overrides={
+            "tags": ["渗透测试", "资产扫描", "Kali Linux"],
+            "installable": True,
+            "kind": "skill-plugin",
+            "iconPath": "/plugins/pentest-agent/assets/icon.svg",
+            "iconText": "PA",
+            "slashCommands": [
+                {
+                    "name": "pentest-agent",
+                    "forwardName": "pentest-agent:pentest-agent",
+                    "description": "复用本机 Kali 工具对授权资产做发现、Web 探测、模板扫描与维护。",
+                }
+            ],
+        },
+    ),
 }
-
-
-def _plugin_dir(plugin_id: str) -> Path:
-    return PLUGIN_ROOT / plugin_id
 
 
 def _require_plugin(plugin_id: str) -> Dict[str, Any]:
@@ -371,6 +452,8 @@ def build_plugin_runtime_config(plugin_id: str) -> Dict[str, Any]:
         "evasion-analysis",
         "superpowers",
         "ghidra-decompiler",
+        "designer-studio",
+        "pentest-agent",
     }:
         return {"plugin": plugin_id}
 

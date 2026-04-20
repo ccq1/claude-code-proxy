@@ -1,0 +1,717 @@
+{
+  "total": 69,
+  "design_root": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design",
+  "records": [
+    {
+      "slug": "airbnb",
+      "title": "Design System Inspired by Airbnb",
+      "tags": [
+        "dark"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/airbnb/DESIGN.md"
+    },
+    {
+      "slug": "airtable",
+      "title": "Design System Inspired by Airtable",
+      "tags": [
+        "dark",
+        "enterprise"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/airtable/DESIGN.md"
+    },
+    {
+      "slug": "apple",
+      "title": "Design System Inspired by Apple",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/apple/DESIGN.md"
+    },
+    {
+      "slug": "binance",
+      "title": "Design System Inspired by Binance.US",
+      "tags": [
+        "dashboard",
+        "dark",
+        "fintech",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/binance/DESIGN.md"
+    },
+    {
+      "slug": "bmw",
+      "title": "Design System Inspired by BMW",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/bmw/DESIGN.md"
+    },
+    {
+      "slug": "bugatti",
+      "title": "Design System Inspired by Bugatti",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/bugatti/DESIGN.md"
+    },
+    {
+      "slug": "cal",
+      "title": "Design System Inspired by Cal.com",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/cal/DESIGN.md"
+    },
+    {
+      "slug": "claude",
+      "title": "Design System Inspired by Claude (Anthropic)",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/claude/DESIGN.md"
+    },
+    {
+      "slug": "clay",
+      "title": "Design System Inspired by Clay",
+      "tags": [
+        "dark",
+        "enterprise",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/clay/DESIGN.md"
+    },
+    {
+      "slug": "clickhouse",
+      "title": "Design System Inspired by ClickHouse",
+      "tags": [
+        "dark",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/clickhouse/DESIGN.md"
+    },
+    {
+      "slug": "cohere",
+      "title": "Design System Inspired by Cohere",
+      "tags": [
+        "dark",
+        "minimal",
+        "enterprise",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/cohere/DESIGN.md"
+    },
+    {
+      "slug": "coinbase",
+      "title": "Design System Inspired by Coinbase",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/coinbase/DESIGN.md"
+    },
+    {
+      "slug": "composio",
+      "title": "Design System Inspired by Composio",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/composio/DESIGN.md"
+    },
+    {
+      "slug": "cursor",
+      "title": "Design System Inspired by Cursor",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/cursor/DESIGN.md"
+    },
+    {
+      "slug": "elevenlabs",
+      "title": "Design System Inspired by ElevenLabs",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/elevenlabs/DESIGN.md"
+    },
+    {
+      "slug": "expo",
+      "title": "Design System Inspired by Expo",
+      "tags": [
+        "dark",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/expo/DESIGN.md"
+    },
+    {
+      "slug": "ferrari",
+      "title": "Design System Inspired by Ferrari",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/ferrari/DESIGN.md"
+    },
+    {
+      "slug": "figma",
+      "title": "Design System Inspired by Figma",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/figma/DESIGN.md"
+    },
+    {
+      "slug": "framer",
+      "title": "Design System Inspired by Framer",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/framer/DESIGN.md"
+    },
+    {
+      "slug": "hashicorp",
+      "title": "Design System Inspired by HashiCorp",
+      "tags": [
+        "dark",
+        "minimal",
+        "enterprise",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/hashicorp/DESIGN.md"
+    },
+    {
+      "slug": "ibm",
+      "title": "Design System Inspired by IBM",
+      "tags": [
+        "dark",
+        "minimal",
+        "enterprise",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/ibm/DESIGN.md"
+    },
+    {
+      "slug": "intercom",
+      "title": "Design System Inspired by Intercom",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/intercom/DESIGN.md"
+    },
+    {
+      "slug": "kraken",
+      "title": "Design System Inspired by Kraken",
+      "tags": [
+        "dark",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/kraken/DESIGN.md"
+    },
+    {
+      "slug": "lamborghini",
+      "title": "Design System Inspired by Lamborghini",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/lamborghini/DESIGN.md"
+    },
+    {
+      "slug": "linear.app",
+      "title": "Design System Inspired by Linear",
+      "tags": [
+        "dashboard",
+        "dark",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/linear.app/DESIGN.md"
+    },
+    {
+      "slug": "lovable",
+      "title": "Design System Inspired by Lovable",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/lovable/DESIGN.md"
+    },
+    {
+      "slug": "mastercard",
+      "title": "Design System Inspired by Mastercard",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/mastercard/DESIGN.md"
+    },
+    {
+      "slug": "meta",
+      "title": "Design System Inspired by Meta (Store)",
+      "tags": [
+        "dark",
+        "enterprise",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/meta/DESIGN.md"
+    },
+    {
+      "slug": "minimax",
+      "title": "Design System Inspired by MiniMax",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/minimax/DESIGN.md"
+    },
+    {
+      "slug": "mintlify",
+      "title": "Design System Inspired by Mintlify",
+      "tags": [
+        "dark",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/mintlify/DESIGN.md"
+    },
+    {
+      "slug": "miro",
+      "title": "Design System Inspired by Miro",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/miro/DESIGN.md"
+    },
+    {
+      "slug": "mistral.ai",
+      "title": "Design System Inspired by Mistral AI",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/mistral.ai/DESIGN.md"
+    },
+    {
+      "slug": "mongodb",
+      "title": "Design System Inspired by MongoDB",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/mongodb/DESIGN.md"
+    },
+    {
+      "slug": "nike",
+      "title": "Design System Inspired by Nike",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/nike/DESIGN.md"
+    },
+    {
+      "slug": "notion",
+      "title": "Design System Inspired by Notion",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/notion/DESIGN.md"
+    },
+    {
+      "slug": "nvidia",
+      "title": "Design System Inspired by NVIDIA",
+      "tags": [
+        "dark",
+        "minimal",
+        "saas",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/nvidia/DESIGN.md"
+    },
+    {
+      "slug": "ollama",
+      "title": "Design System Inspired by Ollama",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/ollama/DESIGN.md"
+    },
+    {
+      "slug": "opencode.ai",
+      "title": "Design System Inspired by OpenCode",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/opencode.ai/DESIGN.md"
+    },
+    {
+      "slug": "pinterest",
+      "title": "Design System Inspired by Pinterest",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/pinterest/DESIGN.md"
+    },
+    {
+      "slug": "playstation",
+      "title": "Design System Inspired by PlayStation",
+      "tags": [
+        "dark",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/playstation/DESIGN.md"
+    },
+    {
+      "slug": "posthog",
+      "title": "Design System Inspired by PostHog",
+      "tags": [
+        "landing",
+        "dark",
+        "minimal",
+        "enterprise",
+        "saas",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/posthog/DESIGN.md"
+    },
+    {
+      "slug": "raycast",
+      "title": "Design System Inspired by Raycast",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/raycast/DESIGN.md"
+    },
+    {
+      "slug": "renault",
+      "title": "Design System Inspired by Renault",
+      "tags": [
+        "dark",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/renault/DESIGN.md"
+    },
+    {
+      "slug": "replicate",
+      "title": "Design System Inspired by Replicate",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/replicate/DESIGN.md"
+    },
+    {
+      "slug": "resend",
+      "title": "Design System Inspired by Resend",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/resend/DESIGN.md"
+    },
+    {
+      "slug": "revolut",
+      "title": "Design System Inspired by Revolut",
+      "tags": [
+        "dark",
+        "fintech",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/revolut/DESIGN.md"
+    },
+    {
+      "slug": "runwayml",
+      "title": "Design System Inspired by Runway",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/runwayml/DESIGN.md"
+    },
+    {
+      "slug": "sanity",
+      "title": "Design System Inspired by Sanity",
+      "tags": [
+        "landing",
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/sanity/DESIGN.md"
+    },
+    {
+      "slug": "sentry",
+      "title": "Design System Inspired by Sentry",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/sentry/DESIGN.md"
+    },
+    {
+      "slug": "shopify",
+      "title": "Design System Inspired by Shopify",
+      "tags": [
+        "dark",
+        "saas",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/shopify/DESIGN.md"
+    },
+    {
+      "slug": "spacex",
+      "title": "Design System Inspired by SpaceX",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/spacex/DESIGN.md"
+    },
+    {
+      "slug": "spotify",
+      "title": "Design System Inspired by Spotify",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/spotify/DESIGN.md"
+    },
+    {
+      "slug": "starbucks",
+      "title": "Design System Inspired by Starbucks",
+      "tags": [
+        "landing",
+        "dark",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/starbucks/DESIGN.md"
+    },
+    {
+      "slug": "stripe",
+      "title": "Design System Inspired by Stripe",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "enterprise",
+        "fintech",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/stripe/DESIGN.md"
+    },
+    {
+      "slug": "supabase",
+      "title": "Design System Inspired by Supabase",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/supabase/DESIGN.md"
+    },
+    {
+      "slug": "superhuman",
+      "title": "Design System Inspired by Superhuman",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/superhuman/DESIGN.md"
+    },
+    {
+      "slug": "tesla",
+      "title": "Design System Inspired by Tesla",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/tesla/DESIGN.md"
+    },
+    {
+      "slug": "theverge",
+      "title": "Design System Inspired by The Verge",
+      "tags": [
+        "dark",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/theverge/DESIGN.md"
+    },
+    {
+      "slug": "together.ai",
+      "title": "Design System Inspired by Together AI",
+      "tags": [
+        "dark",
+        "enterprise",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/together.ai/DESIGN.md"
+    },
+    {
+      "slug": "uber",
+      "title": "Design System Inspired by Uber",
+      "tags": [
+        "dark",
+        "minimal"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/uber/DESIGN.md"
+    },
+    {
+      "slug": "vercel",
+      "title": "Design System Inspired by Vercel",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/vercel/DESIGN.md"
+    },
+    {
+      "slug": "vodafone",
+      "title": "Design System Inspired by Vodafone",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/vodafone/DESIGN.md"
+    },
+    {
+      "slug": "voltagent",
+      "title": "Design System Inspired by VoltAgent",
+      "tags": [
+        "landing",
+        "dark",
+        "minimal",
+        "saas",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/voltagent/DESIGN.md"
+    },
+    {
+      "slug": "warp",
+      "title": "Design System Inspired by Warp",
+      "tags": [
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/warp/DESIGN.md"
+    },
+    {
+      "slug": "webflow",
+      "title": "Design System Inspired by Webflow",
+      "tags": [
+        "dark"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/webflow/DESIGN.md"
+    },
+    {
+      "slug": "wired",
+      "title": "Design System Inspired by WIRED",
+      "tags": [
+        "dashboard",
+        "dark",
+        "saas",
+        "editorial"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/wired/DESIGN.md"
+    },
+    {
+      "slug": "wise",
+      "title": "Design System Inspired by Wise",
+      "tags": [
+        "dark",
+        "minimal",
+        "fintech"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/wise/DESIGN.md"
+    },
+    {
+      "slug": "x.ai",
+      "title": "Design System Inspired by xAI",
+      "tags": [
+        "dark",
+        "minimal",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/x.ai/DESIGN.md"
+    },
+    {
+      "slug": "zapier",
+      "title": "Design System Inspired by Zapier",
+      "tags": [
+        "dashboard",
+        "dark",
+        "minimal",
+        "editorial",
+        "product"
+      ],
+      "design_md": "/root/llm_proxy/app/plugin_marketplace/plugins/designer-studio/skills/designer-studio/references/design/zapier/DESIGN.md"
+    }
+  ]
+}

@@ -1,25 +1,35 @@
 # 插件市场说明文档索引
 
-本文档汇总当前插件市场中的红队插件说明文档。
+本文档汇总当前插件市场中的插件说明文档和通用规范。
+
+## 新建插件指南
+
+- 通用构造规范： [PLUGIN_AUTHORING.md](./PLUGIN_AUTHORING.md)
 
 ## 统一组织方式
 
-当前 PandoraQ 自定义红队插件统一采用以下结构：
+当前 PandoraQ 插件市场推荐采用以下结构：
 
 ```text
 plugin/
 ├── .claude-plugin/plugin.json
+├── .codex-plugin/plugin.json
+├── .cursor-plugin/plugin.json
+├── .mcp.json                # 可选，有本地 MCP server 时提供
 ├── skills/<skill-name>/
-│   ├── SKILL.md             # 中文执行合同
-│   ├── references/...       # skill 本地 reference
-│   └── scripts/...          # skill helper script
+│   └── SKILL.md             # 中文执行合同
+├── commands/                # 可选，仅在需要 slash command 时提供
+├── scripts/                 # 可选，MCP server 或 helper script
 ├── config/runtime.json      # 可选，插件级运行时配置
 ├── assets/icon.svg
 └── README.md
 ```
 
 这套结构的目标是：
-- slash command 直接进入 `skills/<skill-name>/SKILL.md`
+- `skill` 作为主入口，执行合同集中放在 `SKILL.md`
+- `commands/` 只有在明确需要 slash command 时才添加
+- 本地工具统一通过标准 `stdio` MCP server 暴露
+- 核心 metadata 尽量从 manifest 读取，避免在 marketplace 里重复手写
 - skill 在自己的基目录内直接访问 `references/` 和 `scripts/`
 - 文案和执行合同统一使用中文
 
@@ -35,7 +45,7 @@ plugin/
 | `detection-rule-engineering` | [detection-rule-engineering/README.md](./detection-rule-engineering/README.md) | 生成并优化 YARA / Sigma 等检测规则 |
 | `poc-engineering` | [poc-engineering/README.md](./poc-engineering/README.md) | 将漏洞验证思路工程化为可复现、可批量的模板 |
 | `superpowers` | [superpowers/README.md](./superpowers/README.md) | 用规范化流程增强编码代理的规划、TDD、调试与协作能力 |
-| `ghidra-decompiler` | [ghidra-decompiler/README.md](./ghidra-decompiler/README.md) | 随插件分发固定版 Ghidra runtime，通过 headless 能力完成导入、符号检索与函数反编译 |
+| `ghidra-decompiler` | [ghidra-decompiler/README.md](./ghidra-decompiler/README.md) | 复用本机 Ghidra 安装，通过标准本地 MCP server 完成导入、符号检索与函数反编译 |
 
 ## 统一使用原则
 

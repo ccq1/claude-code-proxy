@@ -1,0 +1,11 @@
+{
+  "frameworks": [
+    {
+      "name": "tailwindcss",
+      "version": "2.2.19",
+      "kind": "css",
+      "entry": "references/frameworks/tailwindcss/tailwind.min.css",
+      "notes": "offline static build for intranet usage"
+    }
+  ]
+}

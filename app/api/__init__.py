@@ -9,6 +9,8 @@ from .health import router as health_router
 from .event_logging import router as event_logging_router
 from .models import router as models_router
 from .plugins import router as plugins_router
+from .auth import router as auth_router
+from .session_sync import router as session_sync_router
 
 # 创建主路由
 api_router = APIRouter()
@@ -20,5 +22,7 @@ api_router.include_router(health_router)
 api_router.include_router(event_logging_router)
 api_router.include_router(models_router)
 api_router.include_router(plugins_router)
+api_router.include_router(auth_router)
+api_router.include_router(session_sync_router)
 
 __all__ = ["api_router"]

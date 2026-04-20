@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Designer Studio">
+  <rect width="160" height="160" rx="24" fill="#0b1a2b"/>
+  <rect x="18" y="22" width="124" height="116" rx="14" fill="#122b46" stroke="#3ad0b4" stroke-width="4"/>
+  <rect x="28" y="36" width="104" height="10" rx="5" fill="#3ad0b4"/>
+  <rect x="30" y="58" width="44" height="32" rx="6" fill="#1f3f62"/>
+  <rect x="82" y="58" width="46" height="14" rx="4" fill="#ffd166"/>
+  <rect x="82" y="76" width="38" height="14" rx="4" fill="#ff7f50"/>
+  <rect x="30" y="96" width="98" height="26" rx="6" fill="#1a3554"/>
+  <text x="80" y="150" text-anchor="middle" font-size="20" font-family="monospace" fill="#d9f7ff">FS</text>
+</svg>

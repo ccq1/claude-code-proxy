@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from glob import glob
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,13 +23,24 @@ GHIDRA_ZIP_SHA256 = "c3b458661d69e26e203d739c0c82d143cc8a4a29d9e571f099c2cf4bda6
 PROGRAM_REGISTRY_FILENAME = "registry.json"
 DEFAULT_PROJECT_NAME = "project"
 JAVA_HOME_ENV = "GHIDRA_JAVA_HOME"
+GHIDRA_INSTALL_DIR_ENV = "GHIDRA_INSTALL_DIR"
 WORKSPACE_ROOT_ENV = "GHIDRA_WORKSPACE_ROOT"
 REQUIRED_JAVA_MAJOR = 21
 JAVA_ENV_CANDIDATES = (JAVA_HOME_ENV, "JAVA_HOME")
+ANALYZE_HEADLESS_ENTRY_RELATIVE = Path("support") / "analyzeHeadless"
+AUTO_DETECT_GHIDRA_GLOBS = (
+    "/opt/ghidra*",
+    "/opt/Ghidra*",
+    "/usr/local/ghidra*",
+    "/usr/local/share/ghidra*",
+    "~/.local/share/ghidra*",
+    "~/tools/ghidra*",
+    "~/ghidra*",
+)
 
 
 class GhidraRuntimeError(RuntimeError):
-    """Raised when the bundled runtime or the local Java environment is unusable."""
+    """Raised when local Ghidra/JDK runtime requirements are not satisfied."""
 
     def __init__(
         self,
@@ -86,16 +98,52 @@ class ProgramRecord:
         }
 
 
+SUMMARY_RECORD_KEYS = (
+    "entry_point",
+    "entry_point_candidates",
+    "main_candidates",
+    "suggested_start_functions",
+    "external_startup_candidates",
+    "internal_function_count",
+    "external_function_count",
+    "thunk_function_count",
+    "analysis_hints",
+)
+
+
 def plugin_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
-def runtime_root() -> Path:
-    return plugin_root() / "runtime" / "ghidra_12.0.4_PUBLIC"
+def _analyze_headless_from_install_candidate(install_candidate: Path) -> Path:
+    if install_candidate.name == "analyzeHeadless":
+        return install_candidate
+    return install_candidate / ANALYZE_HEADLESS_ENTRY_RELATIVE
+
+
+def _discover_ghidra_candidates() -> list[Path]:
+    candidates: list[Path] = []
+    which_headless = shutil.which("analyzeHeadless")
+    if which_headless:
+        candidates.append(Path(which_headless).expanduser().resolve())
+
+    for pattern in AUTO_DETECT_GHIDRA_GLOBS:
+        for matched in glob(os.path.expanduser(pattern)):
+            candidates.append(Path(matched).expanduser().resolve())
+
+    deduped: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = str(candidate)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(candidate)
+    return deduped
 
 
 def analyze_headless_path() -> Path:
-    return runtime_root() / "support" / "analyzeHeadless"
+    return ensure_runtime_available()
 
 
 def ghidra_script_dir() -> Path:
@@ -126,6 +174,16 @@ def _java_requirement_details() -> dict[str, Any]:
         "ghidra_version": GHIDRA_VERSION,
         "java_home_env_vars": list(JAVA_ENV_CANDIDATES),
         "java_path_fallback": "PATH",
+    }
+
+
+def _ghidra_requirement_details(checked_candidates: list[str]) -> dict[str, Any]:
+    return {
+        "needs_ghidra_install": True,
+        "ghidra_install_env_var": GHIDRA_INSTALL_DIR_ENV,
+        "required_entry_relative_path": str(ANALYZE_HEADLESS_ENTRY_RELATIVE),
+        "checked_candidates": checked_candidates,
+        "auto_detect_globs": list(AUTO_DETECT_GHIDRA_GLOBS),
     }
 
 
@@ -238,27 +296,45 @@ def ensure_java_available() -> dict[str, Any]:
 
 
 def ensure_runtime_available() -> Path:
-    runtime = runtime_root()
-    required_paths = [
-        runtime,
-        analyze_headless_path(),
-        runtime / "LICENSE",
-        runtime / "NOTICE",
-    ]
-    missing = [str(path) for path in required_paths if not path.exists()]
-    if missing:
+    configured_install = _normalize_env_value(os.environ.get(GHIDRA_INSTALL_DIR_ENV))
+    checked_candidates: list[str] = []
+
+    if configured_install:
+        install_candidate = Path(configured_install).expanduser().resolve()
+        checked_candidates.append(str(install_candidate))
+        headless_entry = _analyze_headless_from_install_candidate(install_candidate)
+        if headless_entry.exists() and headless_entry.is_file():
+            return headless_entry
+
         raise GhidraRuntimeError(
-            "bundled Ghidra runtime 不完整，缺少: " + ", ".join(missing),
-            error_code="missing_runtime",
+            "未找到可用的 analyzeHeadless。请将 GHIDRA_INSTALL_DIR 指向 Ghidra 安装目录，"
+            "或直接指向 support/analyzeHeadless。",
+            error_code="missing_ghidra_install",
             details={
-                "ghidra_version": GHIDRA_VERSION,
-                "ghidra_release_tag": GHIDRA_RELEASE_TAG,
-                "ghidra_zip_name": GHIDRA_ZIP_NAME,
-                "ghidra_zip_sha256": GHIDRA_ZIP_SHA256,
-                "missing_paths": missing,
+                **_ghidra_requirement_details(checked_candidates),
+                "configured_ghidra_install_dir": str(install_candidate),
             },
         )
-    return runtime
+
+    discovered = _discover_ghidra_candidates()
+    checked_candidates.extend(str(item) for item in discovered)
+    for install_candidate in discovered:
+        headless_entry = _analyze_headless_from_install_candidate(install_candidate)
+        if headless_entry.exists() and headless_entry.is_file():
+            return headless_entry
+
+    raise GhidraRuntimeError(
+        "当前环境未发现可用 Ghidra 安装。请配置 GHIDRA_INSTALL_DIR，"
+        "并确保存在 support/analyzeHeadless。",
+        error_code="missing_ghidra_install",
+        details={
+            **_ghidra_requirement_details(checked_candidates),
+            "ghidra_version": GHIDRA_VERSION,
+            "ghidra_release_tag": GHIDRA_RELEASE_TAG,
+            "ghidra_zip_name": GHIDRA_ZIP_NAME,
+            "ghidra_zip_sha256": GHIDRA_ZIP_SHA256,
+        },
+    )
 
 
 def _sha256_file(path: Path) -> str:
@@ -312,10 +388,10 @@ def _strings_artifact_path(program_id: str, query: str, min_length: int) -> Path
 
 
 def _run_headless(project_dir: Path, project_name: str, extra_args: list[str]) -> subprocess.CompletedProcess[str]:
-    ensure_runtime_available()
+    headless_entry = ensure_runtime_available()
     java_info = ensure_java_available()
 
-    command = [str(analyze_headless_path()), str(project_dir), project_name] + extra_args
+    command = [str(headless_entry), str(project_dir), project_name] + extra_args
     completed = subprocess.run(
         command,
         check=False,
@@ -333,6 +409,17 @@ def _run_headless(project_dir: Path, project_name: str, extra_args: list[str]) -
         if stdout_text:
             preview_parts.append("stdout: " + "\n".join(stdout_text.splitlines()[-20:]))
         preview = "\n\n".join(preview_parts) if preview_parts else "无额外输出"
+        combined_output = "\n".join([stderr_text, stdout_text]).lower()
+        if "lockexception" in combined_output or "unable to lock project" in combined_output:
+            raise GhidraRuntimeError(
+                "当前 Ghidra project 被占用，无法获取锁。请稍后重试。",
+                error_code="project_locked",
+                details={
+                    "project_dir": str(project_dir),
+                    "project_name": project_name,
+                    "analyze_headless": str(headless_entry),
+                },
+            )
         raise GhidraRuntimeError(
             "analyzeHeadless 执行失败，命令为: {0}\n{1}".format(
                 " ".join(command),
@@ -360,8 +447,24 @@ def import_binary(binary_path: str, force_reimport: bool = False) -> dict[str, A
     existing = registry.get("programs", {}).get(program_id)
     if existing and not force_reimport:
         existing = dict(existing)
+        existing_project_dir = Path(existing["project_dir"])
+        if existing_project_dir.exists():
+            summary = _export_program_summary(
+                existing_project_dir,
+                existing.get("project_name") or DEFAULT_PROJECT_NAME,
+                existing.get("program_name") or existing["binary_name"],
+                program_id=program_id,
+                binary_path=str(binary),
+                sha256_value=sha256_value,
+            )
+            existing.update(_summary_fields_from_summary(summary))
+            registry.setdefault("programs", {})[program_id] = existing
+            _save_registry(registry)
         existing["workspace_root"] = str(root)
         existing["java_major_version"] = java_info["java_major_version"]
+        existing["ghidra_release_tag"] = GHIDRA_RELEASE_TAG
+        existing["ghidra_zip_name"] = GHIDRA_ZIP_NAME
+        existing["ghidra_zip_sha256"] = GHIDRA_ZIP_SHA256
         return existing
 
     if project_dir.exists():
@@ -414,10 +517,12 @@ def import_binary(binary_path: str, force_reimport: bool = False) -> dict[str, A
         created_at_utc=_utc_now(),
     )
 
-    registry.setdefault("programs", {})[program_id] = record.to_dict()
+    stored_record = record.to_dict()
+    stored_record.update(_summary_fields_from_summary(summary))
+    registry.setdefault("programs", {})[program_id] = stored_record
     _save_registry(registry)
 
-    result = record.to_dict()
+    result = dict(stored_record)
     result["workspace_root"] = str(root)
     result["java_major_version"] = java_info["java_major_version"]
     result["ghidra_release_tag"] = GHIDRA_RELEASE_TAG
@@ -464,6 +569,96 @@ def _run_program_script(program_id: str, script_name: str, request_payload: dict
         return json.loads(output_path.read_text(encoding="utf-8"))
 
 
+def _export_program_summary(
+    project_dir: Path,
+    project_name: str,
+    process_name: str,
+    *,
+    program_id: str,
+    binary_path: str,
+    sha256_value: str,
+) -> dict[str, Any]:
+    root = workspace_root()
+    root.mkdir(parents=True, exist_ok=True)
+
+    with tempfile.TemporaryDirectory(dir=str(root)) as temp_dir_name:
+        temp_dir = Path(temp_dir_name)
+        output_path = temp_dir / "import_result.json"
+        request_path = _write_temp_json(
+            temp_dir,
+            "import_request.json",
+            {
+                "program_id": program_id,
+                "binary_path": binary_path,
+                "sha256": sha256_value,
+            },
+        )
+        _run_headless(
+            project_dir,
+            project_name,
+            [
+                "-process",
+                process_name,
+                "-scriptPath",
+                str(ghidra_script_dir()),
+                "-postScript",
+                "export_program_summary.py",
+                str(output_path),
+                str(request_path),
+            ],
+        )
+        return json.loads(output_path.read_text(encoding="utf-8"))
+
+
+def _summary_fields_from_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    return {key: summary.get(key) for key in SUMMARY_RECORD_KEYS if key in summary}
+
+
+def _raise_script_result_error(tool_name: str, result: dict[str, Any], *, default_message: str) -> None:
+    if result.get("success", True):
+        return
+
+    error_code = result.get("error_code") or "script_error"
+    error_message = result.get("error_message") or default_message
+    details = {}
+    for key, value in result.items():
+        if key in ("success", "error_code", "error_message"):
+            continue
+        if value is not None:
+            details[key] = value
+
+    raise GhidraRuntimeError(
+        "{0}\nreason: {1}".format(default_message, error_message),
+        error_code=error_code,
+        details=details,
+    )
+
+
+def get_program_metadata(program_id: str) -> dict[str, Any]:
+    program = _load_program_record(program_id)
+    project_dir = Path(program["project_dir"])
+    if not project_dir.exists():
+        raise GhidraRuntimeError(
+            "program_id={0} 对应的 Ghidra project 目录不存在: {1}".format(
+                program_id,
+                project_dir,
+            )
+        )
+
+    summary = _export_program_summary(
+        project_dir,
+        program.get("project_name") or DEFAULT_PROJECT_NAME,
+        program.get("program_name") or program["binary_name"],
+        program_id=program_id,
+        binary_path=program["binary_path"],
+        sha256_value=program["sha256"],
+    )
+    result = dict(program)
+    result.update(_summary_fields_from_summary(summary))
+    result["success"] = True
+    return result
+
+
 def list_functions(program_id: str, query: str | None = None, limit: int = 100, offset: int = 0) -> dict[str, Any]:
     return _run_program_script(
         program_id,
@@ -485,15 +680,63 @@ def decompile_function(
 ) -> dict[str, Any]:
     if not function_name and not address:
         raise GhidraRuntimeError("decompile_function 至少需要 function_name 或 address 其中一个参数。")
-    return _run_program_script(
+    normalized_timeout = max(1, min(int(timeout_seconds), 300))
+    result = _run_program_script(
         program_id,
         "decompile_function.py",
         {
             "program_id": program_id,
             "function_name": function_name or "",
             "address": address or "",
-            "timeout_seconds": max(1, min(int(timeout_seconds), 300)),
+            "timeout_seconds": normalized_timeout,
         },
+    )
+    if result.get("success", True):
+        return result
+
+    requested_function_name = function_name or ""
+    requested_address = address or ""
+    error_code = result.get("error_code") or "decompile_failed"
+    error_message = result.get("error_message") or "反编译失败。"
+    resolved_function = result.get("resolved_function")
+
+    message_lines = ["函数反编译失败。", "reason: {0}".format(error_message)]
+    if requested_address:
+        message_lines.append("requested_address: {0}".format(requested_address))
+    if requested_function_name:
+        message_lines.append("requested_function_name: {0}".format(requested_function_name))
+    if resolved_function:
+        message_lines.append(
+            "resolved_function: {0} @ {1}".format(
+                resolved_function.get("full_name") or resolved_function.get("name") or "unknown",
+                resolved_function.get("entry_point") or "unknown",
+            )
+        )
+    if result.get("resolved_by"):
+        message_lines.append("resolved_by: {0}".format(result.get("resolved_by")))
+
+    details = {
+        "program_id": program_id,
+        "requested_address": requested_address,
+        "requested_function_name": requested_function_name,
+        "timeout_seconds": normalized_timeout,
+    }
+    for key in (
+        "resolved_by",
+        "resolved_function",
+        "decompile_status",
+        "exception_type",
+        "candidates",
+        "candidate_count",
+    ):
+        value = result.get(key)
+        if value is not None:
+            details[key] = value
+
+    raise GhidraRuntimeError(
+        "\n".join(message_lines),
+        error_code=error_code,
+        details=details,
     )
 
 
@@ -541,3 +784,155 @@ def search_symbol(program_id: str, query: str, limit: int = 50) -> dict[str, Any
             "limit": max(1, min(int(limit), 1000)),
         },
     )
+
+
+def list_segments(program_id: str, limit: int = 200) -> dict[str, Any]:
+    result = _run_program_script(
+        program_id,
+        "list_segments.py",
+        {
+            "program_id": program_id,
+            "limit": max(1, min(int(limit), 2000)),
+        },
+    )
+    _raise_script_result_error("list_segments", result, default_message="列出内存段失败。")
+    return result
+
+
+def get_xrefs(
+    program_id: str,
+    function_name: str | None = None,
+    address: str | None = None,
+    direction: str = "to",
+    limit: int = 100,
+) -> dict[str, Any]:
+    if not function_name and not address:
+        raise GhidraRuntimeError("get_xrefs 至少需要 function_name 或 address 其中一个参数。")
+
+    normalized_direction = (direction or "to").strip().lower()
+    if normalized_direction not in ("to", "from", "both"):
+        raise GhidraRuntimeError(
+            "direction 仅支持 to / from / both。",
+            error_code="invalid_direction",
+            details={"direction": direction},
+        )
+
+    result = _run_program_script(
+        program_id,
+        "get_xrefs.py",
+        {
+            "program_id": program_id,
+            "function_name": function_name or "",
+            "address": address or "",
+            "direction": normalized_direction,
+            "limit": max(1, min(int(limit), 1000)),
+        },
+    )
+    _raise_script_result_error("get_xrefs", result, default_message="获取交叉引用失败。")
+    return result
+
+
+def disassemble(
+    program_id: str,
+    function_name: str | None = None,
+    address: str | None = None,
+    max_instructions: int = 80,
+) -> dict[str, Any]:
+    if not function_name and not address:
+        raise GhidraRuntimeError("disassemble 至少需要 function_name 或 address 其中一个参数。")
+
+    result = _run_program_script(
+        program_id,
+        "disassemble.py",
+        {
+            "program_id": program_id,
+            "function_name": function_name or "",
+            "address": address or "",
+            "max_instructions": max(1, min(int(max_instructions), 1000)),
+        },
+    )
+    _raise_script_result_error("disassemble", result, default_message="获取反汇编失败。")
+    return result
+
+
+def get_call_graph(
+    program_id: str,
+    function_name: str | None = None,
+    address: str | None = None,
+    limit: int = 100,
+) -> dict[str, Any]:
+    if not function_name and not address:
+        raise GhidraRuntimeError("get_call_graph 至少需要 function_name 或 address 其中一个参数。")
+
+    result = _run_program_script(
+        program_id,
+        "get_call_graph.py",
+        {
+            "program_id": program_id,
+            "function_name": function_name or "",
+            "address": address or "",
+            "limit": max(1, min(int(limit), 1000)),
+        },
+    )
+    _raise_script_result_error("get_call_graph", result, default_message="获取函数调用图失败。")
+    return result
+
+
+def list_import_exports(program_id: str, query: str | None = None, limit: int = 200) -> dict[str, Any]:
+    result = _run_program_script(
+        program_id,
+        "list_import_exports.py",
+        {
+            "program_id": program_id,
+            "query": (query or "").strip(),
+            "limit": max(1, min(int(limit), 2000)),
+        },
+    )
+    _raise_script_result_error("list_import_exports", result, default_message="获取导入导出信息失败。")
+    return result
+
+
+def list_data_types(
+    program_id: str,
+    query: str | None = None,
+    kind: str | None = None,
+    limit: int = 100,
+    include_members: bool = False,
+) -> dict[str, Any]:
+    result = _run_program_script(
+        program_id,
+        "list_data_types.py",
+        {
+            "program_id": program_id,
+            "query": (query or "").strip(),
+            "kind": (kind or "").strip(),
+            "limit": max(1, min(int(limit), 1000)),
+            "include_members": bool(include_members),
+        },
+    )
+    _raise_script_result_error("list_data_types", result, default_message="获取数据类型信息失败。")
+    return result
+
+
+def read_memory(
+    program_id: str,
+    address: str,
+    length: int = 128,
+    row_width: int = 16,
+) -> dict[str, Any]:
+    normalized_address = (address or "").strip()
+    if not normalized_address:
+        raise GhidraRuntimeError("read_memory 需要非空的 address。")
+
+    result = _run_program_script(
+        program_id,
+        "read_memory.py",
+        {
+            "program_id": program_id,
+            "address": normalized_address,
+            "length": max(1, min(int(length), 4096)),
+            "row_width": max(1, min(int(row_width), 64)),
+        },
+    )
+    _raise_script_result_error("read_memory", result, default_message="读取内存失败。")
+    return result

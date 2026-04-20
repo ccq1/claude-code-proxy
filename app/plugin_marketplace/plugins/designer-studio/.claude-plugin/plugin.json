@@ -1,0 +1,42 @@
+{
+  "name": "designer-studio",
+  "version": "0.2.0",
+  "description": "面向内网与离线环境的前端能力包，内置 Tailwind 离线包、设计样本库与本地资产盘点工具。",
+  "author": {
+    "name": "PandoraQ Labs"
+  },
+  "skills": ["./skills/designer-studio"],
+  "settingsSchema": {
+    "title": "离线前端能力包配置",
+    "description": "配置内网素材目录、离线设计样本库和默认 CSS 框架偏好，便于 Agent 在无公网依赖时稳定完成前端选型。",
+    "fields": [
+      {
+        "key": "designLibraryRoot",
+        "label": "设计样本库目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/data/design-library",
+        "description": "可选。自定义离线设计样本目录；未填写时默认使用插件内置样本库。",
+        "placeholderToken": "FRONTEND_DESIGN_LIBRARY_ROOT"
+      },
+      {
+        "key": "frontendAssetsRoot",
+        "label": "前端资产目录",
+        "type": "text",
+        "required": false,
+        "placeholder": "/data/frontend-assets",
+        "description": "可选。本地 UI 库、图标、字体和设计稿导出目录。",
+        "placeholderToken": "FRONTEND_ASSETS_ROOT"
+      },
+      {
+        "key": "preferredCssPack",
+        "label": "CSS 框架",
+        "type": "text",
+        "required": false,
+        "placeholder": "tailwindcss",
+        "description": "可选。默认离线框架偏好；当前内置包仅提供 tailwindcss。",
+        "placeholderToken": "FRONTEND_CSS_PACK"
+      }
+    ]
+  }
+}

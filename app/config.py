@@ -87,6 +87,34 @@ class Config:
         # 插件配置
         self.redteam_kb_base_url = os.environ.get("REDTEAM_KB_BASE_URL", "").strip()
         self.redteam_kb_api_key = os.environ.get("REDTEAM_KB_API_KEY", "").strip()
+
+        # 双层认证配置
+        self.auth_db_path = os.environ.get("AUTH_DB_PATH", "data/auth.db").strip()
+        self.auth_session_ttl_seconds = int(
+            os.environ.get("AUTH_SESSION_TTL_SECONDS", str(30 * 24 * 3600))
+        )
+        self.platform_auth_enabled = (
+            os.environ.get("PLATFORM_AUTH_ENABLED", "true").strip().lower() == "true"
+        )
+        self.platform_auth_precedence = (
+            os.environ.get("PLATFORM_AUTH_PRECEDENCE", "true").strip().lower() == "true"
+        )
+        self.platform_identity_token_env = os.environ.get(
+            "PLATFORM_IDENTITY_TOKEN_ENV",
+            "PLATFORM_USER_TOKEN",
+        ).strip()
+        self.platform_identity_user_id_env = os.environ.get(
+            "PLATFORM_IDENTITY_USER_ID_ENV",
+            "PLATFORM_USER_ID",
+        ).strip()
+        self.platform_identity_name_env = os.environ.get(
+            "PLATFORM_IDENTITY_NAME_ENV",
+            "PLATFORM_USER_NAME",
+        ).strip()
+        self.platform_identity_email_env = os.environ.get(
+            "PLATFORM_IDENTITY_EMAIL_ENV",
+            "PLATFORM_USER_EMAIL",
+        ).strip()
         
         # Worker 配置
         self.workers = int(os.environ.get("WORKERS", "1"))
@@ -197,6 +225,17 @@ class Config:
         print(f"   SANITIZE_BRAND_TERMS={self.sanitize_brand_terms}")
         print(f"   MODEL_REQUEST_DUMP_DIR='{self.model_request_dump_dir}'")
         print(f"   REDTEAM_KB_BASE_URL={'(set)' if self.redteam_kb_base_url else '(empty)'}")
+        print(f"   AUTH_DB_PATH='{self.auth_db_path}'")
+        print(f"   AUTH_SESSION_TTL_SECONDS={self.auth_session_ttl_seconds}")
+        print(f"   PLATFORM_AUTH_ENABLED={self.platform_auth_enabled}")
+        print(f"   PLATFORM_AUTH_PRECEDENCE={self.platform_auth_precedence}")
+        print(
+            "   PLATFORM_IDENTITY_ENV_KEYS="
+            f"token:{self.platform_identity_token_env},"
+            f"user_id:{self.platform_identity_user_id_env},"
+            f"name:{self.platform_identity_name_env},"
+            f"email:{self.platform_identity_email_env}"
+        )
         print(f"   WORKERS={self.workers}")
 
 

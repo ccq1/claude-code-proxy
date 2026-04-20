@@ -47,6 +47,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Local development databases
+data/auth.db*
+
 # Old source files
 server.py
 llm_proxy.py
@@ -58,4 +61,3 @@ test_llm.py
 Dockerfile
 docker-compose.yml
 .dockerignore
-

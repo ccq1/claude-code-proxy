@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of Mastercard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #F3F0EE;
+    --lifted: #FCFBFA;
+    --white: #FFFFFF;
+    --ink: #141413;
+    --charcoal: #262627;
+    --slate: #696969;
+    --granite: #555555;
+    --taupe: #D1CDC7;
+    --bone: #F4F4F4;
+    --signal: #CF4500;
+    --signal-light: #F37338;
+    --clay: #9A3A0A;
+    --link-blue: #3860BE;
+    --mc-red: #EB001B;
+    --mc-yellow: #F79E1B;
+    --shadow-1: 0 4px 24px rgba(0, 0, 0, 0.04);
+    --shadow-2: 0 24px 48px rgba(0, 0, 0, 0.08);
+    --shadow-3: 0 70px 110px rgba(0, 0, 0, 0.25);
+    --font: "Sofia Sans", MarkForMC, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-weight: 450;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ink);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+  /* --- NAV (floating pill) --- */
+  .nav {
+    position: sticky;
+    top: 24px;
+    z-index: 50;
+    margin: 24px auto 0;
+    max-width: 1180px;
+    background: var(--white);
+    border-radius: 999px;
+    box-shadow: var(--shadow-1);
+    padding: 16px 40px;
+    width: calc(100% - 48px);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.48px;
+  }
+
+  .nav-brand { font-weight: 500; font-size: 16px; letter-spacing: -0.48px; color: var(--ink); }
+  .nav-links { list-style: none; display: flex; gap: 48px; align-items: center; }
+  .nav-links a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 16px; letter-spacing: -0.48px; }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--canvas);
+    border: 1.5px solid var(--ink);
+    border-radius: 20px;
+    padding: 6px 24px;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.32px;
+    cursor: pointer;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    padding: 80px 0 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal-light);
+  }
+  .hero-title {
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 64px;
+    letter-spacing: -1.28px;
+    color: var(--ink);
+    max-width: 920px;
+    margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 450;
+    line-height: 1.5;
+    color: var(--granite);
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.32px;
+    padding: 10px 28px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1.5px solid var(--ink);
+    display: inline-block;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--ink); color: var(--canvas); }
+  .btn-secondary { background: var(--white); color: var(--ink); }
+
+  /* Decorative orbital arc behind hero */
+  .hero-orbit {
+    position: absolute;
+    right: -120px;
+    top: -40px;
+    width: 700px;
+    height: 700px;
+    border: 1px solid var(--signal-light);
+    border-radius: 50%;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .hero-orbit-2 {
+    position: absolute;
+    right: 80px;
+    bottom: -180px;
+    width: 460px;
+    height: 460px;
+    border: 1px solid var(--signal-light);
+    border-radius: 50%;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* --- SECTIONS --- */
+  section.block { padding: 96px 48px; }
+  section.block + section.block { padding-top: 0; }
+  .block-title {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 44px;
+    letter-spacing: -0.72px;
+    margin-bottom: 12px;
+  }
+  .block-sub {
+    font-size: 16px;
+    font-weight: 450;
+    line-height: 22.4px;
+    color: var(--slate);
+    margin-bottom: 40px;
+    max-width: 620px;
+  }
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .section-eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal-light);
+  }
+
+  /* --- COLOR PALETTE --- */
+  .color-group { margin-bottom: 56px; }
+  .color-group h3 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 20px;
+  }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .swatch {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--shadow-1);
+  }
+  .swatch-chip {
+    height: 120px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(20, 20, 19, 0.06);
+  }
+  .swatch-name { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .swatch-hex { font-size: 12px; font-weight: 450; color: var(--slate); font-feature-settings: "tnum"; margin-bottom: 8px; }
+  .swatch-role { font-size: 13px; font-weight: 450; color: var(--granite); line-height: 1.45; }
+
+  /* --- TYPOGRAPHY --- */
+  .type-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid rgba(20, 20, 19, 0.08);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+  .type-meta strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 6px; letter-spacing: 0.56px; }
+  .t-h1 { font-size: 64px; font-weight: 500; line-height: 64px; letter-spacing: -1.28px; }
+  .t-h2 { font-size: 36px; font-weight: 500; line-height: 44px; letter-spacing: -0.72px; }
+  .t-h3 { font-size: 24px; font-weight: 500; line-height: 28.8px; letter-spacing: -0.48px; }
+  .t-eyebrow { font-size: 14px; font-weight: 700; line-height: 14px; letter-spacing: 0.56px; text-transform: uppercase; }
+  .t-body { font-size: 16px; font-weight: 450; line-height: 22.4px; }
+  .t-nav { font-size: 16px; font-weight: 500; line-height: 16px; letter-spacing: -0.48px; }
+  .t-foot { font-size: 14px; font-weight: 450; line-height: 20px; }
+
+  /* --- BUTTONS --- */
+  .btn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .btn-cell {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: var(--shadow-1);
+  }
+  .btn-cell > *:first-child { margin-bottom: 20px; }
+  .btn-label { font-size: 12px; font-weight: 500; color: var(--slate); letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 8px; }
+  .btn-spec { font-size: 12px; color: var(--granite); line-height: 1.5; font-feature-settings: "tnum"; }
+
+  .btn-signal {
+    background: var(--signal);
+    color: var(--white);
+    border: 0;
+    border-radius: 24px;
+    padding: 1px 30px;
+    min-height: 36px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.13px;
+    cursor: pointer;
+  }
+  .btn-satellite {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid rgba(20, 20, 19, 0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--ink);
+  }
+  .btn-icon-round {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid var(--ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  /* --- CARDS --- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+  .card-stadium {
+    background: var(--ink);
+    color: var(--canvas);
+    border-radius: 40px;
+    padding: 40px;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .card-stadium .spec { font-size: 12px; opacity: 0.6; margin-top: 12px; }
+  .card-stadium h4 { font-size: 24px; font-weight: 500; letter-spacing: -0.48px; line-height: 1.2; }
+
+  .card-portrait {
+    background: var(--canvas);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+  .card-portrait-img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--signal-light), var(--clay));
+    margin: 0 auto 20px;
+    position: relative;
+  }
+  .card-portrait-img::after {
+    content: "→";
+    position: absolute;
+    right: -10px;
+    bottom: 20px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: var(--shadow-1);
+  }
+  .card-portrait-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .card-portrait-eyebrow::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal-light);
+  }
+  .card-portrait h4 { font-size: 24px; font-weight: 500; line-height: 28.8px; letter-spacing: -0.48px; color: var(--ink); }
+
+  .card-pill {
+    background: var(--lifted);
+    border-radius: 999px;
+    padding: 40px 60px;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-2);
+    text-align: center;
+  }
+  .card-pill h4 { font-size: 20px; font-weight: 500; letter-spacing: -0.4px; color: var(--ink); }
+  .card-pill .spec { display: block; font-size: 11px; color: var(--slate); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
+
+  /* --- FORMS --- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--shadow-1);
+  }
+  .form-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.48px;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(20, 20, 19, 0.3);
+    background: var(--white);
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 450;
+    color: var(--ink);
+    outline: none;
+  }
+  .form-field textarea { border-radius: 20px; resize: vertical; min-height: 100px; }
+  .form-field input.focused { border: 1.5px solid var(--ink); }
+  .form-field input.error { border: 1.5px solid var(--signal); }
+  .form-field .error-msg { font-size: 13px; color: var(--signal); margin-top: 6px; font-weight: 450; }
+  .form-field .caption { font-size: 12px; color: var(--slate); margin-top: 6px; }
+
+  /* --- SPACING --- */
+  .spacing-row { display: flex; flex-direction: column; gap: 12px; }
+  .spacing-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .spacing-label { font-size: 12px; color: var(--slate); width: 80px; font-feature-settings: "tnum"; }
+  .spacing-box {
+    height: 32px;
+    background: var(--ink);
+    border-radius: 4px;
+  }
+
+  /* --- RADIUS --- */
+  .radius-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+  }
+  .radius-cell {
+    background: var(--white);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow-1);
+    border-radius: 20px;
+  }
+  .radius-swatch {
+    height: 120px;
+    background: var(--ink);
+    margin-bottom: 14px;
+  }
+  .radius-label { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .radius-context { font-size: 11px; color: var(--slate); margin-top: 4px; line-height: 1.4; }
+
+  /* --- ELEVATION --- */
+  .elev-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px;
+    padding: 48px;
+    background: var(--bone);
+    border-radius: 40px;
+  }
+  .elev-cell {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 32px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .elev-cell.e0 { box-shadow: none; border: 1px solid rgba(20, 20, 19, 0.08); }
+  .elev-cell.e1 { box-shadow: var(--shadow-1); }
+  .elev-cell.e2 { box-shadow: var(--shadow-2); }
+  .elev-cell.e3 { box-shadow: var(--shadow-3); }
+  .elev-cell h5 { font-size: 16px; font-weight: 500; letter-spacing: -0.32px; margin-bottom: 4px; color: var(--ink); }
+  .elev-cell .shadow-spec { font-size: 11px; color: var(--slate); font-feature-settings: "tnum"; line-height: 1.5; }
+
+  /* --- FOOTER --- */
+  .footer {
+    margin-top: 120px;
+    padding: 32px 48px;
+    background: var(--ink);
+    color: var(--taupe);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 450;
+  }
+  .footer a { color: var(--canvas); }
+
+  @media (max-width: 860px) {
+    .container { padding: 0 20px; }
+    .nav { padding: 10px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 48px 0 64px; }
+    .hero-title { font-size: 40px; line-height: 40px; letter-spacing: -0.8px; }
+    section.block { padding: 48px 20px; }
+    .block-title { font-size: 28px; line-height: 32px; }
+    .t-h1 { font-size: 40px; line-height: 40px; letter-spacing: -0.8px; }
+    .t-h2 { font-size: 28px; line-height: 32px; }
+    .type-row { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 20px; }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .nav > .nav-left { justify-self: start; }
+  .nav > .nav-links { justify-self: center; }
+  .nav > :last-child { justify-self: end; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#palette">Palette</a></li>
+    <li><a href="#typography">Typography</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#cards">Cards</a></li>
+    <li><a href="#elevation">Elevation</a></li>
+  </ul>
+
+  <button class="nav-cta">Get Started</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit-2"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Design System Catalog</div>
+    <h1 class="hero-title">Design System Inspiration of Mastercard</h1>
+    <p class="hero-sub">A complete, token-level catalog generated from <code>DESIGN.md</code>. Every color, type scale, button, card, and radius below is rendered using the same values documented for downstream agents.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#palette">Explore palette</a>
+      <a class="btn btn-secondary" href="#typography">View typography</a>
+    </div>
+  </div>
+</section>
+
+<section class="block container" id="palette">
+  <div class="section-eyebrow">Section 01</div>
+  <h2 class="block-title">Color Palette</h2>
+  <p class="block-sub">Six role groups built on a warm putty-cream canvas. Ink is warm near-black. Signal Orange is reserved for consent/legal; Light Signal Orange traces decorative orbits. The Mastercard logo red and yellow are brand-mark colors only.</p>
+
+  <div class="color-group">
+    <h3>Primary</h3>
+    <div class="color-grid">
+      <div class="swatch"><div class="swatch-chip" style="background:#EB001B"></div><div class="swatch-name">Mastercard Red</div><div class="swatch-hex">#EB001B</div><div class="swatch-role">Left circle of the brand mark — logo only, never a UI color.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#F79E1B"></div><div class="swatch-name">Mastercard Yellow</div><div class="swatch-hex">#F79E1B</div><div class="swatch-role">Right circle of the brand mark — logo only, never a UI color.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#141413"></div><div class="swatch-name">Ink Black</div><div class="swatch-hex">#141413</div><div class="swatch-role">Primary CTAs, headline text, footer surface. Slightly warm near-black.</div></div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <h3>Secondary &amp; Accent</h3>
+    <div class="color-grid">
+      <div class="swatch"><div class="swatch-chip" style="background:#CF4500"></div><div class="swatch-name">Signal Orange</div><div class="swatch-hex">#CF4500</div><div class="swatch-role">Consent/legal actions and eyebrow accent dots. Reserved color.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#F37338"></div><div class="swatch-name">Light Signal Orange</div><div class="swatch-hex">#F37338</div><div class="swatch-role">Carousel active indicators and decorative orbital arcs.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#9A3A0A"></div><div class="swatch-name">Clay Brown</div><div class="swatch-hex">#9A3A0A</div><div class="swatch-role">Deep rust for secondary link-style buttons (e.g., details).</div></div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <h3>Surface &amp; Background</h3>
+    <div class="color-grid">
+      <div class="swatch"><div class="swatch-chip" style="background:#F3F0EE"></div><div class="swatch-name">Canvas Cream</div><div class="swatch-hex">#F3F0EE</div><div class="swatch-role">Default body background. Warm putty tone — never pure white.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#FCFBFA"></div><div class="swatch-name">Lifted Cream</div><div class="swatch-hex">#FCFBFA</div><div class="swatch-role">One step lighter — nested sections laid on canvas.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#FFFFFF"></div><div class="swatch-name">White</div><div class="swatch-hex">#FFFFFF</div><div class="swatch-role">Floating nav pill, modal cards, satellite-CTA circles.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#F4F4F4"></div><div class="swatch-name">Soft Bone</div><div class="swatch-hex">#F4F4F4</div><div class="swatch-role">Cool-gray alternative surface used inside a few subregions.</div></div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <h3>Neutrals &amp; Text</h3>
+    <div class="color-grid">
+      <div class="swatch"><div class="swatch-chip" style="background:#141413"></div><div class="swatch-name">Ink Black</div><div class="swatch-hex">#141413</div><div class="swatch-role">Primary headline and body text color.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#262627"></div><div class="swatch-name">Charcoal</div><div class="swatch-hex">#262627</div><div class="swatch-role">Softer black alternate for some text.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#696969"></div><div class="swatch-name">Slate Gray</div><div class="swatch-hex">#696969</div><div class="swatch-role">Muted secondary text and small-print rows.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#555555"></div><div class="swatch-name">Granite</div><div class="swatch-hex">#555555</div><div class="swatch-role">Deeper gray for inline body accents.</div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#D1CDC7"></div><div class="swatch-name">Dust Taupe</div><div class="swatch-hex">#D1CDC7</div><div class="swatch-role">Disabled / whisper text on cream. Low contrast, sparse use.</div></div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <h3>Semantic &amp; Accent</h3>
+    <div class="color-grid">
+      <div class="swatch"><div class="swatch-chip" style="background:#3860BE"></div><div class="swatch-name">Link Blue</div><div class="swatch-hex">#3860BE</div><div class="swatch-role">Inline links and informational callouts. Dusty, saturated.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block container" id="typography">
+  <div class="section-eyebrow">Section 02</div>
+  <h2 class="block-title">Typography Scale</h2>
+  <p class="block-sub">Everything set in <em>MarkForMC</em> (Sofia Sans as open-source substitute). Display weight 500 with −2% tracking, body weight 450 for the signature airy tone, and a single uppercase eyebrow at +4% tracking.</p>
+
+  <div class="type-row">
+    <div class="type-meta"><strong>H1 / Hero</strong>64px · 500 · 64 lh · −1.28 tr</div>
+    <div class="t-h1">Powering economies and empowering people</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>H2 / Section</strong>36px · 500 · 44 lh · −0.72 tr</div>
+    <div class="t-h2">Benefits and services that ignite your passions</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>H3 / Card</strong>24px · 500 · 28.8 lh · −0.48 tr</div>
+    <div class="t-h3">Insights &amp; Intelligence</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Eyebrow</strong>14px · 700 · 14 lh · +0.56 tr · uppercase</div>
+    <div class="t-eyebrow">• Services</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Body</strong>16px · 450 · 22.4 lh</div>
+    <div class="t-body">Unlocking potential for people, businesses and governments, all around the world. The half-step 450 weight reads softer than regular 400 without feeling thin.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Nav / Button</strong>16px · 500 · 16 lh · −0.48 tr</div>
+    <div class="t-nav">For business · For the world · For innovators</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Footer Link</strong>14px · 450 · 20 lh</div>
+    <div class="t-foot">Privacy · Terms · Manage cookies · Your Privacy Choices</div>
+  </div>
+</section>
+
+<section class="block container" id="buttons">
+  <div class="section-eyebrow">Section 03</div>
+  <h2 class="block-title">Button Variants</h2>
+  <p class="block-sub">Five distinct buttons. The Ink Pill is the workhorse marketing CTA. The orange signal is reserved — it reads as consent, not engagement.</p>
+
+  <div class="btn-grid">
+    <div class="btn-cell">
+      <button class="btn btn-primary">Learn more</button>
+      <div class="btn-label">Primary — Ink Pill</div>
+      <div class="btn-spec">bg #141413 · text #F3F0EE · border 1.5px · radius 20px · padding 6px 24px · 16/500 · −0.32 tr</div>
+    </div>
+    <div class="btn-cell">
+      <button class="btn btn-secondary">Configure my cookies</button>
+      <div class="btn-label">Secondary — Outlined Pill</div>
+      <div class="btn-spec">bg #FFFFFF · text #141413 · border 1.5px ink · radius 20px · padding 6px 24px · 16/450</div>
+    </div>
+    <div class="btn-cell">
+      <button class="btn-signal">Reject all</button>
+      <div class="btn-label">Consent — Signal Pill</div>
+      <div class="btn-spec">bg #CF4500 · text #FFFFFF · radius 24px · padding 1px 30px · 13/400 · +0.13 tr</div>
+    </div>
+    <div class="btn-cell">
+      <button class="btn-satellite" aria-label="Satellite CTA">→</button>
+      <div class="btn-label">Satellite — Circular Micro-CTA</div>
+      <div class="btn-spec">bg #FFFFFF · icon ink · radius 50% · size 56px · attaches to circular portrait</div>
+    </div>
+    <div class="btn-cell">
+      <button class="btn-icon-round" aria-label="Search">◯</button>
+      <div class="btn-label">Icon — Round Outline</div>
+      <div class="btn-spec">bg #FFFFFF · border 1px ink · radius 50% · size 48px · carousel / search toggle</div>
+    </div>
+  </div>
+</section>
+
+<section class="block container" id="cards">
+  <div class="section-eyebrow">Section 04</div>
+  <h2 class="block-title">Card Examples</h2>
+  <p class="block-sub">Three signature card shapes: a 40px-radius stadium, a circular portrait with satellite CTA, and a full-pill editorial row. Shadows are soft with wide spread.</p>
+
+  <div class="card-grid">
+    <div class="card-stadium">
+      <h4>Stadium Hero Frame</h4>
+      <div class="spec">Radius 40px · bg #141413 · shadow 0 24 48 / 0.08 · full-bleed media holder</div>
+    </div>
+    <div class="card-portrait">
+      <div class="card-portrait-img"></div>
+      <div class="card-portrait-eyebrow">Services</div>
+      <h4>Circular Portrait Card</h4>
+    </div>
+    <div class="card-pill">
+      <div>
+        <h4>Full-Pill Editorial Row</h4>
+        <span class="spec">Radius 999px · bg #FCFBFA · shadow 0 24 48 / 0.08</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block container" id="forms">
+  <div class="section-eyebrow">Section 05</div>
+  <h2 class="block-title">Form Elements</h2>
+  <p class="block-sub">Inputs default to pill radius (999px) with an ink-tinted translucent border. Focused state firms the border to solid ink; error shifts to Signal Orange.</p>
+
+  <div class="form-grid">
+    <div class="form-field">
+      <label>Full name — default</label>
+      <input type="text" placeholder="Jane Cardholder">
+      <div class="caption">999px radius · 1px rgba(ink, 0.3) · 16/450</div>
+    </div>
+    <div class="form-field">
+      <label>Email — focused</label>
+      <input type="email" class="focused" value="jane@example.com">
+      <div class="caption">1.5px solid #141413 · outline removed</div>
+    </div>
+    <div class="form-field">
+      <label>ZIP — error</label>
+      <input type="text" class="error" value="12">
+      <div class="error-msg">Please enter a valid 5-digit ZIP code.</div>
+    </div>
+    <div class="form-field">
+      <label>Message — textarea</label>
+      <textarea placeholder="How can we help?"></textarea>
+      <div class="caption">20px radius · resize vertical</div>
+    </div>
+  </div>
+</section>
+
+<section class="block container" id="spacing">
+  <div class="section-eyebrow">Section 06</div>
+  <h2 class="block-title">Spacing Scale</h2>
+  <p class="block-sub">Base 8px unit. Marketing sections breathe at 96px and 128px on desktop; compress to 48–64px on mobile.</p>
+
+  <div class="spacing-row">
+    <div class="spacing-item"><div class="spacing-label">8px</div><div class="spacing-box" style="width:8px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">16px</div><div class="spacing-box" style="width:16px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">24px</div><div class="spacing-box" style="width:24px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">32px</div><div class="spacing-box" style="width:32px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">48px</div><div class="spacing-box" style="width:48px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">64px</div><div class="spacing-box" style="width:64px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">96px</div><div class="spacing-box" style="width:96px"></div></div>
+    <div class="spacing-item"><div class="spacing-label">128px</div><div class="spacing-box" style="width:128px"></div></div>
+  </div>
+</section>
+
+<section class="block container" id="radius">
+  <div class="section-eyebrow">Section 07</div>
+  <h2 class="block-title">Border Radius Scale</h2>
+  <p class="block-sub">The scale skips the 8–12px middle that most systems live in. Mastercard commits to either small (≤6), medium-large (20–40), or full-pill (99+).</p>
+
+  <div class="radius-grid">
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:4px"></div><div class="radius-label">4px</div><div class="radius-context">micro-chips</div></div>
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:20px"></div><div class="radius-label">20px</div><div class="radius-context">primary &amp; secondary buttons</div></div>
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:24px"></div><div class="radius-label">24px</div><div class="radius-context">signal buttons, modal chips</div></div>
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:40px"></div><div class="radius-label">40px</div><div class="radius-context">stadium hero frames</div></div>
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:50%;height:120px;width:120px;margin:0 auto 14px"></div><div class="radius-label">50%</div><div class="radius-context">portraits · icon buttons</div></div>
+    <div class="radius-cell"><div class="radius-swatch" style="border-radius:999px;height:48px"></div><div class="radius-label">999px</div><div class="radius-context">pill nav · selector · chips</div></div>
+  </div>
+</section>
+
+<section class="block container" id="elevation">
+  <div class="section-eyebrow">Section 08</div>
+  <h2 class="block-title">Elevation &amp; Depth</h2>
+  <p class="block-sub">Four elevation levels, all atmospheric. Shadows have wide spread and low opacity — the card is <em>breathing</em> above the canvas, not clamped onto it.</p>
+
+  <div class="elev-grid">
+    <div class="elev-cell e0">
+      <div>
+        <h5>Level 0 — Flat</h5>
+        <div class="shadow-spec">no shadow · sits directly on canvas</div>
+      </div>
+    </div>
+    <div class="elev-cell e1">
+      <div>
+        <h5>Level 1 — Float</h5>
+        <div class="shadow-spec">0 4 24 / 0.04 · floating nav pill</div>
+      </div>
+    </div>
+    <div class="elev-cell e2">
+      <div>
+        <h5>Level 2 — Lift</h5>
+        <div class="shadow-spec">0 24 48 / 0.08 · hero frames</div>
+      </div>
+    </div>
+    <div class="elev-cell e3">
+      <div>
+        <h5>Level 3 — Halo</h5>
+        <div class="shadow-spec">0 70 110 / 0.25 · rare feature</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>

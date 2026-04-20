@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of Starbucks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-starbucks: #006241;
+  --green-accent: #00754A;
+  --green-house: #1E3932;
+  --green-uplift: #2b5148;
+  --green-light: #d4e9e2;
+  --rewards-green: #33433d;
+  --gold: #cba258;
+  --gold-light: #dfc49d;
+  --gold-lightest: #faf6ee;
+  --white: #ffffff;
+  --neutral-cool: #f9f9f9;
+  --neutral-warm: #f2f0eb;
+  --ceramic: #edebe9;
+  --black: #000000;
+  --text-black: rgba(0, 0, 0, 0.87);
+  --text-black-soft: rgba(0, 0, 0, 0.58);
+  --red: #c82014;
+  --yellow: #fbbc05;
+  --card-shadow: 0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24);
+  --nav-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 2px 2px rgba(0,0,0,0.06), 0 0 2px rgba(0,0,0,0.07);
+  --frap-shadow: 0 0 6px rgba(0,0,0,0.24), 0 8px 12px rgba(0,0,0,0.14);
+  --font-primary: "Inter", "SoDoSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Lora", "Iowan Old Style", Georgia, serif;
+  --font-script: "Kalam", cursive;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-primary);
+  background: var(--neutral-warm);
+  color: var(--text-black);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+.nav {
+  background: var(--white);
+  box-shadow: var(--nav-shadow);
+  padding: 16px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-brand { font-weight: 700; font-size: 18px; color: var(--green-starbucks); }
+.nav-links { list-style: none; display: flex; gap: 32px; }
+.nav-links a { color: var(--text-black); text-decoration: none; font-size: 14px; font-weight: 600; }
+.nav-cta {
+  background: var(--black); color: var(--white); border: 1px solid var(--black);
+  border-radius: 50px; padding: 7px 16px; font-weight: 600;
+  font-family: inherit; font-size: 14px; cursor: pointer;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+.hero { padding: 96px 40px 72px; background: var(--neutral-warm); }
+.hero h1 {
+  font-size: 50px; font-weight: 600; line-height: 1.2; letter-spacing: -0.016em;
+  max-width: 900px; margin: 0 auto 16px; text-align: center; color: var(--green-starbucks);
+}
+.hero .sub { font-size: 19px; color: var(--text-black); max-width: 640px; margin: 0 auto 32px; text-align: center; }
+.hero .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 50px; padding: 7px 16px; letter-spacing: -0.01em;
+  transition: transform 0.2s ease; border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: var(--green-accent); color: var(--white); border-color: var(--green-accent); padding: 10px 20px; font-size: 16px; }
+.btn-outlined-green { background: transparent; color: var(--green-accent); border-color: var(--green-accent); padding: 10px 20px; font-size: 16px; }
+.btn-black { background: var(--black); color: var(--white); border-color: var(--black); }
+.btn-outlined-dark { background: transparent; color: var(--text-black); border-color: var(--text-black); }
+.btn-white-on-green { background: var(--white); color: var(--green-accent); border-color: var(--white); padding: 10px 20px; font-size: 16px; }
+.btn-outlined-white { background: transparent; color: var(--white); border-color: var(--white); padding: 10px 20px; font-size: 16px; }
+.btn-agree { background: rgb(0, 130, 72); color: var(--white); border: none; font-weight: 400; }
+
+section { padding: 72px 0; border-top: 1px solid var(--ceramic); background: var(--neutral-warm); }
+section.alt { background: var(--white); }
+section.house { background: var(--green-house); color: var(--white); }
+section.house h2.section-title { color: var(--white); }
+section.house .section-desc { color: rgba(255,255,255,0.70); }
+
+h2.section-title { font-size: 32px; font-weight: 600; margin-bottom: 8px; color: var(--green-starbucks); letter-spacing: -0.016em; }
+.section-desc { font-size: 16px; color: var(--text-black-soft); margin-bottom: 32px; max-width: 720px; }
+
+.palette-group { margin-bottom: 40px; }
+.palette-group h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-black-soft); }
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.swatch { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--card-shadow); }
+.swatch .fill { height: 80px; }
+.swatch .info { padding: 12px 16px; }
+.swatch .name { font-size: 14px; font-weight: 600; color: var(--text-black); }
+.swatch .hex { font-size: 12px; color: var(--text-black-soft); font-family: ui-monospace, monospace; margin-top: 2px; }
+.swatch .role { font-size: 12px; color: var(--text-black-soft); margin-top: 6px; line-height: 16px; }
+
+.type-row { display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 16px 0; border-bottom: 1px solid var(--ceramic); align-items: baseline; }
+.type-label { font-size: 12px; color: var(--text-black-soft); font-family: ui-monospace, monospace; line-height: 16px; }
+
+.btn-showcase { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.btn-item { display: flex; flex-direction: column; gap: 8px; }
+.btn-item .caption { font-size: 12px; color: var(--text-black-soft); }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.card {
+  background: var(--white); border-radius: 12px; padding: 24px; box-shadow: var(--card-shadow);
+}
+.card h4 { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--text-black); }
+.card p { font-size: 14px; color: var(--text-black-soft); }
+
+.status-card {
+  background: var(--green-house); color: var(--white); border-radius: 12px;
+  padding: 24px; box-shadow: var(--card-shadow); position: relative;
+}
+.status-card::before {
+  content: ""; display: block; height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  margin-bottom: 20px;
+}
+.status-card h4 { font-size: 24px; font-weight: 600; margin-bottom: 12px; }
+.status-card ul { list-style: none; padding: 0; font-size: 14px; color: rgba(255,255,255,0.85); }
+.status-card li { padding: 4px 0; }
+.status-card .caption { font-size: 12px; color: rgba(255,255,255,0.70); margin-top: 12px; font-style: italic; }
+
+.frap-demo {
+  position: relative; background: var(--neutral-warm); border-radius: 12px;
+  padding: 60px 40px; min-height: 200px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-black-soft);
+}
+.frap-button {
+  position: absolute; bottom: 24px; right: 24px; width: 56px; height: 56px;
+  border-radius: 50%; background: var(--green-accent); border: none; cursor: pointer;
+  box-shadow: var(--frap-shadow); display: inline-flex; align-items: center; justify-content: center;
+  color: var(--white); font-size: 22px; transition: transform 0.2s ease;
+}
+.frap-button:active { transform: scale(0.95); }
+
+.form-field { margin-bottom: 16px; max-width: 480px; }
+.form-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-black); letter-spacing: -0.01em; }
+.form-field input, .form-field textarea {
+  width: 100%; background: var(--white); border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 12px; padding: 12px; font-size: 16px; font-family: inherit; color: var(--text-black);
+}
+.form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--green-accent); }
+.form-field input.valid { background: hsl(160 32% 87% / 33%); border-color: var(--green-accent); }
+.form-field input.invalid { background: hsl(4 82% 43% / 5%); border-color: var(--red); }
+.form-field textarea { min-height: 96px; resize: vertical; }
+
+.spacing-row { display: flex; flex-direction: column; gap: 8px; }
+.spacing-item { display: flex; align-items: center; gap: 16px; }
+.spacing-bar { background: var(--green-accent); height: 24px; border-radius: 4px; }
+.spacing-label { font-size: 12px; font-family: ui-monospace, monospace; color: var(--text-black-soft); min-width: 160px; }
+
+.radius-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.radius-item { width: 120px; }
+.radius-box { width: 120px; height: 80px; background: var(--white); box-shadow: var(--card-shadow); margin-bottom: 8px; }
+.radius-label { font-size: 12px; color: var(--text-black-soft); font-family: ui-monospace, monospace; }
+
+.elevation-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; background: var(--neutral-warm); padding: 32px; border-radius: 12px; }
+.elevation-card { background: var(--white); padding: 24px; border-radius: 12px; text-align: center; }
+
+.gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.gift-tile { aspect-ratio: 1.586 / 1; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 14px; font-weight: 600; text-align: center; padding: 16px; }
+
+.breakpoint-table { width: 100%; border-collapse: collapse; }
+.breakpoint-table th, .breakpoint-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--ceramic); font-size: 14px; }
+.breakpoint-table th { font-weight: 700; color: var(--text-black-soft); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.viewport-ladder { display: flex; gap: 12px; align-items: flex-end; margin-top: 24px; flex-wrap: wrap; }
+.viewport-box { background: var(--white); box-shadow: var(--card-shadow); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; }
+.viewport-box .w { font-weight: 700; font-size: 14px; color: var(--text-black); }
+.viewport-box .label { font-size: 11px; color: var(--text-black-soft); }
+
+.chip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.chip-row-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--white); border-radius: 12px; box-shadow: var(--card-shadow); }
+.chip-swatch { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
+.chip-meta { flex: 1; }
+.chip-role { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-black-soft); font-weight: 700; }
+.chip-name { font-size: 14px; font-weight: 600; color: var(--text-black); }
+.chip-hex { font-size: 12px; color: var(--text-black-soft); font-family: ui-monospace, monospace; }
+
+.footer {
+  background: var(--green-house); color: rgba(255,255,255,0.85);
+  text-align: center; padding: 24px; font-size: 14px;
+}
+
+.nav-left { display: flex; align-items: center; gap: 20px; }
+.nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.nav > .nav-left { justify-self: start; }
+.nav > .nav-links { justify-self: center; }
+.nav > :last-child { justify-self: end; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+  <ul class="nav-links">
+    <li><a href="#palette">Colors</a></li>
+    <li><a href="#type">Typography</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#components">Components</a></li>
+  </ul>
+  <button class="nav-cta">Join now</button>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>Design System Inspiration of Starbucks</h1>
+    <p class="sub">A visual catalog of the tokens, components, and layout principles extracted from Starbucks.com — generated from DESIGN.md.</p>
+    <div class="cta-row">
+      <button class="btn btn-primary">Join Starbucks Rewards</button>
+      <button class="btn btn-outlined-green">See the spring menu</button>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="palette">
+  <div class="container">
+    <h2 class="section-title">1. Color Palette</h2>
+    <p class="section-desc">Four-tier green brand system, warm-neutral cream canvas, gold reserved for Rewards ceremony only.</p>
+
+    <div class="palette-group"><h3>Primary — The Four Greens</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:#006241"></div><div class="info"><div class="name">Starbucks Green</div><div class="hex">#006241</div><div class="role">Primary headings, brand signal</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#00754A"></div><div class="info"><div class="name">Green Accent</div><div class="hex">#00754A</div><div class="role">Filled CTAs, Frap floating button</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#1E3932"></div><div class="info"><div class="name">House Green</div><div class="hex">#1E3932</div><div class="role">Feature bands, footer, deep surfaces</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#2b5148"></div><div class="info"><div class="name">Green Uplift</div><div class="hex">#2b5148</div><div class="role">Decorative accent, mid-dark</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#d4e9e2"></div><div class="info"><div class="name">Green Light</div><div class="hex">#d4e9e2</div><div class="role">Valid-field tint, light utility</div></div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Gold (Rewards Ceremony Only)</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:#cba258"></div><div class="info"><div class="name">Gold</div><div class="hex">#cba258</div><div class="role">Gold-tier status, premium accent</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#dfc49d"></div><div class="info"><div class="name">Gold Light</div><div class="hex">#dfc49d</div><div class="role">Softer gold wash</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#faf6ee"></div><div class="info"><div class="name">Gold Lightest</div><div class="hex">#faf6ee</div><div class="role">Partnership band cream-gold</div></div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Surface &amp; Background</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:#ffffff;border:1px solid #edebe9"></div><div class="info"><div class="name">White</div><div class="hex">#ffffff</div><div class="role">Card and modal surface</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#f9f9f9"></div><div class="info"><div class="name">Neutral Cool</div><div class="hex">#f9f9f9</div><div class="role">Dropdown menu, subtle gray</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#f2f0eb"></div><div class="info"><div class="name">Neutral Warm</div><div class="hex">#f2f0eb</div><div class="role">Primary page canvas</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#edebe9"></div><div class="info"><div class="name">Ceramic</div><div class="hex">#edebe9</div><div class="role">Zone separator, warm wash</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#000000"></div><div class="info"><div class="name">Black</div><div class="hex">#000000</div><div class="role">"Join now" CTA, high-contrast</div></div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Text &amp; Semantic</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:rgba(0,0,0,0.87)"></div><div class="info"><div class="name">Text Black</div><div class="hex">rgba(0,0,0,0.87)</div><div class="role">Body + heading on light</div></div></div>
+        <div class="swatch"><div class="fill" style="background:rgba(0,0,0,0.58)"></div><div class="info"><div class="name">Text Black Soft</div><div class="hex">rgba(0,0,0,0.58)</div><div class="role">Metadata, secondary text</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#33433d"></div><div class="info"><div class="name">Rewards Green</div><div class="hex">#33433d</div><div class="role">Rewards-page body text</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#c82014"></div><div class="info"><div class="name">Red</div><div class="hex">#c82014</div><div class="role">Error, destructive</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#fbbc05"></div><div class="info"><div class="name">Yellow</div><div class="hex">#fbbc05</div><div class="role">Warning state</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="type">
+  <div class="container">
+    <h2 class="section-title">2. Typography Scale</h2>
+    <p class="section-desc">SoDoSans for everything with tight <code>-0.01em</code> tracking. Serif and script reserved for Rewards and Careers contexts.</p>
+
+    <div class="type-row"><div class="type-label">Display · text-10<br>50px / 600 / 1.2 / -0.16px</div><div style="font-size:50px;font-weight:600;line-height:1.2;letter-spacing:-0.016em;color:var(--green-starbucks)">Free coffee is just the beginning</div></div>
+    <div class="type-row"><div class="type-label">Jumbo · text-9<br>36px / 600 / 1.2</div><div style="font-size:36px;font-weight:600;line-height:1.2;letter-spacing:-0.016em;color:var(--green-starbucks)">Good afternoon</div></div>
+    <div class="type-row"><div class="type-label">Hero Large · text-8<br>28px / 600 / 1.2</div><div style="font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-0.016em">Your afternoon reset</div></div>
+    <div class="type-row"><div class="type-label">H1<br>24px / 600 / 36 · Starbucks Green</div><div style="font-size:24px;font-weight:600;line-height:36px;color:var(--green-starbucks)">How it works</div></div>
+    <div class="type-row"><div class="type-label">H2<br>24px / 400 / 36 · Text Black</div><div style="font-size:24px;font-weight:400;line-height:36px">Get rewarded for your routine</div></div>
+    <div class="type-row"><div class="type-label">Body Large<br>19px / 400 / 1.75</div><div style="font-size:19px;font-weight:400;line-height:33.25px">Join Starbucks Rewards to earn Stars for free food and drinks, anytime you want.</div></div>
+    <div class="type-row"><div class="type-label">Body · text-3<br>16px / 400 / 24</div><div style="font-size:16px;font-weight:400;line-height:24px">Default body copy. Comfortable reading rhythm at 16/24 with warm near-black text.</div></div>
+    <div class="type-row"><div class="type-label">Small · text-2<br>14px / 600 / 21</div><div style="font-size:14px;font-weight:600;line-height:21px">Button label weight</div></div>
+    <div class="type-row"><div class="type-label">Micro · text-1<br>13px / 400</div><div style="font-size:13px;font-weight:400;color:var(--text-black-soft)">Active float-label / caption</div></div>
+    <div class="type-row"><div class="type-label">Rewards Serif<br>Lora / Iowan Old Style</div><div style="font-family:var(--font-serif);font-size:28px;font-weight:500;line-height:1.25;color:var(--rewards-green)">Earn stars. Enjoy perks.</div></div>
+    <div class="type-row"><div class="type-label">Careers Script<br>Kalam (cup-names)</div><div style="font-family:var(--font-script);font-size:28px;font-weight:700">Sarah</div></div>
+  </div>
+</section>
+
+<section class="alt" id="buttons">
+  <div class="container">
+    <h2 class="section-title">3. Button Variants</h2>
+    <p class="section-desc">Every button is a 50px full pill with <code>scale(0.95)</code> active press. Weight contrasts primary (green filled) vs signin (outlined dark) vs conversion (black filled).</p>
+    <div class="btn-showcase">
+      <div class="btn-item"><button class="btn btn-primary">Explore our afternoon menu</button><span class="caption">Primary Filled · Green Accent</span></div>
+      <div class="btn-item"><button class="btn btn-outlined-green">Give them a try</button><span class="caption">Primary Outlined · Green Accent border</span></div>
+      <div class="btn-item"><button class="btn btn-black">Join now</button><span class="caption">Black Filled · conversion</span></div>
+      <div class="btn-item"><button class="btn btn-outlined-dark">Sign in</button><span class="caption">Dark Outlined · sign-in</span></div>
+      <div class="btn-item" style="background:var(--green-house);padding:16px;border-radius:12px;display:flex;gap:12px"><button class="btn btn-white-on-green">See the spring menu</button><button class="btn btn-outlined-white">Learn more</button></div>
+      <div class="btn-item"><button class="btn btn-agree">Agree</button><span class="caption">Consent Agree variant</span></div>
+    </div>
+
+    <h3 style="margin-top:48px;margin-bottom:16px;font-size:20px;font-weight:600">Frap — Floating Circular Order Button</h3>
+    <div class="frap-demo">
+      Hover over this card — the Frap sits bottom-right
+      <button class="frap-button" aria-label="Start an order">🛒</button>
+    </div>
+  </div>
+</section>
+
+<section id="components">
+  <div class="container">
+    <h2 class="section-title">4. Signature Components</h2>
+    <p class="section-desc">Content cards, Rewards status panels, gift-card tiles, feature bands.</p>
+
+    <h3 style="margin:24px 0 12px;font-size:20px;font-weight:600">Content Cards</h3>
+    <div class="card-grid">
+      <div class="card"><h4>How it works</h4><p>12px radius with whisper-soft dual-shadow stack. Default content surface.</p></div>
+      <div class="card"><h4>Your afternoon reset</h4><p>Same baseline card, used for feature modules on the cream canvas.</p></div>
+      <div class="card"><h4>Partnership</h4><p>Gold-tint variant inherits the same 12px radius but on <code>#faf6ee</code> background for Rewards partnership band.</p></div>
+    </div>
+
+    <h3 style="margin:40px 0 12px;font-size:20px;font-weight:600">Rewards Status Cards (3-up)</h3>
+    <div class="card-grid">
+      <div class="status-card"><h4>Green Level</h4><ul><li>★ Earn Stars on every order</li><li>★ Personalized offers</li><li>★ Birthday reward</li></ul><p class="caption">As you earn more Stars, you unlock new benefits.</p></div>
+      <div class="status-card"><h4>Gold Level</h4><ul><li>★ Free refills of hot/iced coffee</li><li>★ Monthly Double-Star days</li><li>★ Personalized rewards</li></ul><p class="caption">Reach Gold status by earning 450 Stars in 12 months.</p></div>
+      <div class="status-card"><h4>Mission</h4><ul><li>★ Exclusive gifts</li><li>★ Double Star days</li><li>★ Free drink on your birthday</li></ul><p class="caption">Extra perks once you reach mission status.</p></div>
+    </div>
+
+    <h3 style="margin:40px 0 12px;font-size:20px;font-weight:600">Gift Card Tiles (photographed as physical product)</h3>
+    <div class="gift-grid">
+      <div class="gift-tile" style="background:linear-gradient(135deg,#f4c590,#e89a5e)">Happy Birthday</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#cba258,#a87b3e)">Thank You</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#006241,#00754A)">Celebrate</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#c4a679,#8b6e4a)">Mother's Day</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#d4e9e2,#80b5a2);color:var(--green-house)">Spring</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#edebe9,#c2bfb9);color:var(--green-house)">Anytime</div>
+    </div>
+  </div>
+</section>
+
+<section class="house">
+  <div class="container">
+    <h2 class="section-title">5. Feature Band (House Green)</h2>
+    <p class="section-desc">Full-width dark-green zones for feature moments. White headline + translucent-white secondary + two-button CTA row.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:32px">
+      <div>
+        <h3 style="font-size:36px;font-weight:600;line-height:1.2;letter-spacing:-0.016em;margin-bottom:16px;color:var(--white)">Spring starts now</h3>
+        <p style="font-size:19px;color:rgba(255,255,255,0.85);margin-bottom:24px;line-height:1.6">Iced Lavender Cream Matcha and Iced Lavender Cream Oatmilk Matcha, now available.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-white-on-green">See the spring menu</button>
+          <button class="btn btn-outlined-white">Order now</button>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:60px;text-align:center;color:rgba(255,255,255,0.6)">Product photography</div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">6. Form Elements</h2>
+    <p class="section-desc">Floating labels animate size + position on focus. Valid-field gets mint tint, invalid gets pale red tint.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:800px">
+      <div>
+        <div class="form-field"><label>Email</label><input type="email" class="valid" value="sarah@example.com"></div>
+        <div class="form-field"><label>Password</label><input type="password" value="••••••••"></div>
+        <div class="form-field"><label>Confirm Password</label><input type="password" class="invalid" value="mismatch"></div>
+      </div>
+      <div>
+        <div class="form-field"><label>Message</label><textarea placeholder="Your feedback..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%">Submit</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">7. Spacing Scale</h2>
+    <p class="section-desc">Rem-based (<code>1rem = 10px</code>). <code>--space-3</code> (16px) is the universal rhythm constant.</p>
+    <div class="spacing-row">
+      <div class="spacing-item"><span class="spacing-label">space-1 · 0.4rem · 4px</span><div class="spacing-bar" style="width:4px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-2 · 0.8rem · 8px</span><div class="spacing-bar" style="width:8px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-3 · 1.6rem · 16px ★</span><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-4 · 2.4rem · 24px</span><div class="spacing-bar" style="width:24px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-5 · 3.2rem · 32px</span><div class="spacing-bar" style="width:32px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-6 · 4rem · 40px</span><div class="spacing-bar" style="width:40px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-7 · 4.8rem · 48px</span><div class="spacing-bar" style="width:48px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-8 · 5.6rem · 56px</span><div class="spacing-bar" style="width:56px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-9 · 6.4rem · 64px</span><div class="spacing-bar" style="width:64px"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">8. Border Radius &amp; Depth</h2>
+    <p class="section-desc">12px cards + 50px pills dominate. Shadows are layered low-alpha stacks, never heavy drop shadows.</p>
+    <div class="radius-row">
+      <div class="radius-item"><div class="radius-box" style="border-radius:12px"></div><div class="radius-label">12px · cards</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:12px 12px 0 0"></div><div class="radius-label">12px top · feedback tab</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:50px;height:48px"></div><div class="radius-label">50px · pills</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:50%;width:80px;height:80px"></div><div class="radius-label">50% · Frap, icons</div></div>
+    </div>
+
+    <h3 style="margin-top:32px;margin-bottom:16px;font-size:20px;font-weight:600">Elevation Tiers</h3>
+    <div class="elevation-row">
+      <div class="elevation-card" style="box-shadow:0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)"><strong>Card</strong><div style="font-size:12px;color:var(--text-black-soft);margin-top:8px">2-layer whisper shadow</div></div>
+      <div class="elevation-card" style="box-shadow:0 1px 3px rgba(0,0,0,0.1), 0 2px 2px rgba(0,0,0,0.06), 0 0 2px rgba(0,0,0,0.07)"><strong>Global Nav</strong><div style="font-size:12px;color:var(--text-black-soft);margin-top:8px">3-layer soft lift</div></div>
+      <div class="elevation-card" style="box-shadow:0 0 6px rgba(0,0,0,0.24), 0 8px 12px rgba(0,0,0,0.14)"><strong>Frap</strong><div style="font-size:12px;color:var(--text-black-soft);margin-top:8px">Base + ambient stack</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">9. Responsive Behavior</h2>
+    <p class="section-desc">Progressive nav heights (64 → 72 → 83 → 99px). Gift grid scales 2-up → 5-up.</p>
+    <table class="breakpoint-table">
+      <thead><tr><th>Name</th><th>Width</th><th>Key Changes</th></tr></thead>
+      <tbody>
+        <tr><td>xs</td><td>&lt; 480px</td><td>Nav 64px · hamburger · single-column · gift grid 2-up</td></tr>
+        <tr><td>Mobile</td><td>480–767px</td><td>Nav 72px · 2-up gift · tightened padding</td></tr>
+        <tr><td>Tablet</td><td>768–1023px</td><td>Nav 83px · 3-up gift · hero split appears</td></tr>
+        <tr><td>Desktop</td><td>1024–1439px</td><td>Nav 99px · 4-up gift · full 40/60 hero</td></tr>
+        <tr><td>XLarge</td><td>1440px+</td><td>Content caps 1440px · 5-up gift · wide cream margins</td></tr>
+      </tbody>
+    </table>
+
+    <div class="viewport-ladder">
+      <div class="viewport-box" style="width:60px;height:80px"><div class="w">480</div><div class="label">xs</div></div>
+      <div class="viewport-box" style="width:96px;height:110px"><div class="w">768</div><div class="label">mobile/tablet</div></div>
+      <div class="viewport-box" style="width:140px;height:140px"><div class="w">1024</div><div class="label">desktop</div></div>
+      <div class="viewport-box" style="width:220px;height:175px"><div class="w">1440</div><div class="label">xlarge cap</div></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px;font-size:20px;font-weight:600">Touch Targets</h3>
+    <p style="font-size:14px;color:var(--text-black-soft);margin-bottom:24px">Pill buttons at `7px 16px` padding are ~32px tall — typically expanded visually on mobile to meet 44px WCAG AAA. Frap at 56px clears the minimum with an extra <code>-0.8rem</code> tap offset.</p>
+
+    <h3 style="margin-bottom:12px;font-size:20px;font-weight:600">Collapsing Strategy</h3>
+    <ul style="padding-left:20px;font-size:14px;color:var(--text-black-soft);line-height:24px">
+      <li><strong style="color:var(--text-black)">Global nav:</strong> 64 → 72 → 83 → 99px across breakpoints; hamburger menu below tablet</li>
+      <li><strong style="color:var(--text-black)">Hero split:</strong> 40/60 asymmetric → stacked on mobile</li>
+      <li><strong style="color:var(--text-black)">Gift-card grid:</strong> 5 → 4 → 3 → 2 → 1 columns</li>
+      <li><strong style="color:var(--text-black)">Outer gutter:</strong> 16 → 24 → 40px</li>
+      <li><strong style="color:var(--text-black)">Rewards status panels:</strong> 3-up → single column on mobile</li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">10. Agent Prompt Guide — Quick Color Reference</h2>
+    <p class="section-desc">Copy-paste names for AI agents generating Starbucks-style UI.</p>
+    <div class="chip-grid">
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#00754A"></div><div class="chip-meta"><div class="chip-role">Primary CTA</div><div class="chip-name">Green Accent</div><div class="chip-hex">#00754A</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#006241"></div><div class="chip-meta"><div class="chip-role">Brand Heading</div><div class="chip-name">Starbucks Green</div><div class="chip-hex">#006241</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#1E3932"></div><div class="chip-meta"><div class="chip-role">Feature Band / Footer</div><div class="chip-name">House Green</div><div class="chip-hex">#1E3932</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#f2f0eb;border:1px solid #edebe9"></div><div class="chip-meta"><div class="chip-role">Page Canvas</div><div class="chip-name">Neutral Warm</div><div class="chip-hex">#f2f0eb</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#edebe9"></div><div class="chip-meta"><div class="chip-role">Zone Wash</div><div class="chip-name">Ceramic</div><div class="chip-hex">#edebe9</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#ffffff;border:1px solid #edebe9"></div><div class="chip-meta"><div class="chip-role">Card</div><div class="chip-name">White</div><div class="chip-hex">#ffffff</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:rgba(0,0,0,0.87)"></div><div class="chip-meta"><div class="chip-role">Body + Heading</div><div class="chip-name">Text Black</div><div class="chip-hex">rgba(0,0,0,0.87)</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:rgba(0,0,0,0.58)"></div><div class="chip-meta"><div class="chip-role">Secondary Text</div><div class="chip-name">Text Black Soft</div><div class="chip-hex">rgba(0,0,0,0.58)</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#cba258"></div><div class="chip-meta"><div class="chip-role">Rewards Status</div><div class="chip-name">Gold</div><div class="chip-hex">#cba258</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#33433d"></div><div class="chip-meta"><div class="chip-role">Rewards Body Text</div><div class="chip-name">Rewards Green</div><div class="chip-hex">#33433d</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#c82014"></div><div class="chip-meta"><div class="chip-role">Destructive</div><div class="chip-name">Red</div><div class="chip-hex">#c82014</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#000000"></div><div class="chip-meta"><div class="chip-role">Conversion CTA</div><div class="chip-name">Black</div><div class="chip-hex">#000000</div></div></div>
+    </div>
+    <div style="margin-top:24px;padding:16px;background:var(--white);box-shadow:var(--card-shadow);border-radius:12px;font-size:14px;color:var(--text-black-soft);line-height:22px">
+      <strong style="color:var(--text-black)">Note.</strong> Use Green Accent for most filled CTAs. Reserve Black for strong conversion moments only ("Join now"). Gold is Rewards-only — don't spend it elsewhere. Keep SoDoSans (or substitute Inter) at <code>-0.01em</code> tracking throughout.
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>

@@ -10,6 +10,7 @@
 - 📊 **流式响应**: 支持 SSE 流式响应（可配置）
 - 🔢 **Token 计数**: 支持自定义 tokenizer 进行准确的 token 计数
 - 📝 **事件日志**: 支持批量事件日志记录
+- 🔐 **双层认证**: 平台主身份 + 本地注册登录次身份
 - 🐳 **Docker 优化**: 使用国内镜像源加速构建，支持宿主机网络模式
 - ⚡ **高性能**: 支持多 worker 部署和健康检查
 
@@ -152,6 +153,14 @@ uvicorn main:app --reload --host 0.0.0.0 --port 4000
 | `REQUEST_TIMEOUT` | `90` | 请求超时时间(秒) |
 | `MAX_RETRIES` | `1` | 最大重试次数 |
 | `WORKERS` | `4` | 工作进程数 |
+| `AUTH_DB_PATH` | `data/auth.db` | 本地认证 SQLite 文件路径 |
+| `AUTH_SESSION_TTL_SECONDS` | `2592000` | 本地登录会话有效期（秒） |
+| `PLATFORM_AUTH_ENABLED` | `true` | 是否启用平台身份识别 |
+| `PLATFORM_AUTH_PRECEDENCE` | `true` | 平台身份是否优先于本地身份 |
+| `PLATFORM_IDENTITY_TOKEN_ENV` | `PLATFORM_USER_TOKEN` | 平台 token 所在环境变量名 |
+| `PLATFORM_IDENTITY_USER_ID_ENV` | `PLATFORM_USER_ID` | 平台用户 ID 环境变量名 |
+| `PLATFORM_IDENTITY_NAME_ENV` | `PLATFORM_USER_NAME` | 平台用户名环境变量名 |
+| `PLATFORM_IDENTITY_EMAIL_ENV` | `PLATFORM_USER_EMAIL` | 平台邮箱环境变量名 |
 ### 多模型路由示例
 
 当你希望前端传不同的 `model`，后端自动切到不同模型地址时，可以配置编号式 key-value 形式：
@@ -202,6 +211,18 @@ POST /v1/messages/count_tokens
 POST /api/event_logging/batch
 ```
 批量记录事件日志，支持 Claude 事件日志格式。
+
+### 认证接口（新增）
+```http
+GET  /auth/me
+POST /auth/register
+POST /auth/login
+POST /auth/logout
+```
+
+- 平台身份（环境变量注入）会自动创建影子账户（provider=platform）。
+- 本地账号通过 `register/login` 管理，返回 `session_token`（Bearer）。
+- 当 `PLATFORM_AUTH_PRECEDENCE=true` 且平台身份可用时，`/auth/me` 以平台身份为有效身份返回。
 
 ### 健康检查
 ```http

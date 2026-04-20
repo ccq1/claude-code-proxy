@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of The Verge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #ffffff;
+    --canvas-inverted: #131313;
+    --surface-slate: #f2f2f2;
+    --surface-slate-2: #e6e6e6;
+    --image-frame: #d4d4d4;
+    --hazard-white: #ffffff;
+    --absolute-black: #000000;
+
+    --jelly-mint: #3cffd0;
+    --verge-ultraviolet: #5200ff;
+    --console-mint-border: #309875;
+    --deep-link-blue: #3860be;
+    --focus-cyan: #1eaedb;
+    --purple-rule: #3d00bf;
+    --dim-gray: #8c8c8c;
+
+    --primary-text: #131313;
+    --secondary-text: #6a6a6a;
+    --muted-text: #8c8c8c;
+    --inverted-text: #ffffff;
+
+    --font-display: 'Anton', Impact, Helvetica, sans-serif;
+    --font-sans: 'Space Grotesk', Helvetica, Arial, sans-serif;
+    --font-mono: 'Space Mono', 'Courier New', Courier, monospace;
+    --font-serif: 'Newsreader', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    background: var(--canvas);
+    color: var(--primary-text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.60;
+  }
+  a { color: inherit; text-decoration: none; transition: color 150ms ease; }
+  a:hover { color: var(--deep-link-blue); }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    padding: 14px 32px;
+    background: var(--canvas);
+    border-bottom: 1px solid rgba(19, 19, 19, 0.1);
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 400;
+    color: var(--primary-text);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .nav-links {
+    display: flex; gap: 26px; list-style: none; align-items: center;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-text);
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+  }
+  .nav-cta {
+    display: inline-block;
+    background: var(--jelly-mint);
+    color: var(--absolute-black);
+    padding: 10px 22px;
+    border: none;
+    border-radius: 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease;
+  }
+  .nav-cta:hover { background: rgba(60, 255, 208, 0.3); box-shadow: 0 0 0 1px var(--console-mint-border); }
+
+  /* HERO */
+  .hero {
+    padding: 72px 48px 64px;
+    background: var(--canvas);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-kicker {
+    font-family: var(--font-sans);
+    font-size: 19px;
+    font-weight: 300;
+    line-height: 1.20;
+    letter-spacing: 1.9px;
+    color: var(--primary-text);
+    text-transform: capitalize;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: 104px;
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: var(--primary-text);
+    margin-bottom: 28px;
+    text-transform: uppercase;
+    max-width: 1200px;
+  }
+  .hero p {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.60;
+    color: var(--secondary-text);
+    max-width: 620px;
+    margin-bottom: 36px;
+  }
+  .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-block;
+    background: var(--jelly-mint);
+    color: var(--absolute-black);
+    padding: 12px 28px;
+    border: none;
+    border-radius: 24px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease;
+  }
+  .btn-primary:hover {
+    background: rgba(60, 255, 208, 0.3);
+    box-shadow: 0 0 0 1px var(--console-mint-border);
+    color: var(--absolute-black);
+  }
+  .btn-secondary {
+    display: inline-block;
+    background: var(--primary-text);
+    color: var(--hazard-white);
+    padding: 12px 28px;
+    border: none;
+    border-radius: 24px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease;
+  }
+  .btn-secondary:hover {
+    background: rgba(19, 19, 19, 0.2);
+    color: var(--primary-text);
+    box-shadow: 0 0 0 1px var(--dim-gray);
+  }
+  .btn-outline-mint {
+    display: inline-block;
+    background: transparent;
+    color: var(--console-mint-border);
+    padding: 12px 24px;
+    border: 1px solid var(--console-mint-border);
+    border-radius: 40px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .btn-outline-mint:hover { background: var(--jelly-mint); color: var(--absolute-black); border-color: var(--jelly-mint); }
+  .btn-outline-uv {
+    display: inline-block;
+    background: transparent;
+    color: var(--verge-ultraviolet);
+    padding: 12px 24px;
+    border: 1px solid var(--verge-ultraviolet);
+    border-radius: 30px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .btn-outline-uv:hover { background: var(--verge-ultraviolet); color: var(--hazard-white); }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--primary-text);
+    color: var(--hazard-white);
+    border: 1px solid var(--primary-text);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .btn-icon:hover { background: var(--jelly-mint); color: var(--absolute-black); border-color: var(--jelly-mint); }
+  .btn-tag {
+    display: inline-block;
+    background: var(--jelly-mint);
+    color: var(--absolute-black);
+    padding: 6px 14px;
+    border: none;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+
+  /* SECTION FRAME */
+  section.preview-section {
+    padding: 72px 48px;
+    background: var(--canvas);
+    border-top: 1px solid rgba(19, 19, 19, 0.1);
+  }
+  .section-ribbon {
+    display: inline-block;
+    background: var(--primary-text);
+    color: var(--jelly-mint);
+    padding: 10px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 0.85;
+    letter-spacing: 0.5px;
+    color: var(--primary-text);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-subtitle {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1.40;
+    letter-spacing: 1.8px;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    max-width: 760px;
+  }
+
+  /* COLOR PALETTE */
+  .color-group { margin-bottom: 36px; }
+  .color-group-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: var(--primary-text);
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(19, 19, 19, 0.15);
+  }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .color-swatch {
+    background: var(--surface-slate);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(19, 19, 19, 0.08);
+  }
+  .color-block {
+    height: 140px;
+    border-bottom: 1px solid rgba(19, 19, 19, 0.05);
+  }
+  .color-meta { padding: 20px 22px 22px; }
+  .color-name {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--primary-text);
+    margin-bottom: 8px;
+  }
+  .color-hex {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted-text);
+    margin-bottom: 10px;
+  }
+  .color-role {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.50;
+    color: var(--secondary-text);
+  }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid rgba(19, 19, 19, 0.08);
+    align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted-text);
+    line-height: 1.7;
+  }
+  .type-meta strong {
+    display: block;
+    color: var(--primary-text);
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .type-sample { color: var(--primary-text); }
+
+  /* BUTTONS GRID */
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .button-cell {
+    padding: 40px 32px;
+    border: 1px solid rgba(19, 19, 19, 0.08);
+    border-radius: 24px;
+    background: var(--canvas);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .button-cell .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted-text);
+  }
+
+  /* STORYSTREAM TILES */
+  .storystream-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+  .story-tile {
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid rgba(19, 19, 19, 0.12);
+    background: var(--canvas);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 180ms ease;
+  }
+  .story-tile.mint { background: var(--jelly-mint); color: var(--absolute-black); border-color: var(--console-mint-border); }
+  .story-tile.uv { background: var(--verge-ultraviolet); color: var(--hazard-white); border-color: var(--verge-ultraviolet); }
+  .story-tile.dark { background: var(--primary-text); color: var(--hazard-white); border-color: var(--primary-text); }
+  .story-tile.yellow { background: #f5ff3c; color: var(--absolute-black); border-color: #c2cc30; }
+  .story-kicker {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: inherit;
+    display: block;
+  }
+  .story-headline {
+    font-family: var(--font-sans);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.3px;
+    color: inherit;
+  }
+  .story-tile.compact .story-headline { font-size: 24px; }
+  .story-deck {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.50;
+    color: inherit;
+    opacity: 0.8;
+  }
+  .story-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  /* TIMELINE */
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-left: 1px dashed var(--purple-rule);
+    padding-left: 32px;
+    margin-left: 8px;
+  }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .timeline-time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--muted-text);
+    padding-top: 4px;
+  }
+  .timeline-body {
+    padding: 20px 24px;
+    border-radius: 20px;
+    background: var(--surface-slate);
+    border: 1px solid rgba(19, 19, 19, 0.08);
+  }
+  .timeline-body.highlight {
+    background: var(--jelly-mint);
+    border-color: var(--console-mint-border);
+  }
+  .timeline-body .story-kicker { margin-bottom: 6px; color: var(--primary-text); }
+  .timeline-body.highlight .story-kicker { color: var(--absolute-black); }
+  .timeline-body h4 {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--primary-text);
+  }
+  .timeline-body.highlight h4 { color: var(--absolute-black); }
+
+  /* FORMS */
+  .form-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    max-width: 880px;
+  }
+  .form-field { display: flex; flex-direction: column; gap: 10px; }
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--primary-text);
+  }
+  .form-input {
+    background: var(--surface-slate);
+    border: 1px solid rgba(19, 19, 19, 0.15);
+    border-radius: 2px;
+    padding: 14px 16px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--primary-text);
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+  .form-input::placeholder { color: var(--muted-text); }
+  .form-input.focus { border-color: var(--jelly-mint); box-shadow: inset 0 0 0 1px var(--verge-ultraviolet); }
+  .form-input.error { border-color: var(--verge-ultraviolet); color: var(--verge-ultraviolet); }
+  .form-error {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--verge-ultraviolet);
+  }
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* SPACING */
+  .spacing-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .spacing-item { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .spacing-block {
+    background: var(--primary-text);
+    height: 72px;
+    border-radius: 2px;
+  }
+  .spacing-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary-text);
+  }
+
+  /* RADIUS */
+  .radius-row {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .radius-item { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .radius-block {
+    width: 110px;
+    height: 110px;
+    background: var(--primary-text);
+    border: 1px solid var(--jelly-mint);
+  }
+  .radius-block.r2 { border-radius: 2px; }
+  .radius-block.r3 { border-radius: 3px; }
+  .radius-block.r4 { border-radius: 4px; }
+  .radius-block.r20 { border-radius: 20px; }
+  .radius-block.r24 { border-radius: 24px; }
+  .radius-block.r30 { border-radius: 30px; }
+  .radius-block.r40 { border-radius: 40px; width: 150px; height: 50px; }
+  .radius-block.r50 { border-radius: 50%; }
+  .radius-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    color: var(--primary-text);
+    text-align: center;
+  }
+  .radius-label small { display: block; color: var(--muted-text); margin-top: 4px; font-weight: 400; font-size: 9px; }
+
+  /* ELEVATION */
+  .elevation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .elevation-cell {
+    padding: 40px 24px;
+    border-radius: 24px;
+    background: var(--canvas);
+    text-align: center;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid rgba(19, 19, 19, 0.08);
+  }
+  .elevation-cell.lvl-2 { border: 1px solid var(--image-frame); }
+  .elevation-cell.lvl-3 { border: 1px solid var(--console-mint-border); }
+  .elevation-cell.lvl-4 { border: 1px solid var(--verge-ultraviolet); }
+  .elevation-cell.lvl-5 { box-shadow: 0 0 0 1px rgba(19, 19, 19, 0.33); }
+  .elevation-cell.lvl-6 { background: var(--surface-slate); box-shadow: inset 0 -2px 0 0 var(--jelly-mint); }
+  .elevation-cell.lvl-7 { background: var(--jelly-mint); border-color: var(--console-mint-border); color: var(--absolute-black); }
+  .elevation-cell .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: inherit;
+  }
+  .elevation-cell .desc {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: inherit;
+    opacity: 0.8;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--primary-text);
+    color: var(--hazard-white);
+    padding: 40px 48px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+  }
+  .footer a { color: var(--jelly-mint); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { padding: 56px 24px 48px; }
+    .hero h1 { font-size: 64px; letter-spacing: 0.5px; }
+    .section-title { font-size: 48px; }
+    section.preview-section { padding: 56px 24px; }
+    .storystream-grid { grid-template-columns: 1fr; }
+    .form-stack { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 16px; }
+    .nav { padding: 12px 20px; }
+    .nav-links { display: none; }
+    .timeline-item { grid-template-columns: 1fr; }
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 20px; }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .nav > .nav-left { justify-self: start; }
+  .nav > .nav-links { justify-self: center; }
+  .nav > :last-child { justify-self: end; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#palette">Palette</a></li>
+    <li><a href="#typography">Type</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#layout">Layout</a></li>
+  </ul>
+
+  <button class="nav-cta">Subscribe</button>
+</nav>
+
+<section class="hero">
+  <span class="hero-kicker">Design System / Editorial Hazard</span>
+  <h1>Design System Inspiration of The Verge</h1>
+  <p>Hazard-tape editorial. Massive Manuka headlines, acid-mint + ultraviolet accents, and a StoryStream timeline that feels like a git log for the news. Generated from DESIGN.md.</p>
+  <div class="hero-buttons">
+    <button class="btn-primary">Explore The System</button>
+    <button class="btn-secondary">Read The Stream</button>
+  </div>
+</section>
+
+<!-- 1. PALETTE -->
+<section class="preview-section" id="palette">
+  <span class="section-ribbon">Section 01 / Palette</span>
+  <h2 class="section-title">Color Palette</h2>
+  <p class="section-subtitle">Canvas black, jelly mint, verge ultraviolet — hazard colors on a near-black surface.</p>
+
+  <div class="color-group">
+    <div class="color-group-label">Primary — Brand Hazards</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #3cffd0;"></div>
+        <div class="color-meta">
+          <div class="color-name">Jelly Mint</div>
+          <div class="color-hex">#3CFFD0</div>
+          <div class="color-role">The signature acid-mint accent. CTA fills, active borders, hazard spotlights.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #5200ff;"></div>
+        <div class="color-meta">
+          <div class="color-name">Verge Ultraviolet</div>
+          <div class="color-hex">#5200FF</div>
+          <div class="color-role">The complementary hazard. Secondary tiles, outlined buttons, alert borders.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Secondary & Accent</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #309875;"></div>
+        <div class="color-meta">
+          <div class="color-name">Console Mint Border</div>
+          <div class="color-hex">#309875</div>
+          <div class="color-role">Darker mint for card outlines and button borders.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #3860be;"></div>
+        <div class="color-meta">
+          <div class="color-name">Deep Link Blue</div>
+          <div class="color-hex">#3860BE</div>
+          <div class="color-role">The one moment blue appears — every link's hover state.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #1eaedb;"></div>
+        <div class="color-meta">
+          <div class="color-name">Focus Cyan</div>
+          <div class="color-hex">#1EAEDB</div>
+          <div class="color-role">Reserved for button focus rings. Keyboard-only visibility.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #3d00bf;"></div>
+        <div class="color-meta">
+          <div class="color-name">Purple Rule</div>
+          <div class="color-hex">#3D00BF</div>
+          <div class="color-role">Darker ultraviolet for StoryStream timeline rails.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Surface & Background</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #131313;"></div>
+        <div class="color-meta">
+          <div class="color-name">Canvas Black</div>
+          <div class="color-hex">#131313</div>
+          <div class="color-role">The default dark surface for the entire homepage. Newsprint-negative warmth.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #2d2d2d;"></div>
+        <div class="color-meta">
+          <div class="color-name">Surface Slate</div>
+          <div class="color-hex">#2D2D2D</div>
+          <div class="color-role">Secondary card background when a tile stays quiet.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #313131;"></div>
+        <div class="color-meta">
+          <div class="color-name">Image Frame</div>
+          <div class="color-hex">#313131</div>
+          <div class="color-role">1px border around inline photography.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.1);"></div>
+        <div class="color-meta">
+          <div class="color-name">Hazard White</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-role">Tile fill, primary text, and the loudest "spotlight" surface.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-group">
+    <div class="color-group-label">Neutrals & Text</div>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-block" style="background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.1);"></div>
+        <div class="color-meta">
+          <div class="color-name">Primary Text</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-role">Headlines and display text on the canvas.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #949494;"></div>
+        <div class="color-meta">
+          <div class="color-name">Secondary Text</div>
+          <div class="color-hex">#949494</div>
+          <div class="color-role">Bylines, timestamps, photo credits.</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-block" style="background: #e9e9e9;"></div>
+        <div class="color-meta">
+          <div class="color-name">Muted Text</div>
+          <div class="color-hex">#E9E9E9</div>
+          <div class="color-role">Button text on dark slate — slightly off-white to reduce glare.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. TYPOGRAPHY -->
+<section class="preview-section" id="typography">
+  <span class="section-ribbon">Section 02 / Typography</span>
+  <h2 class="section-title">Typographic Hierarchy</h2>
+  <p class="section-subtitle">Manuka shouts, PolySans works, PolySans Mono labels, FK Roman whispers.</p>
+
+  <div class="type-row">
+    <div class="type-meta"><strong>Hero Wordmark</strong>Manuka · 107px / 900 / 0.80 / 1.07px</div>
+    <div class="type-sample" style="font-family: var(--font-display); font-size: 107px; font-weight: 400; line-height: 0.80; letter-spacing: 1px; text-transform: uppercase;">The Verge</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Display Secondary</strong>Manuka · 60px / 900 / 0.80</div>
+    <div class="type-sample" style="font-family: var(--font-display); font-size: 60px; font-weight: 400; line-height: 0.80; text-transform: uppercase;">Feature Callout Headline</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Large Headline</strong>PolySans · 34px / 700 / 1.00</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 34px; font-weight: 700; line-height: 1.00;">Section and module headlines</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Heading Wide</strong>PolySans · 32px / 400 / 1.10 / 0.32px</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 32px; font-weight: 400; line-height: 1.10; letter-spacing: 0.32px;">Sub-heroes and promotional units</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Heading Medium</strong>PolySans · 24px / 700 / 1.00</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 24px; font-weight: 700; line-height: 1.00;">Story tile headlines in the main feed</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Fashion Whisper</strong>PolySans · 19px / 300 / 1.20 / 1.9px / CAPITALIZE</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 19px; font-weight: 300; line-height: 1.20; letter-spacing: 1.9px; text-transform: capitalize;">The Thin Weight Kicker Above The Shout</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>All-Caps XL</strong>PolySans · 18px / 400 / 1.10 / 1.8px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 18px; font-weight: 400; line-height: 1.10; letter-spacing: 1.8px; text-transform: uppercase;">Section Kicker Label</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Body Relaxed</strong>PolySans · 16px / 500 / 1.60</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 16px; font-weight: 500; line-height: 1.60;">Long-form reading body. The default rhythm for article decks and extended captions — relaxed leading to carry the density of a dark canvas.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Eyebrow All-Caps</strong>PolySans · 12px / 400 / 1.30 / 1.8px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-sans); font-size: 12px; font-weight: 400; line-height: 1.30; letter-spacing: 1.8px; text-transform: uppercase;">Policy · Transportation · Apple</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Mono Timestamp</strong>PolySans Mono · 11px / 500 / 1.20 / 1.1px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; line-height: 1.20; letter-spacing: 1.1px; text-transform: uppercase;">21m ago · 3h ago · Yesterday</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Mono Button</strong>PolySans Mono · 12px / 600 / 2.00 / 1.5px / UPPER</div>
+    <div class="type-sample" style="font-family: var(--font-mono); font-size: 12px; font-weight: 700; line-height: 2.00; letter-spacing: 1.5px; text-transform: uppercase; background: var(--jelly-mint); color: var(--absolute-black); padding: 10px 22px; display: inline-block; border-radius: 24px;">Subscribe Now</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta"><strong>Serif Body</strong>FK Roman Standard · 16px / 400 / 1.30 / -0.16px</div>
+    <div class="type-sample" style="font-family: var(--font-serif); font-size: 16px; font-weight: 400; line-height: 1.30; letter-spacing: -0.16px;">The rare serif moment — used for review decks and critic pulls, a print-voice counterpoint to the PolySans workhorse.</div>
+  </div>
+</section>
+
+<!-- 3. BUTTONS -->
+<section class="preview-section" id="components">
+  <span class="section-ribbon">Section 03 / Buttons</span>
+  <h2 class="section-title">Button Variants</h2>
+  <p class="section-subtitle">Pills only. 24–40px radius, hazard-color fills, mono UPPERCASE labels.</p>
+  <div class="button-grid">
+    <div class="button-cell">
+      <span class="label">Primary — Jelly Mint Pill</span>
+      <div><button class="btn-primary">Subscribe</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Secondary — Dark Pill</span>
+      <div><button class="btn-secondary">Sign In</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Outlined — Mint 40px</span>
+      <div><button class="btn-outline-mint">Join Stream</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Outlined — Ultraviolet 30px</span>
+      <div><button class="btn-outline-uv">Read Review</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Icon — Round 50%</span>
+      <div><button class="btn-icon">Q</button></div>
+    </div>
+    <div class="button-cell">
+      <span class="label">Pill Tag — Non-interactive</span>
+      <div><span class="btn-tag">Breaking</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. STORYSTREAM TILES -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 04 / Story Tiles</span>
+  <h2 class="section-title">Hazard-Color Tiles</h2>
+  <p class="section-subtitle">Saturated accent blocks with rounded 20–24px corners. Color is elevation.</p>
+  <div class="storystream-grid">
+    <div class="story-tile mint">
+      <span class="story-kicker">Policy · Feature</span>
+      <h3 class="story-headline">The Next Browser War Is Already Over And Nobody Noticed</h3>
+      <p class="story-deck">A long-form deck on why the market moved from standards to distribution while the press was still benchmarking rendering engines.</p>
+      <span class="story-meta">12 min read · 2h ago</span>
+    </div>
+    <div class="story-tile uv compact">
+      <span class="story-kicker">Hardware</span>
+      <h3 class="story-headline">A Mechanical Keyboard Reviewed At Rave Volume</h3>
+      <span class="story-meta">5h ago</span>
+    </div>
+  </div>
+  <div style="height: 24px;"></div>
+  <div class="storystream-grid">
+    <div class="story-tile yellow compact">
+      <span class="story-kicker">Gaming</span>
+      <h3 class="story-headline">The Indie That Ate The Big Studios Alive</h3>
+      <span class="story-meta">Yesterday</span>
+    </div>
+    <div class="story-tile dark compact">
+      <span class="story-kicker">Science</span>
+      <h3 class="story-headline">Inside The Lab Running A Synthetic Atmosphere</h3>
+      <span class="story-meta">2 days ago</span>
+    </div>
+  </div>
+</section>
+
+<!-- 5. STORYSTREAM TIMELINE -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 05 / StoryStream</span>
+  <h2 class="section-title">Timeline Rail</h2>
+  <p class="section-subtitle">Every post is a pill-cornered tile, pinned to a dashed rail by a mono uppercase timestamp.</p>
+  <div class="timeline-list">
+    <div class="timeline-item">
+      <div class="timeline-time">21m ago</div>
+      <div class="timeline-body highlight">
+        <span class="story-kicker">Breaking</span>
+        <h4>A regulator has opened an investigation into the platform merger</h4>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">1h ago</div>
+      <div class="timeline-body">
+        <span class="story-kicker">Apple</span>
+        <h4>The iOS update everyone is quietly rolling back</h4>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">3h ago</div>
+      <div class="timeline-body">
+        <span class="story-kicker">Transportation</span>
+        <h4>The EV startup that outlasted its own hype cycle</h4>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">Yesterday</div>
+      <div class="timeline-body">
+        <span class="story-kicker">Gaming</span>
+        <h4>A handheld that actually earns the price tag</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. FORMS -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 06 / Forms</span>
+  <h2 class="section-title">Inputs & Newsletter</h2>
+  <p class="section-subtitle">Tight 2px radius, mint focus border, ultraviolet error border — newspaper-form minimalism.</p>
+  <div class="form-stack">
+    <div class="form-field">
+      <label class="form-label">Email — Default</label>
+      <input class="form-input" type="email" placeholder="reader@example.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email — Focus</label>
+      <input class="form-input focus" type="email" placeholder="reader@example.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Email — Error</label>
+      <input class="form-input error" type="email" value="not-an-email">
+      <span class="form-error">Please enter a valid address</span>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Comment — Textarea</label>
+      <textarea class="form-input form-textarea" placeholder="Share your thoughts on the story..."></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- 7. SPACING -->
+<section class="preview-section" id="layout">
+  <span class="section-ribbon">Section 07 / Spacing</span>
+  <h2 class="section-title">Spacing Scale (8px System)</h2>
+  <p class="section-subtitle">Fine micro-scale (2/4/5/6/9/10) for pills, editorial scale (12/16/20/24) for the grid.</p>
+  <div class="spacing-row">
+    <div class="spacing-item"><div class="spacing-block" style="width: 2px;"></div><span class="spacing-label">2px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 4px;"></div><span class="spacing-label">4px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 6px;"></div><span class="spacing-label">6px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 8px;"></div><span class="spacing-label">8px · base</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 10px;"></div><span class="spacing-label">10px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 12px;"></div><span class="spacing-label">12px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 16px;"></div><span class="spacing-label">16px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 20px;"></div><span class="spacing-label">20px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 24px;"></div><span class="spacing-label">24px</span></div>
+    <div class="spacing-item"><div class="spacing-block" style="width: 25px;"></div><span class="spacing-label">25px</span></div>
+  </div>
+</section>
+
+<!-- 8. RADIUS -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 08 / Radius</span>
+  <h2 class="section-title">Border Radius Scale</h2>
+  <p class="section-subtitle">Eight radii — from 2px typewriter tags to 40px outlined shout-pills.</p>
+  <div class="radius-row">
+    <div class="radius-item">
+      <div class="radius-block r2"></div>
+      <span class="radius-label">2px<small>Inputs, badges</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r3"></div>
+      <span class="radius-label">3px<small>Inline images</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r4"></div>
+      <span class="radius-label">4px<small>Nested imagery</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r20"></div>
+      <span class="radius-label">20px<small>Story tiles</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r24"></div>
+      <span class="radius-label">24px<small>Feature cards, primary button</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r30"></div>
+      <span class="radius-label">30px<small>Promo buttons</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r40"></div>
+      <span class="radius-label">40px<small>Outlined pill CTAs</small></span>
+    </div>
+    <div class="radius-item">
+      <div class="radius-block r50"></div>
+      <span class="radius-label">50%<small>Avatars, icon buttons</small></span>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ELEVATION -->
+<section class="preview-section">
+  <span class="section-ribbon">Section 09 / Elevation</span>
+  <h2 class="section-title">Depth & Elevation</h2>
+  <p class="section-subtitle">Color is elevation. 1px hazard borders do the work shadows would do elsewhere.</p>
+  <div class="elevation-grid">
+    <div class="elevation-cell lvl-0">
+      <span class="label">Level 0</span>
+      <div class="desc">Plain canvas text — no border, no shadow</div>
+    </div>
+    <div class="elevation-cell lvl-2">
+      <span class="label">Level 2</span>
+      <div class="desc">1px hairline frame — image outlines</div>
+    </div>
+    <div class="elevation-cell lvl-3">
+      <span class="label">Level 3</span>
+      <div class="desc">1px Jelly Mint outline — active tile</div>
+    </div>
+    <div class="elevation-cell lvl-4">
+      <span class="label">Level 4</span>
+      <div class="desc">1px Ultraviolet outline — promo state</div>
+    </div>
+    <div class="elevation-cell lvl-5">
+      <span class="label">Level 5</span>
+      <div class="desc">Subtle atmospheric 1px ring — stacked cards</div>
+    </div>
+    <div class="elevation-cell lvl-6">
+      <span class="label">Level 6</span>
+      <div class="desc">Inset mint underline — active tab signature</div>
+    </div>
+    <div class="elevation-cell lvl-7">
+      <span class="label">Level 7</span>
+      <div class="desc">Saturated Jelly Mint fill — loudest emphasis</div>
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>

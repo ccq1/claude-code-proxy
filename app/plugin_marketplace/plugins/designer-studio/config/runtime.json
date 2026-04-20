@@ -1,0 +1,5 @@
+{
+  "designLibraryRoot": "{{FRONTEND_DESIGN_LIBRARY_ROOT}}",
+  "frontendAssetsRoot": "{{FRONTEND_ASSETS_ROOT}}",
+  "preferredCssPack": "{{FRONTEND_CSS_PACK}}"
+}

@@ -3,6 +3,7 @@
   "ghidraReleaseTag": "Ghidra_12.0.4_build",
   "ghidraZipName": "ghidra_12.0.4_PUBLIC_20260303.zip",
   "ghidraZipSha256": "c3b458661d69e26e203d739c0c82d143cc8a4a29d9e571f099c2cf4bda62a120",
+  "ghidraInstallDir": "{{GHIDRA_INSTALL_DIR}}",
   "javaHome": "{{GHIDRA_JAVA_HOME}}",
   "workspaceRoot": "{{GHIDRA_WORKSPACE_ROOT}}"
 }

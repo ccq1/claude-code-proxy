@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Inspiration of Starbucks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #0f1815;
+  --surface-1: #1E3932;
+  --surface-2: #2b5148;
+  --surface-3: #33433d;
+  --green-starbucks: #006241;
+  --green-accent: #00754A;
+  --green-light: #d4e9e2;
+  --gold: #cba258;
+  --gold-light: #dfc49d;
+  --white-100: #ffffff;
+  --white-85: rgba(255,255,255,0.85);
+  --white-60: rgba(255,255,255,0.60);
+  --white-40: rgba(255,255,255,0.40);
+  --white-24: rgba(255,255,255,0.24);
+  --white-12: rgba(255,255,255,0.12);
+  --white-08: rgba(255,255,255,0.08);
+  --white-04: rgba(255,255,255,0.04);
+  --red: #c82014;
+  --yellow: #fbbc05;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  --nav-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  --frap-shadow: 0 0 6px rgba(0,0,0,0.6), 0 8px 12px rgba(0,0,0,0.4);
+  --font-primary: "Inter", "SoDoSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Lora", "Iowan Old Style", Georgia, serif;
+  --font-script: "Kalam", cursive;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-primary);
+  background: var(--canvas);
+  color: var(--white-100);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+.nav {
+  background: var(--surface-1);
+  box-shadow: var(--nav-shadow);
+  padding: 16px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--white-12);
+}
+.nav-brand { font-weight: 700; font-size: 18px; color: var(--green-light); }
+.nav-links { list-style: none; display: flex; gap: 32px; }
+.nav-links a { color: var(--white-100); text-decoration: none; font-size: 14px; font-weight: 600; }
+.nav-cta {
+  background: var(--green-accent); color: var(--white-100); border: 1px solid var(--green-accent);
+  border-radius: 50px; padding: 7px 16px; font-weight: 600;
+  font-family: inherit; font-size: 14px; cursor: pointer;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+.hero { padding: 96px 40px 72px; background: var(--canvas); }
+.hero h1 {
+  font-size: 50px; font-weight: 600; line-height: 1.2; letter-spacing: -0.016em;
+  max-width: 900px; margin: 0 auto 16px; text-align: center; color: var(--green-light);
+}
+.hero .sub { font-size: 19px; color: var(--white-60); max-width: 640px; margin: 0 auto 32px; text-align: center; }
+.hero .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 50px; padding: 7px 16px; letter-spacing: -0.01em;
+  transition: transform 0.2s ease; border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: var(--green-accent); color: var(--white-100); border-color: var(--green-accent); padding: 10px 20px; font-size: 16px; }
+.btn-outlined-green { background: transparent; color: var(--green-light); border-color: var(--green-light); padding: 10px 20px; font-size: 16px; }
+.btn-white { background: var(--white-100); color: var(--green-accent); border-color: var(--white-100); padding: 10px 20px; font-size: 16px; }
+.btn-outlined-white { background: transparent; color: var(--white-100); border-color: var(--white-24); padding: 10px 20px; font-size: 16px; }
+.btn-black-pill { background: var(--surface-2); color: var(--white-100); border: 1px solid var(--white-24); }
+.btn-outlined-dark-on-dark { background: transparent; color: var(--white-100); border-color: var(--white-24); }
+
+section { padding: 72px 0; border-top: 1px solid var(--white-12); background: var(--canvas); }
+section.alt { background: var(--surface-1); }
+section.house { background: var(--surface-1); }
+
+h2.section-title { font-size: 32px; font-weight: 600; margin-bottom: 8px; color: var(--green-light); letter-spacing: -0.016em; }
+.section-desc { font-size: 16px; color: var(--white-60); margin-bottom: 32px; max-width: 720px; }
+
+.palette-group { margin-bottom: 40px; }
+.palette-group h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--white-60); }
+
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 24px; border-radius: 12px; overflow: hidden; border: 1px solid var(--white-12); }
+.ladder-step { padding: 32px 16px; text-align: center; }
+.ladder-step .name { font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--white-60); margin-bottom: 4px; font-weight: 700; }
+.ladder-step .val { font-size: 14px; font-family: ui-monospace, monospace; color: var(--white-100); }
+
+.opacity-tiers { display: flex; flex-direction: column; gap: 12px; max-width: 600px; }
+.opacity-row { display: flex; align-items: center; gap: 16px; padding: 12px; background: var(--surface-1); border-radius: 12px; border: 1px solid var(--white-12); }
+.opacity-label { font-size: 12px; font-family: ui-monospace, monospace; color: var(--white-60); min-width: 80px; }
+
+.border-tiers { display: flex; flex-wrap: wrap; gap: 16px; }
+.border-tier { padding: 16px 24px; border-radius: 12px; background: var(--surface-1); font-size: 14px; color: var(--white-100); }
+
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.swatch { background: var(--surface-2); border-radius: 12px; overflow: hidden; border: 1px solid var(--white-08); }
+.swatch .fill { height: 80px; }
+.swatch .info { padding: 12px 16px; }
+.swatch .name { font-size: 14px; font-weight: 600; color: var(--white-100); }
+.swatch .hex { font-size: 12px; color: var(--white-60); font-family: ui-monospace, monospace; margin-top: 2px; }
+.swatch .role { font-size: 12px; color: var(--white-60); margin-top: 6px; line-height: 16px; }
+
+.type-row { display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 16px 0; border-bottom: 1px solid var(--white-12); align-items: baseline; }
+.type-label { font-size: 12px; color: var(--white-60); font-family: ui-monospace, monospace; line-height: 16px; }
+
+.btn-showcase { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.btn-item { display: flex; flex-direction: column; gap: 8px; }
+.btn-item .caption { font-size: 12px; color: var(--white-60); }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.card { background: var(--surface-1); border: 1px solid var(--white-08); border-radius: 12px; padding: 24px; box-shadow: var(--card-shadow); }
+.card h4 { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--white-100); }
+.card p { font-size: 14px; color: var(--white-60); }
+
+.status-card { background: var(--surface-2); color: var(--white-100); border-radius: 12px; padding: 24px; box-shadow: var(--card-shadow); position: relative; border: 1px solid var(--white-08); }
+.status-card::before { content: ""; display: block; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); margin-bottom: 20px; }
+.status-card h4 { font-size: 24px; font-weight: 600; margin-bottom: 12px; }
+.status-card ul { list-style: none; padding: 0; font-size: 14px; color: var(--white-85); }
+.status-card li { padding: 4px 0; }
+.status-card .caption { font-size: 12px; color: var(--white-60); margin-top: 12px; font-style: italic; }
+
+.frap-demo { position: relative; background: var(--surface-1); border: 1px solid var(--white-08); border-radius: 12px; padding: 60px 40px; min-height: 200px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--white-60); }
+.frap-button { position: absolute; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--green-accent); border: none; cursor: pointer; box-shadow: var(--frap-shadow); display: inline-flex; align-items: center; justify-content: center; color: var(--white-100); font-size: 22px; transition: transform 0.2s ease; }
+.frap-button:active { transform: scale(0.95); }
+
+.form-field { margin-bottom: 16px; max-width: 480px; }
+.form-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--white-100); letter-spacing: -0.01em; }
+.form-field input, .form-field textarea { width: 100%; background: var(--white-04); border: 1px solid var(--white-24); border-radius: 12px; padding: 12px; font-size: 16px; font-family: inherit; color: var(--white-100); }
+.form-field input::placeholder { color: var(--white-40); }
+.form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--green-light); }
+.form-field input.valid { background: rgba(212, 233, 226, 0.1); border-color: var(--green-light); }
+.form-field input.invalid { background: rgba(200, 32, 20, 0.12); border-color: var(--red); }
+.form-field textarea { min-height: 96px; resize: vertical; }
+
+.spacing-row { display: flex; flex-direction: column; gap: 8px; }
+.spacing-item { display: flex; align-items: center; gap: 16px; }
+.spacing-bar { background: var(--green-accent); height: 24px; border-radius: 4px; }
+.spacing-label { font-size: 12px; font-family: ui-monospace, monospace; color: var(--white-60); min-width: 160px; }
+
+.radius-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.radius-item { width: 120px; }
+.radius-box { width: 120px; height: 80px; background: var(--surface-2); border: 1px solid var(--white-24); margin-bottom: 8px; }
+.radius-label { font-size: 12px; color: var(--white-60); font-family: ui-monospace, monospace; }
+
+.elevation-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; background: var(--canvas); padding: 32px; border-radius: 12px; border: 1px solid var(--white-12); }
+.elevation-card { background: var(--surface-2); padding: 24px; border-radius: 12px; text-align: center; color: var(--white-100); }
+
+.gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.gift-tile { aspect-ratio: 1.586 / 1; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: var(--white-100); font-size: 14px; font-weight: 600; text-align: center; padding: 16px; }
+
+.breakpoint-table { width: 100%; border-collapse: collapse; }
+.breakpoint-table th, .breakpoint-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--white-12); font-size: 14px; color: var(--white-100); }
+.breakpoint-table th { font-weight: 700; color: var(--white-60); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.viewport-ladder { display: flex; gap: 12px; align-items: flex-end; margin-top: 24px; flex-wrap: wrap; }
+.viewport-box { background: var(--surface-2); border: 1px solid var(--white-12); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; color: var(--white-100); }
+.viewport-box .w { font-weight: 700; font-size: 14px; }
+.viewport-box .label { font-size: 11px; color: var(--white-60); }
+
+.chip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.chip-row-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface-1); border-radius: 12px; border: 1px solid var(--white-12); }
+.chip-swatch { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
+.chip-meta { flex: 1; }
+.chip-role { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--white-60); font-weight: 700; }
+.chip-name { font-size: 14px; font-weight: 600; color: var(--white-100); }
+.chip-hex { font-size: 12px; color: var(--white-60); font-family: ui-monospace, monospace; }
+
+.footer { background: var(--canvas); color: var(--white-85); text-align: center; padding: 24px; font-size: 14px; border-top: 1px solid var(--white-12); }
+
+.nav-left { display: flex; align-items: center; gap: 20px; }
+.nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.nav > .nav-left { justify-self: start; }
+.nav > .nav-links { justify-self: center; }
+.nav > :last-child { justify-self: end; }
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    
+    
+  </div>
+  <ul class="nav-links">
+    <li><a href="#palette">Colors</a></li>
+    <li><a href="#type">Typography</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#components">Components</a></li>
+  </ul>
+  <button class="nav-cta">Join now</button>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>Design System Inspiration of Starbucks</h1>
+    <p class="sub">Dark-mode catalog — brand greens unchanged, canvas deepens to near-black forest; surfaces climb through House Green and Uplift.</p>
+    <div class="cta-row">
+      <button class="btn btn-primary">Join Starbucks Rewards</button>
+      <button class="btn btn-outlined-green">See the spring menu</button>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="palette">
+  <div class="container">
+    <h2 class="section-title">1. Color Palette</h2>
+    <p class="section-desc">The brand's own House Green becomes a surface in dark mode. Four-step brightness ladder from Canvas → Surface 3.</p>
+
+    <div class="palette-group"><h3>Brightness-Step Surface Ladder</h3>
+      <div class="ladder">
+        <div class="ladder-step" style="background:#0f1815"><div class="name">Canvas</div><div class="val">#0f1815</div></div>
+        <div class="ladder-step" style="background:#1E3932"><div class="name">Surface 1</div><div class="val">#1E3932</div></div>
+        <div class="ladder-step" style="background:#2b5148"><div class="name">Surface 2</div><div class="val">#2b5148</div></div>
+        <div class="ladder-step" style="background:#33433d"><div class="name">Surface 3</div><div class="val">#33433d</div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Brand Greens (Unchanged)</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:#006241"></div><div class="info"><div class="name">Starbucks Green</div><div class="hex">#006241</div><div class="role">Unchanged brand signal</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#00754A"></div><div class="info"><div class="name">Green Accent</div><div class="hex">#00754A</div><div class="role">Primary CTA + Frap (unchanged)</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#d4e9e2"></div><div class="info"><div class="name">Green Light</div><div class="hex">#d4e9e2</div><div class="role">Brand heading on dark — pops brightly</div></div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Gold (Rewards Ceremony Only)</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="fill" style="background:#cba258"></div><div class="info"><div class="name">Gold</div><div class="hex">#cba258</div><div class="role">Unchanged — reads brighter on dark</div></div></div>
+        <div class="swatch"><div class="fill" style="background:#dfc49d"></div><div class="info"><div class="name">Gold Light</div><div class="hex">#dfc49d</div><div class="role">Soft status wash</div></div></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Text Opacity Tiers</h3>
+      <div class="opacity-tiers">
+        <div class="opacity-row"><span class="opacity-label">100%</span><span style="color:rgba(255,255,255,1)">Heading text · #ffffff</span></div>
+        <div class="opacity-row"><span class="opacity-label">85%</span><span style="color:rgba(255,255,255,0.85)">Body text · rgba(255,255,255,0.85)</span></div>
+        <div class="opacity-row"><span class="opacity-label">60%</span><span style="color:rgba(255,255,255,0.60)">Secondary / metadata · rgba(255,255,255,0.60)</span></div>
+        <div class="opacity-row"><span class="opacity-label">40%</span><span style="color:rgba(255,255,255,0.40)">Disabled / placeholder · rgba(255,255,255,0.40)</span></div>
+      </div>
+    </div>
+
+    <div class="palette-group"><h3>Translucent Borders</h3>
+      <div class="border-tiers">
+        <div class="border-tier" style="border:1px solid rgba(255,255,255,0.24)">24% — focus, outlined pill</div>
+        <div class="border-tier" style="border:1px solid rgba(255,255,255,0.12)">12% — default hairline</div>
+        <div class="border-tier" style="border:1px solid rgba(255,255,255,0.08)">8% — card accent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="type">
+  <div class="container">
+    <h2 class="section-title">2. Typography Scale</h2>
+    <p class="section-desc">Identical sizes and weights. SoDoSans with <code>-0.01em</code> tracking. Brand-green headings shift to Green Light for dark contrast.</p>
+
+    <div class="type-row"><div class="type-label">Display<br>50px / 600 / 1.2</div><div style="font-size:50px;font-weight:600;line-height:1.2;letter-spacing:-0.016em;color:var(--green-light)">Free coffee is just the beginning</div></div>
+    <div class="type-row"><div class="type-label">Jumbo<br>36px / 600</div><div style="font-size:36px;font-weight:600;line-height:1.2;letter-spacing:-0.016em;color:var(--green-light)">Good afternoon</div></div>
+    <div class="type-row"><div class="type-label">H1<br>24 / 600 · Green Light</div><div style="font-size:24px;font-weight:600;line-height:36px;color:var(--green-light)">How it works</div></div>
+    <div class="type-row"><div class="type-label">H2<br>24 / 400 · White</div><div style="font-size:24px;font-weight:400;line-height:36px">Get rewarded for your routine</div></div>
+    <div class="type-row"><div class="type-label">Body Large<br>19 / 400 / 1.75</div><div style="font-size:19px;font-weight:400;line-height:33.25px;color:var(--white-85)">Join Starbucks Rewards to earn Stars for free food and drinks.</div></div>
+    <div class="type-row"><div class="type-label">Body<br>16 / 400 / 24</div><div style="font-size:16px;font-weight:400;line-height:24px;color:var(--white-85)">Default body copy on dark surface.</div></div>
+    <div class="type-row"><div class="type-label">Small<br>14 / 600</div><div style="font-size:14px;font-weight:600;color:var(--white-85)">Button label weight</div></div>
+    <div class="type-row"><div class="type-label">Rewards Serif<br>Lora</div><div style="font-family:var(--font-serif);font-size:28px;font-weight:500;color:var(--gold)">Earn stars. Enjoy perks.</div></div>
+    <div class="type-row"><div class="type-label">Careers Script<br>Kalam</div><div style="font-family:var(--font-script);font-size:28px;font-weight:700;color:var(--white-100)">Sarah</div></div>
+  </div>
+</section>
+
+<section class="alt" id="buttons">
+  <div class="container">
+    <h2 class="section-title">3. Button Variants</h2>
+    <p class="section-desc">Green Accent stays the primary CTA — pops against dark canvas. Black pill becomes Surface 2 with translucent-white border. Outlined uses white-24 border.</p>
+    <div class="btn-showcase">
+      <div class="btn-item"><button class="btn btn-primary">Explore our afternoon menu</button><span class="caption">Primary · Green Accent (unchanged)</span></div>
+      <div class="btn-item"><button class="btn btn-outlined-green">Give them a try</button><span class="caption">Outlined · Green Light border</span></div>
+      <div class="btn-item"><button class="btn btn-white">See the spring menu</button><span class="caption">White-on-dark · inverted CTA</span></div>
+      <div class="btn-item"><button class="btn btn-outlined-white">Learn more</button><span class="caption">Outlined · white-24 border</span></div>
+      <div class="btn-item"><button class="btn btn-black-pill">Sign in</button><span class="caption">Surface 2 pill · dark-mode signin</span></div>
+    </div>
+
+    <h3 style="margin-top:48px;margin-bottom:16px;font-size:20px;font-weight:600;color:#fff">Frap — Floating Circular Order Button</h3>
+    <div class="frap-demo">
+      Frap sits bottom-right with dark-mode shadow
+      <button class="frap-button" aria-label="Start an order">🛒</button>
+    </div>
+  </div>
+</section>
+
+<section id="components">
+  <div class="container">
+    <h2 class="section-title">4. Signature Components</h2>
+    <p class="section-desc">Content cards, Rewards status panels, gift-card tiles — dark-adapted.</p>
+
+    <h3 style="margin:24px 0 12px;font-size:20px;font-weight:600;color:#fff">Content Cards</h3>
+    <div class="card-grid">
+      <div class="card"><h4>How it works</h4><p>Surface 1 background · white-08 border · 12px radius · dark-mode shadow.</p></div>
+      <div class="card"><h4>Your afternoon reset</h4><p>Same card baseline for feature modules on the dark canvas.</p></div>
+      <div class="card"><h4>Partnership</h4><p>Same card spec. Gold accent used here would be fine — gold pops brighter on dark.</p></div>
+    </div>
+
+    <h3 style="margin:40px 0 12px;font-size:20px;font-weight:600;color:#fff">Rewards Status Cards</h3>
+    <div class="card-grid">
+      <div class="status-card"><h4>Green Level</h4><ul><li>★ Earn Stars on every order</li><li>★ Personalized offers</li><li>★ Birthday reward</li></ul><p class="caption">As you earn more Stars, you unlock new benefits.</p></div>
+      <div class="status-card"><h4>Gold Level</h4><ul><li>★ Free refills</li><li>★ Monthly Double-Star days</li><li>★ Personalized rewards</li></ul><p class="caption">Reach Gold by earning 450 Stars in 12 months.</p></div>
+      <div class="status-card"><h4>Mission</h4><ul><li>★ Exclusive gifts</li><li>★ Double Star days</li><li>★ Free drink on your birthday</li></ul><p class="caption">Extra perks once you reach mission status.</p></div>
+    </div>
+
+    <h3 style="margin:40px 0 12px;font-size:20px;font-weight:600;color:#fff">Gift Card Tiles</h3>
+    <div class="gift-grid">
+      <div class="gift-tile" style="background:linear-gradient(135deg,#f4c590,#e89a5e);color:var(--surface-1)">Happy Birthday</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#cba258,#a87b3e)">Thank You</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#006241,#00754A)">Celebrate</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#c4a679,#8b6e4a)">Mother's Day</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#d4e9e2,#80b5a2);color:var(--surface-1)">Spring</div>
+      <div class="gift-tile" style="background:linear-gradient(135deg,#edebe9,#c2bfb9);color:var(--surface-1)">Anytime</div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">5. Form Elements</h2>
+    <p class="section-desc">White-04 input fill · white-24 border · Green Light focus border. Valid / invalid use translucent tint versions.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:800px">
+      <div>
+        <div class="form-field"><label>Email</label><input type="email" class="valid" value="sarah@example.com"></div>
+        <div class="form-field"><label>Password</label><input type="password" value="••••••••"></div>
+        <div class="form-field"><label>Confirm Password</label><input type="password" class="invalid" value="mismatch"></div>
+      </div>
+      <div>
+        <div class="form-field"><label>Message</label><textarea placeholder="Your feedback..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%">Submit</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">6. Spacing Scale</h2>
+    <p class="section-desc">Rem-based (<code>1rem = 10px</code>). <code>--space-3</code> (16px) is the universal rhythm constant.</p>
+    <div class="spacing-row">
+      <div class="spacing-item"><span class="spacing-label">space-1 · 4px</span><div class="spacing-bar" style="width:4px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-2 · 8px</span><div class="spacing-bar" style="width:8px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-3 · 16px ★</span><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-4 · 24px</span><div class="spacing-bar" style="width:24px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-5 · 32px</span><div class="spacing-bar" style="width:32px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-6 · 40px</span><div class="spacing-bar" style="width:40px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-7 · 48px</span><div class="spacing-bar" style="width:48px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-8 · 56px</span><div class="spacing-bar" style="width:56px"></div></div>
+      <div class="spacing-item"><span class="spacing-label">space-9 · 64px</span><div class="spacing-bar" style="width:64px"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">7. Border Radius &amp; Depth</h2>
+    <p class="section-desc">Same scale. Shadows bumped to 40–60% alpha. Brightness ladder is primary elevation.</p>
+    <div class="radius-row">
+      <div class="radius-item"><div class="radius-box" style="border-radius:12px"></div><div class="radius-label">12px · cards</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:12px 12px 0 0"></div><div class="radius-label">12px top · feedback</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:50px;height:48px"></div><div class="radius-label">50px · pills</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:50%;width:80px;height:80px"></div><div class="radius-label">50% · Frap, icons</div></div>
+    </div>
+
+    <h3 style="margin-top:32px;margin-bottom:16px;font-size:20px;font-weight:600;color:#fff">Elevation Tiers</h3>
+    <div class="elevation-row">
+      <div class="elevation-card" style="box-shadow:0 2px 8px rgba(0,0,0,0.4)"><strong>Card</strong><div style="font-size:12px;color:var(--white-60);margin-top:8px">2-layer dark shadow</div></div>
+      <div class="elevation-card" style="box-shadow:0 2px 8px rgba(0,0,0,0.4)"><strong>Nav</strong><div style="font-size:12px;color:var(--white-60);margin-top:8px">Border + lift</div></div>
+      <div class="elevation-card" style="box-shadow:0 0 6px rgba(0,0,0,0.6), 0 8px 12px rgba(0,0,0,0.4)"><strong>Frap</strong><div style="font-size:12px;color:var(--white-60);margin-top:8px">Base + ambient stack</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">8. Responsive Behavior</h2>
+    <p class="section-desc">Identical breakpoint behavior. Progressive nav heights.</p>
+    <table class="breakpoint-table">
+      <thead><tr><th>Name</th><th>Width</th><th>Key Changes</th></tr></thead>
+      <tbody>
+        <tr><td>xs</td><td>&lt; 480px</td><td>Nav 64px · hamburger · 2-up gift grid</td></tr>
+        <tr><td>Mobile</td><td>480–767px</td><td>Nav 72px</td></tr>
+        <tr><td>Tablet</td><td>768–1023px</td><td>Nav 83px · 3-up gift</td></tr>
+        <tr><td>Desktop</td><td>1024–1439px</td><td>Nav 99px · 4-up gift</td></tr>
+        <tr><td>XLarge</td><td>1440px+</td><td>Content caps · 5-up gift</td></tr>
+      </tbody>
+    </table>
+
+    <div class="viewport-ladder">
+      <div class="viewport-box" style="width:60px;height:80px"><div class="w">480</div><div class="label">xs</div></div>
+      <div class="viewport-box" style="width:96px;height:110px"><div class="w">768</div><div class="label">tablet</div></div>
+      <div class="viewport-box" style="width:140px;height:140px"><div class="w">1024</div><div class="label">desktop</div></div>
+      <div class="viewport-box" style="width:220px;height:175px"><div class="w">1440</div><div class="label">xlarge</div></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px;font-size:20px;font-weight:600;color:#fff">Touch Targets</h3>
+    <p style="font-size:14px;color:var(--white-60);margin-bottom:24px">Pill buttons visually expanded to meet 44px WCAG AAA on mobile. Frap at 56px + 0.8rem tap offset clears minimum comfortably.</p>
+
+    <h3 style="margin-bottom:12px;font-size:20px;font-weight:600;color:#fff">Collapsing Strategy</h3>
+    <ul style="padding-left:20px;font-size:14px;color:var(--white-60);line-height:24px">
+      <li><strong style="color:#fff">Nav:</strong> 64 → 72 → 83 → 99px · hamburger below tablet</li>
+      <li><strong style="color:#fff">Hero:</strong> 40/60 split → stacked mobile</li>
+      <li><strong style="color:#fff">Gift grid:</strong> 5 → 4 → 3 → 2 → 1</li>
+      <li><strong style="color:#fff">Gutter:</strong> 16 → 24 → 40px</li>
+      <li><strong style="color:#fff">Status panels:</strong> 3-up → single column mobile</li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">9. Agent Prompt Guide — Quick Color Reference</h2>
+    <p class="section-desc">Dark-mode canonical names. Brand greens unchanged; canvas and surfaces replace cream tokens.</p>
+    <div class="chip-grid">
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#0f1815;border:1px solid rgba(255,255,255,0.12)"></div><div class="chip-meta"><div class="chip-role">Canvas</div><div class="chip-name">Deep Forest</div><div class="chip-hex">#0f1815</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#1E3932"></div><div class="chip-meta"><div class="chip-role">Card</div><div class="chip-name">Surface 1 · House Green</div><div class="chip-hex">#1E3932</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#2b5148"></div><div class="chip-meta"><div class="chip-role">Elevated</div><div class="chip-name">Surface 2 · Uplift</div><div class="chip-hex">#2b5148</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#33433d"></div><div class="chip-meta"><div class="chip-role">Accent Surface</div><div class="chip-name">Surface 3 · Rewards</div><div class="chip-hex">#33433d</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#00754A"></div><div class="chip-meta"><div class="chip-role">Primary CTA</div><div class="chip-name">Green Accent</div><div class="chip-hex">#00754A</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#d4e9e2"></div><div class="chip-meta"><div class="chip-role">Brand Heading</div><div class="chip-name">Green Light</div><div class="chip-hex">#d4e9e2</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#ffffff"></div><div class="chip-meta"><div class="chip-role">Heading</div><div class="chip-name">Pure White</div><div class="chip-hex">#ffffff</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:rgba(255,255,255,0.85)"></div><div class="chip-meta"><div class="chip-role">Body</div><div class="chip-name">White 85</div><div class="chip-hex">rgba(255,255,255,0.85)</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:rgba(255,255,255,0.60)"></div><div class="chip-meta"><div class="chip-role">Secondary</div><div class="chip-name">White 60</div><div class="chip-hex">rgba(255,255,255,0.60)</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:rgba(255,255,255,0.12)"></div><div class="chip-meta"><div class="chip-role">Border</div><div class="chip-name">White 12</div><div class="chip-hex">rgba(255,255,255,0.12)</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#cba258"></div><div class="chip-meta"><div class="chip-role">Rewards Ceremony</div><div class="chip-name">Gold</div><div class="chip-hex">#cba258</div></div></div>
+      <div class="chip-row-item"><div class="chip-swatch" style="background:#c82014"></div><div class="chip-meta"><div class="chip-role">Destructive</div><div class="chip-name">Red</div><div class="chip-hex">#c82014</div></div></div>
+    </div>
+    <div style="margin-top:24px;padding:16px;background:var(--surface-1);border:1px solid var(--white-12);border-radius:12px;font-size:14px;color:var(--white-60);line-height:22px">
+      <strong style="color:#fff">Note.</strong> Use the brightness-step ladder (Canvas → Surface 1 → Surface 2 → Surface 3) as primary elevation. Green Accent unchanged for CTAs. Shift brand-green headings to Green Light for dark contrast.
+    </div>
+  </div>
+</section>
+
+
+
+</body>
+</html>
