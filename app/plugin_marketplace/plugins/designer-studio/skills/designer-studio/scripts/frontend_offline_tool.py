@@ -46,12 +46,27 @@ def resolve_layout() -> Layout:
 
 def load_runtime(layout: Layout) -> dict:
     runtime_path = layout.plugin_root / "config" / "runtime.json"
-    if not runtime_path.exists():
-        return {}
-    try:
-        return json.loads(runtime_path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+    runtime: dict = {}
+    if runtime_path.exists():
+        try:
+            runtime = json.loads(runtime_path.read_text(encoding="utf-8"))
+        except Exception:
+            runtime = {}
+
+    path_env_to_runtime_key = {
+        "FRONTEND_DESIGN_LIBRARY_ROOT": "designLibraryRoot",
+        "FRONTEND_ASSETS_ROOT": "frontendAssetsRoot",
+    }
+    for env_key, runtime_key in path_env_to_runtime_key.items():
+        value = configured_path(os.environ.get(env_key))
+        if value is not None:
+            runtime[runtime_key] = str(value)
+
+    css_pack_value = os.environ.get("FRONTEND_CSS_PACK", "").strip()
+    if css_pack_value and not css_pack_value.startswith("{{"):
+        runtime["preferredCssPack"] = css_pack_value
+
+    return runtime
 
 
 def configured_path(value: str | None) -> Path | None:

@@ -6,6 +6,7 @@
     "name": "PandoraQ Labs"
   },
   "skills": ["./skills/designer-studio"],
+  "mcpServers": "./.mcp.json",
   "settingsSchema": {
     "title": "离线前端能力包配置",
     "description": "配置内网素材目录、离线设计样本库和默认 CSS 框架偏好，便于 Agent 在无公网依赖时稳定完成前端选型。",

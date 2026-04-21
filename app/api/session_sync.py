@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import date, timedelta
 from typing import Any, List, Optional
 
@@ -20,6 +21,22 @@ from app.auth import auth_store
 router = APIRouter(prefix="/sync", tags=["session-sync"])
 
 
+def _build_project_key(workspace_path: str) -> str:
+    return re.sub(r"^-", "-", re.sub(r"-+", "-", re.sub(r"[^a-zA-Z0-9]+", "-", workspace_path)))
+
+
+def _normalize_workspace_metadata(
+    workspace_path: Optional[str],
+    project_key: Optional[str],
+) -> tuple[Optional[str], Optional[str]]:
+    normalized_workspace_path = (workspace_path or "").strip() or None
+    if normalized_workspace_path:
+        normalized_project_key = _build_project_key(normalized_workspace_path)
+        return normalized_workspace_path, normalized_project_key
+    normalized_project_key = (project_key or "").strip() or None
+    return None, normalized_project_key
+
+
 def _extract_workspace_metadata(payload_json: str) -> dict:
     if not payload_json:
         return {}
@@ -28,9 +45,14 @@ def _extract_workspace_metadata(payload_json: str) -> dict:
     except Exception:
         return {}
 
+    workspace_path, project_key = _normalize_workspace_metadata(
+        payload.get("workspace_path"),
+        payload.get("project_key"),
+    )
+
     return {
-        "workspace_path": (payload.get("workspace_path") or None),
-        "project_key": (payload.get("project_key") or None),
+        "workspace_path": workspace_path,
+        "project_key": project_key,
     }
 
 
@@ -179,6 +201,10 @@ async def put_cloud_session(session_id: str, payload: SessionSyncPayload) -> dic
         raise HTTPException(status_code=400, detail="account_id is required")
 
     normalized_title = (payload.title or "").strip() or session_id
+    normalized_workspace_path, normalized_project_key = _normalize_workspace_metadata(
+        payload.workspace_path,
+        payload.project_key,
+    )
     serialized_payload = json.dumps(
         {
             "session_id": session_id,
@@ -187,8 +213,8 @@ async def put_cloud_session(session_id: str, payload: SessionSyncPayload) -> dic
             "last_modified": payload.last_modified,
             "last_user_message_at": payload.last_user_message_at,
             "file_size": payload.file_size,
-            "workspace_path": (payload.workspace_path or "").strip() or None,
-            "project_key": (payload.project_key or "").strip() or None,
+            "workspace_path": normalized_workspace_path,
+            "project_key": normalized_project_key,
             "messages": payload.messages,
         },
         ensure_ascii=False,

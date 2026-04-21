@@ -62,3 +62,7 @@ Thumbs.db
 
 logs
 tests
+
+
+
+data/auth.db

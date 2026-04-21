@@ -27,23 +27,27 @@ argument-hint: "目标项目路径、行业类型、风格偏好（可选）"
 说明：
 - Agent 只允许读取 `references/design/<slug>/DESIGN.md` 作为风格规范来源。
 - `preview.html` 和 `preview-dark.html` 仅供人类手动预览，不允许作为 Agent 的读取输入。
+- `scripts/frontend_offline_tool.py` 是插件内部实现细节；默认不要直接 shell 执行它。
+- 不要把相对路径 `scripts/frontend_offline_tool.py` 自行展开成绝对路径。
+- 若需要确认当前插件真实根目录，先调用 MCP 动作 `server_info`，不要猜测仓库路径。
 
-优先通过工具脚本读取 references，不要凭记忆描述样式：
-```bash
-python scripts/frontend_offline_tool.py list-presets
-python scripts/frontend_offline_tool.py inspect-design cursor
-```
+优先通过 Designer Studio 自带 MCP 动作读取 references，不要凭记忆描述样式，也不要自己拼脚本绝对路径：
+- `list_presets`
+- `search_design`
+- `inspect_design`
+- `list_frameworks`
+- `install_framework`
+- `install_tailwind`
+- `inventory_assets`
+- `server_info`
 
 ## 生产快速路径（默认）
 
 默认先完成“框架接入 + 样式选型”，再进入页面实现：
 
-```bash
-python scripts/frontend_offline_tool.py install-tailwind ./your-project --filename tailwind.min.css
-python scripts/frontend_offline_tool.py install-framework ./your-project --framework tailwindcss
-python scripts/frontend_offline_tool.py search-design "dashboard b2b"
-python scripts/frontend_offline_tool.py inspect-design cursor
-```
+1. 调用 `install_tailwind` 或 `install_framework` 完成离线框架接入。
+2. 调用 `search_design` 找候选风格。
+3. 调用 `inspect_design` 读取选中风格的 `DESIGN.md`。
 
 规则：
 - 先给可运行的离线框架落地路径，再给风格建议。
@@ -58,10 +62,7 @@ python scripts/frontend_offline_tool.py inspect-design cursor
 - 把 `tailwind.min.css` 复制到项目静态资源目录（如 `public/`、`assets/`）
 - 输出引用方式（HTML `<link>` 或构建链路引入）
 
-如用户提供资产目录，再做素材盘点：
-```bash
-python scripts/frontend_offline_tool.py inventory-assets --root /path/to/assets
-```
+如用户提供资产目录，再调用 `inventory_assets` 做素材盘点。
 
 ## 大目录策略
 
@@ -76,15 +77,15 @@ python scripts/frontend_offline_tool.py inventory-assets --root /path/to/assets
    - 例如：管理后台、营销落地页、设置页、工作台。
 
 2. 先完成离线框架接入。
-   - 执行 `install-tailwind`，确认输出文件存在。
+   - 调用 `install_tailwind` 或 `install_framework`，确认输出文件存在。
 
 3. 再做设计样式选型。
-   - 执行 `search-design` / `inspect-design`。
+   - 调用 `search_design` / `inspect_design`。
    - 引用 `DESIGN.md` 中的颜色、字体、间距和组件规则。
    - 不读取 `preview.html` / `preview-dark.html`；它们只给人类预览。
 
 4. 必要时补充本地资产盘点。
-   - 执行 `inventory-assets`，把字体/图标/图片纳入实现方案。
+   - 调用 `inventory_assets`，把字体/图标/图片纳入实现方案。
 
 5. 输出可执行实现建议。
    - 必须包含实际文件路径与可落地步骤。
@@ -118,4 +119,6 @@ References Used
 - 不默认建议公网 CDN（除非用户明确要求）。
 - 不把 `DESIGN.md` 当作可直接运行代码；它是风格规范来源。
 - 不引用不存在的样式文件或路径。
+- 不要自行构造 `/root/.../designer-studio/.../frontend_offline_tool.py` 之类的绝对脚本路径。
+- 默认只使用本插件的 MCP 动作；不要直接 shell 调用插件内部脚本。
 - 若本轮没有使用 references，必须明确说明“未使用内置 references”。
